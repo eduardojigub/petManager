@@ -1,14 +1,14 @@
 import React from 'react';
-import { Text } from 'react-native';
-
-import { Container } from './styles';
-
+import { View, Text } from 'react-native';
+import ClearCacheButton from '../../components/ClearCacheButton'; 
 
 export default function SettingsScreen() {
   return (
-    <Container>
-      <Text>Settings Screen</Text>
-      <Text>Here users will be able to adjust their preferences and settings.</Text>
-    </Container>
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, marginBottom: 20 }}>Configurações</Text>
+      
+      {/* Adiciona o botão de limpar cache */}
+      <ClearCacheButton />
+    </View>
   );
 }

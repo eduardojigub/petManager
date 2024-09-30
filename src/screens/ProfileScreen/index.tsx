@@ -33,24 +33,6 @@ export default function ProfileScreen({ navigation }) {
 
   const { name, breed, age, weight, image } = dogProfile;
 
-  // Função para limpar o cache
-  const clearCache = async () => {
-    try {
-      await AsyncStorage.clear();
-      setDogProfile({
-        name: '',
-        breed: '',
-        age: '',
-        weight: '',
-        image: null,
-      });
-      Alert.alert('Cache limpo', 'Todos os dados foram removidos.');
-    } catch (error) {
-      console.error('Failed to clear the cache:', error);
-      Alert.alert('Erro', 'Não foi possível limpar o cache.');
-    }
-  };
-
   return (
     <Container>
       {name || breed || age || weight ? (
@@ -77,13 +59,6 @@ export default function ProfileScreen({ navigation }) {
           />
         </View>
       )}
-
-      {/* Botão de limpar cache */}
-      <Button
-        title="Limpar Cache"
-        color="red"
-        onPress={clearCache}
-      />
     </Container>
   );
 }
