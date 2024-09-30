@@ -1,7 +1,8 @@
 import React from 'react';
-import { Alert, Button, View } from 'react-native';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Updates from 'expo-updates';
+import { ButtonContainer, ButtonText } from './styles'; // Importando os estilos
 
 export default function ClearCacheButton() {
   const handleClearCache = async () => {
@@ -23,11 +24,8 @@ export default function ClearCacheButton() {
   };
 
   return (
-    <View style={{ padding: 10 }}>
-      <Button
-        title="Limpar Cache e Recarregar"
-        onPress={handleClearCache}
-      />
-    </View>
+    <ButtonContainer onPress={handleClearCache}>
+      <ButtonText>Limpar Cache e Recarregar</ButtonText>
+    </ButtonContainer>
   );
 }
