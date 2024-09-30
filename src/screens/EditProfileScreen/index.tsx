@@ -32,7 +32,6 @@ export default function EditProfileScreen({ navigation, route }) {
 // Verificar se a seleção não foi cancelada e se há assets disponíveis
 if (!result.canceled && result.assets && result.assets.length > 0) {
   const selectedImageUri = result.assets[0].uri; // Acessa a URI correta
-  console.log("Image URI:", selectedImageUri); // Exibe a URI no console para verificar
   setImage(selectedImageUri); // Armazena a URI da imagem no estado
 } else {
   console.log("Image selection was canceled or no assets available");

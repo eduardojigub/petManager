@@ -1,10 +1,13 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaView, StyleSheet } from 'react-native'; // Import SafeAreaView
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './src/screens/ProfileScreen';
-import EditProfileScreen from './src/screens/EditProfileScreen'; // New Edit Profile Screen
-import HealthScreen from './src/screens/HealthScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen'; 
+import HealthRecordsScreen from './src/screens/HealthRecordsScreen'; 
+import HealthRecordDetailsScreen from './src/screens/HealthRecordsDetailScreen';
+import AddHealthRecordScreen from './src/screens/AddHealthRecord';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import { Text } from 'react-native';
@@ -30,33 +33,55 @@ function ProfileStack() {
   );
 }
 
+// Stack Navigator for Health Records and Details
+function HealthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="HealthRecords"
+        component={HealthRecordsScreen}
+        options={{ title: 'Health Records' }}
+      />
+      <Stack.Screen
+        name="HealthRecordDetails"
+        component={HealthRecordDetailsScreen}
+        options={{ title: 'Record Details' }}
+      />
+      <Stack.Screen
+        name="AddHealthRecord"
+        component={AddHealthRecordScreen}
+        options={{ title: 'Add Health Record' }} // Add the screen here
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
   return (
     <NavigationContainer>
+       <SafeAreaView style={styles.safeArea}>
       <Tab.Navigator
-        initialRouteName="ProfileTab" // Renamed from "Profile" to avoid conflict
+        initialRouteName="ProfileTab"
         screenOptions={{
-          tabBarActiveTintColor: '#4caf50', // Active tab color
-          tabBarInactiveTintColor: '#888',  // Inactive tab color
-          headerShown: false, // Remove header from the entire tab navigator
+          tabBarActiveTintColor: '#4caf50',
+          tabBarInactiveTintColor: '#888',
+          headerShown: false,
         }}
       >
         <Tab.Screen
-          name="ProfileTab"  // Renamed to "ProfileTab"
-          component={ProfileStack} // Use ProfileStack instead of just ProfileScreen
+          name="ProfileTab"
+          component={ProfileStack}
           options={{
             tabBarLabel: 'Profile',
-            tabBarIcon: () => <Text>🐶</Text>, // Icon placeholder
-            headerShown: false, // Remove header from the entire tab navigator
+            tabBarIcon: () => <Text>🐶</Text>,
           }}
         />
         <Tab.Screen
           name="Health"
-          component={HealthScreen}
+          component={HealthStack} // Use HealthStack to navigate within Health
           options={{
             tabBarLabel: 'Health',
-            tabBarIcon: () => <Text>💉</Text>, // Icon placeholder
-            headerShown: false, // Remove header from the entire tab navigator
+            tabBarIcon: () => <Text>💉</Text>,
           }}
         />
         <Tab.Screen
@@ -64,8 +89,7 @@ export default function App() {
           component={ScheduleScreen}
           options={{
             tabBarLabel: 'Schedule',
-            tabBarIcon: () => <Text>📅</Text>, // Icon placeholder
-            headerShown: false, // Remove header from the entire tab navigator
+            tabBarIcon: () => <Text>📅</Text>,
           }}
         />
         <Tab.Screen
@@ -73,11 +97,18 @@ export default function App() {
           component={SettingsScreen}
           options={{
             tabBarLabel: 'Settings',
-            tabBarIcon: () => <Text>⚙️</Text>, // Icon placeholder
-            headerShown: false, // Remove header from the entire tab navigator
+            tabBarIcon: () => <Text>⚙️</Text>,
           }}
         />
       </Tab.Navigator>
+      </SafeAreaView>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#ffffff', // Background color for the safe area
+  },
+});
