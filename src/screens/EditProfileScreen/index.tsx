@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Image, Button, Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker'; // Importing ImagePicker for photo selection
+import { Image, Button, Alert, View, Text } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Container, Label, Input, SaveButton, ButtonText } from "./styles";
 
-export default function EditProfileScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [breed, setBreed] = useState('');
-  const [age, setAge] = useState('');
-  const [weight, setWeight] = useState('');
-  const [image, setImage] = useState(null); // State to store the image
+export default function EditProfileScreen({ navigation, route }) {
+  const { name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
+
+  const [name, setName] = useState(initialName || '');
+  const [breed, setBreed] = useState(initialBreed || '');
+  const [age, setAge] = useState(initialAge || '');
+  const [weight, setWeight] = useState(initialWeight || '');
+  const [image, setImage] = useState(initialImage || null);
 
   // Function to select an image from the gallery
   const pickImage = async () => {
@@ -25,15 +28,30 @@ export default function EditProfileScreen({ navigation }) {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.uri);
-    }
-  };
 
-  const handleSave = () => {
-    console.log('Saving Profile:', { name, breed, age, weight, image });
-    // Logic to save data (to local storage, API, etc.)
-    navigation.goBack(); // Navigate back to the ProfileScreen
+// Verificar se a seleção não foi cancelada e se há assets disponíveis
+if (!result.canceled && result.assets && result.assets.length > 0) {
+  const selectedImageUri = result.assets[0].uri; // Acessa a URI correta
+  console.log("Image URI:", selectedImageUri); // Exibe a URI no console para verificar
+  setImage(selectedImageUri); // Armazena a URI da imagem no estado
+} else {
+  console.log("Image selection was canceled or no assets available");
+}
+};
+
+  const handleSave = async () => {
+    // Profile data to be saved
+    const profile = { name, breed, age, weight, image };
+
+    try {
+      // Save profile to AsyncStorage
+      await AsyncStorage.setItem('dogProfile', JSON.stringify(profile));
+
+      // Navigate back to ProfileScreen with updated data
+      navigation.navigate('Profile');
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    }
   };
 
   return (
@@ -54,7 +72,15 @@ export default function EditProfileScreen({ navigation }) {
 
       <Button title="Add a Photo" onPress={pickImage} />
 
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 20 }} />}
+      {/* Preview the uploaded image */}
+      {image ? (
+        <View>
+          <Text>Preview:</Text>
+          <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 20 }} />
+        </View>
+      ) : (
+        <Text>No image selected</Text>
+      )}
 
       <SaveButton onPress={handleSave}>
         <ButtonText>Save Profile</ButtonText>
