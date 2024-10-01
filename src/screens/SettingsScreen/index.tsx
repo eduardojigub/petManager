@@ -1,6 +1,6 @@
 import React from 'react';
 import ClearCacheButton from '../../components/ClearCacheButton/ClearCacheButton';
-import { Container, Title, Button, ButtonText } from './styles'; // Importando os componentes estilizados
+import { Container, Title, Button, ButtonText } from './styles'; // Importing the styled components
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
@@ -8,49 +8,50 @@ export default function SettingsScreen() {
   const navigation = useNavigation();
 
   const handleLogout = () => {
-    // Aqui você pode adicionar qualquer lógica adicional de logout (ex: remover dados de sessão)
+    // Here you can add any additional logout logic (e.g. removing session data)
     
-    // Redefine o fluxo de navegação e volta para a tela de login
+    // Reset navigation flow and return to the login screen
     navigation.reset({
       index: 0,
-      routes: [{ name: 'AuthStack' }], // Navega para a stack de autenticação
+      routes: [{ name: 'AuthStack' }], // Navigate to the authentication stack
     });
   };
+
   return (
     <Container>
-      <Title>Configurações</Title>
+      <Title>Settings</Title>
 
-      {/* Botão para editar o perfil */}
-      <Button onPress={() => alert('Navegar para edição de perfil')}>
-        <ButtonText>Editar Perfil</ButtonText>
+      {/* Button to edit the profile */}
+      <Button onPress={() => alert('Navigate to edit profile')}>
+        <ButtonText>Edit Profile</ButtonText>
       </Button>
 
-      {/* Gerenciamento de notificações */}
-      <Button onPress={() => alert('Navegar para configurações de notificações')}>
-        <ButtonText>Gerenciar Notificações</ButtonText>
+      {/* Manage notifications */}
+      <Button onPress={() => alert('Navigate to notification settings')}>
+        <ButtonText>Manage Notifications</ButtonText>
       </Button>
 
-      {/* Botão para escolher idioma */}
-      <Button onPress={() => alert('Escolher idioma')}>
-        <ButtonText>Escolher Idioma</ButtonText>
+      {/* Button to choose language */}
+      <Button onPress={() => alert('Choose language')}>
+        <ButtonText>Choose Language</ButtonText>
       </Button>
 
-      {/* Botão de limpar cache */}
+      {/* Clear cache button */}
       <ClearCacheButton />
 
-      {/* Termos de uso e política de privacidade */}
-      <Button onPress={() => alert('Exibir termos de uso')}>
-        <ButtonText>Termos de Uso e Privacidade</ButtonText>
+      {/* Terms of use and privacy policy */}
+      <Button onPress={() => alert('Show terms of use')}>
+        <ButtonText>Terms of Use and Privacy</ButtonText>
       </Button>
 
-      {/* Sobre o aplicativo */}
-      <Button onPress={() => alert('Exibir informações do app')}>
-        <ButtonText>Sobre o Aplicativo</ButtonText>
+      {/* About the app */}
+      <Button onPress={() => alert('Show app information')}>
+        <ButtonText>About the App</ButtonText>
       </Button>
 
-      {/* Logout (se aplicável) */}
+      {/* Logout (if applicable) */}
       <Button onPress={handleLogout}>
-        <ButtonText>Sair da Conta</ButtonText>
+        <ButtonText>Log Out</ButtonText>
       </Button>
     </Container>
   );
