@@ -15,7 +15,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
-import auth, { FirebaseAuthTypes, onAuthStateChanged } from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

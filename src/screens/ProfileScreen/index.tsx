@@ -3,41 +3,73 @@ import { FlatList, Text, View, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Container, Header, ProfileList, ProfileImage, ProfileName, SelectedDogSection, DogDetails, DogImage, EditButton, EditButtonText, NotesSection, NotesTitle, NoteItem } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from '../../firebase/Firestore'; // Firestore import
 import { DogProfileContext } from '../../context/DogProfileContext'
 
-
 export default function ProfileScreen() {
-  const [dogProfiles, setDogProfiles] = useState([]); // Lista de perfis de cachorros
+  const [dogProfiles, setDogProfiles] = useState([]); // List of dog profiles
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext); // Access context
   const [upcomingSchedules, setUpcomingSchedules] = useState([]); // List of schedules for the selected dog
   const navigation = useNavigation();
 
+  // Fetch dog profiles from Firestore
+  const loadProfiles = async () => {
+    try {
+      const profileSnapshot = await db.collection('dogProfiles').get();
+      const profiles = profileSnapshot.docs.map((doc) => ({
+        id: doc.id, 
+        ...doc.data(),
+      }));
+
+      if (profiles.length > 0) {
+        setDogProfiles(profiles);
+        setSelectedDog(profiles[0]); // Set the first dog as the selected initially
+      } else {
+        setDogProfiles([]);
+      }
+    } catch (error) {
+      console.error('Failed to load dog profiles:', error);
+    }
+  };
+
+  // Fetch schedules for the selected dog from Firestore
+  const loadSchedules = async () => {
+    if (selectedDog) {
+      try {
+        const schedulesSnapshot = await db
+          .collection('schedules')
+          .where('dogId', '==', selectedDog.id)
+          .get();
+
+        const schedules = schedulesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setUpcomingSchedules(schedules);
+      } catch (error) {
+        console.error('Error loading schedules:', error);
+      }
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
-      const loadProfiles = async () => {
-        try {
-          const storedProfiles = await AsyncStorage.getItem('dogProfiles');
-          if (storedProfiles) {
-            const parsedProfiles = JSON.parse(storedProfiles);
-            setDogProfiles(parsedProfiles);
-            setSelectedDog(parsedProfiles[0]); // Set the first dog as the selected initially
-          } else {
-            setDogProfiles([]);
-          }
-        } catch (error) {
-          console.error('Failed to load dog profiles:', error);
-        }
-      };
-
-      loadProfiles();
+      loadProfiles(); // Fetch dog profiles on screen focus
     }, [])
   );
+
+  // Reload schedules every time the selected dog changes
+  useEffect(() => {
+    if (selectedDog) {
+      loadSchedules();
+    }
+  }, [selectedDog]);
 
   // Handle dog selection
   const handleSelectDog = (dog) => {
     setSelectedDog(dog);
-    AsyncStorage.setItem('selectedDog', JSON.stringify(dog)); // Save the selected dog to AsyncStorage if needed
+    loadSchedules(); // Load schedules for the newly selected dog
   };
 
   const renderProfileItem = ({ item }) => (
@@ -50,7 +82,7 @@ export default function ProfileScreen() {
             width: 80,
             height: 80,
             borderRadius: 40,
-            backgroundColor: '#fff  ',
+            backgroundColor: '#fff',
             justifyContent: 'center',
             alignItems: 'center',
             borderWidth: 2,
@@ -61,29 +93,6 @@ export default function ProfileScreen() {
       </View>
     </TouchableOpacity>
   );
-
-   // Load schedules for the selected dog
-   const loadSchedules = async () => {
-    try {
-      const storedSchedules = await AsyncStorage.getItem('schedules');
-      if (storedSchedules) {
-        const allSchedules = JSON.parse(storedSchedules);
-        const filteredSchedules = allSchedules.filter(
-          (schedule) => schedule.dogId === selectedDog?.id // Filter schedules for selected dog
-        );
-        setUpcomingSchedules(filteredSchedules);
-      }
-    } catch (error) {
-      console.error('Error loading schedules', error);
-    }
-  };
-
-  // Reload schedules every time the selected dog changes
-  useEffect(() => {
-    if (selectedDog) {
-      loadSchedules();
-    }
-  }, [selectedDog]);
 
   // Add new profile button
   const renderAddProfileButton = () => (
@@ -142,7 +151,7 @@ export default function ProfileScreen() {
         </SelectedDogSection>
       )}
 
-         {/* Upcoming Notes */}
+      {/* Upcoming Notes */}
       {selectedDog && (
         <NotesSection>
           <NotesTitle>Upcoming Schedules</NotesTitle>

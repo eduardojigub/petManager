@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, FlatList, TouchableOpacity } from 'react-native';
 import { Container, ListItem, ListItemText, AddButton, ButtonText } from "./styles";
-import { DogProfileContext } from '../../context/DogProfileContext'; // Import DogProfileContext
+import { DogProfileContext } from '../../context/DogProfileContext';
+import { db } from '../../firebase/Firestore'; // Firestore import
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
   const { selectedDog } = useContext(DogProfileContext); // Get the selected dog
 
-  // Load records from AsyncStorage when the screen mounts
+  // Load records from Firestore when the screen mounts
   useEffect(() => {
     const loadRecords = async () => {
       try {
-        const storedRecords = await AsyncStorage.getItem('healthRecords');
-        if (storedRecords) {
-          const allRecords = JSON.parse(storedRecords);
-          // Filter records based on the selected dog's ID
-          const filteredRecords = allRecords.filter(record => record.dogId === selectedDog.id);
-          setHealthRecords(filteredRecords);
-        }
+        const recordsSnapshot = await db.collection('healthRecords')
+          .where('dogId', '==', selectedDog.id) // Filter by the selected dog's ID
+          .get();
+          
+        const records = recordsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        setHealthRecords(records);
       } catch (error) {
-        console.error('Erro ao carregar registros de saúde', error);
+        console.error('Error loading health records', error);
       }
     };
 
@@ -29,7 +32,6 @@ export default function HealthRecordsScreen({ navigation }) {
     }
   }, [selectedDog]);
 
-  // Function to add a new health record to the local list
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
   };
@@ -38,7 +40,7 @@ export default function HealthRecordsScreen({ navigation }) {
     <TouchableOpacity onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
       <ListItem>
         <ListItemText>{item.type}: {item.description}</ListItemText>
-        <ListItemText>Data: {item.date}</ListItemText>
+        <ListItemText>Date: {item.date}</ListItemText>
       </ListItem>
     </TouchableOpacity>
   );

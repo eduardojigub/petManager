@@ -1,5 +1,4 @@
 import React from 'react';
-import ClearCacheButton from '../../components/ClearCacheButton/ClearCacheButton';
 import { Container, Title, Button, ButtonText } from './styles'; // Importing the styled components
 import { useNavigation } from '@react-navigation/native';
 
@@ -35,10 +34,6 @@ export default function SettingsScreen() {
       <Button onPress={() => alert('Choose language')}>
         <ButtonText>Choose Language</ButtonText>
       </Button>
-
-      {/* Clear cache button */}
-      <ClearCacheButton />
-
       {/* Terms of use and privacy policy */}
       <Button onPress={() => alert('Show terms of use')}>
         <ButtonText>Terms of Use and Privacy</ButtonText>

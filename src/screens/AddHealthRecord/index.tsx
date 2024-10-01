@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Container, Title, Input, CustomButton, ButtonText, ImagePreview } from "./styles";
 import { DogProfileContext } from '../../context/DogProfileContext';
+import { db } from '../../firebase/Firestore'; // Firestore import
 
 export default function AddHealthRecordScreen({ navigation, route }) {
   const [type, setType] = useState('');
@@ -28,10 +28,9 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       quality: 1,
     });
 
-    // Check if the selection was not canceled and if assets are available
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedImageUri = result.assets[0].uri;
-      setImage(selectedImageUri); // Store the image URI in the state
+      setImage(selectedImageUri);
     } else {
       console.log("Image selection was canceled or no assets available");
     }
@@ -44,31 +43,21 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     }
 
     const newRecord = {
-      id: Math.random().toString(), // Generate a unique ID
       type,
       description,
       date,
-      image, // Add the image URI to the new record
-      dogId: selectedDog.id, // Attach dog ID to the record
+      image,
+      dogId: selectedDog.id, // Attach the selected dog's ID
     };
 
     try {
-      // Retrieve existing records from AsyncStorage
-      const storedRecords = await AsyncStorage.getItem('healthRecords');
-      const currentRecords = storedRecords ? JSON.parse(storedRecords) : [];
-
-      // Add the new record to the existing list
-      const updatedRecords = [...currentRecords, newRecord];
-
-      // Save the updated records to AsyncStorage
-      await AsyncStorage.setItem('healthRecords', JSON.stringify(updatedRecords));
-
-      // Check if a callback function exists to update the state
+      // Save the new health record to Firestore
+      await db.collection('healthRecords').add(newRecord);
+      
       if (route.params?.addRecord) {
-        route.params.addRecord(newRecord); // Update the local state
+        route.params.addRecord(newRecord);
       }
 
-      // Go back to the previous screen
       navigation.goBack();
     } catch (error) {
       console.error('Error saving health record', error);

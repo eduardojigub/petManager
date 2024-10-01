@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from '../../firebase/Firestore'; // Import the Firestore instance
 import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer } from './styles';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
 
-  // If there is no `id`, it means this is a new profile being created
   const isNewProfile = !id;
 
   const [name, setName] = useState(initialName || '');
@@ -43,39 +42,21 @@ export default function EditProfileScreen({ navigation, route }) {
       return;
     }
 
-    // Prepare the profile object (either new or updated)
-    const profile = { 
-      id: id || Math.random().toString(), // Generate new id if it's a new profile
-      name, 
-      breed, 
-      age, 
-      weight, 
-      image 
-    };
+    const profile = { name, breed, age, weight, image };
 
     try {
-      // Retrieve existing profiles from AsyncStorage
-      const storedProfiles = await AsyncStorage.getItem('dogProfiles');
-      const profiles = storedProfiles ? JSON.parse(storedProfiles) : [];
-
       if (isNewProfile) {
-        // If it's a new profile, add it to the list
-        profiles.push(profile);
+        // Create a new profile in Firestore
+        await db.collection('dogProfiles').add(profile);
       } else {
-        // If it's an existing profile, find it and update it
-        const profileIndex = profiles.findIndex(p => p.id === id);
-        if (profileIndex !== -1) {
-          profiles[profileIndex] = profile; // Update the existing profile
-        }
+        // Update existing profile in Firestore
+        await db.collection('dogProfiles').doc(id).update(profile);
       }
 
-      // Save the updated list back to AsyncStorage
-      await AsyncStorage.setItem('dogProfiles', JSON.stringify(profiles));
-
-      // Navigate back to the ProfileScreen
       navigation.navigate('Profile');
     } catch (error) {
       console.error('Failed to save profile:', error);
+      Alert.alert('Error', 'Failed to save profile');
     }
   };
 

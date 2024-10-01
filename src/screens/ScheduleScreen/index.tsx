@@ -1,34 +1,40 @@
 import React, { useState, useContext } from 'react';
 import { Text, FlatList, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Container, AddButton, ButtonText, ListItem, ListItemText } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext'; // Importa o contexto do cachorro selecionado
+import { DogProfileContext } from '../../context/DogProfileContext'; // Import the selected dog context
+import { db } from '../../firebase/Firestore'; // Firestore instance
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
-  const { selectedDog } = useContext(DogProfileContext); // Obtém o cachorro selecionado do contexto
+  const { selectedDog } = useContext(DogProfileContext); // Get the selected dog from context
 
-  // Função para carregar compromissos do AsyncStorage e filtrar por dogId
+  // Function to load schedules from Firestore filtered by dogId
   const loadSchedules = async () => {
     try {
-      const storedSchedules = await AsyncStorage.getItem('schedules');
-      if (storedSchedules) {
-        const allSchedules = JSON.parse(storedSchedules);
-        // Filtra os compromissos pelo ID do cachorro selecionado
-        const filteredSchedules = allSchedules.filter(schedule => schedule.dogId === selectedDog.id);
-        setSchedules(filteredSchedules);
+      if (selectedDog) {
+        const schedulesSnapshot = await db
+          .collection('schedules')
+          .where('dogId', '==', selectedDog.id)
+          .get();
+
+        const loadedSchedules = schedulesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setSchedules(loadedSchedules);
       }
     } catch (error) {
-      console.error('Erro ao carregar compromissos', error);
+      console.error('Error loading schedules', error);
     }
   };
 
-  // useFocusEffect carrega os dados toda vez que a tela ganhar foco
+  // useFocusEffect to load data every time the screen gains focus
   useFocusEffect(
     React.useCallback(() => {
       if (selectedDog) {
-        loadSchedules(); // Recarregar os compromissos ao focar na tela
+        loadSchedules(); // Reload schedules on screen focus
       }
     }, [selectedDog])
   );
@@ -44,11 +50,11 @@ export default function ScheduleScreen({ navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}> Schedules {selectedDog ? 'for ' + selectedDog?.name : null}</Text>
+      <Text style={{ fontSize: 24, marginBottom: 20 }}>Schedules for {selectedDog?.name}</Text>
       <FlatList
         data={schedules}
         renderItem={renderSchedule}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
       />
       <AddButton onPress={() => navigation.navigate('AddSchedule')}>
         <ButtonText>Add Schedule</ButtonText>

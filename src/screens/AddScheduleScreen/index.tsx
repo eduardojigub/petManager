@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { TextInput, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Container, ButtonText, AddButton } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext'; // Assume you are using context to get the selected dog
+import { DogProfileContext } from '../../context/DogProfileContext'; // Get the selected dog from context
+import { db } from '../../firebase/Firestore'; // Firestore instance
 
 export default function AddScheduleScreen({ navigation }) {
   const { selectedDog } = useContext(DogProfileContext); // Get the selected dog from the context
@@ -19,7 +19,6 @@ export default function AddScheduleScreen({ navigation }) {
     }
 
     const newSchedule = {
-      id: Math.random().toString(),
       description,
       date: date.toLocaleDateString(),
       time: time.toLocaleTimeString(),
@@ -27,11 +26,8 @@ export default function AddScheduleScreen({ navigation }) {
     };
 
     try {
-      const storedSchedules = await AsyncStorage.getItem('schedules');
-      const currentSchedules = storedSchedules ? JSON.parse(storedSchedules) : [];
-      const updatedSchedules = [...currentSchedules, newSchedule];
-
-      await AsyncStorage.setItem('schedules', JSON.stringify(updatedSchedules));
+      // Save the new schedule to Firestore
+      await db.collection('schedules').add(newSchedule);
 
       // Schedule notification for the selected time
       const notificationDate = new Date(date);
@@ -51,6 +47,7 @@ export default function AddScheduleScreen({ navigation }) {
       navigation.goBack();
     } catch (error) {
       console.error('Error saving schedule', error);
+      Alert.alert('Error', 'Failed to save schedule.');
     }
   };
 
