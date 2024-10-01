@@ -91,6 +91,17 @@ export default function App() {
     askNotificationPermission();
   }, []);
 
+  useEffect(() => {
+    // This handler will allow notifications to be shown in the foreground
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  }, []);
+
   return (
     <NavigationContainer>
       <SafeAreaView style={styles.safeArea}>
