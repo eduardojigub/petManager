@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { TextInput, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Container, ButtonText, AddButton } from './styles';
+import { DogProfileContext } from '../../context/DogProfileContext'; // Assume you are using context to get the selected dog
 
 export default function AddScheduleScreen({ navigation }) {
+  const { selectedDog } = useContext(DogProfileContext); // Get the selected dog from the context
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
 
   const handleSave = async () => {
     if (!description.trim()) {
-      Alert.alert('Erro', 'A descrição do compromisso não pode estar vazia.');
+      Alert.alert('Error', 'The schedule description cannot be empty.');
       return;
     }
 
@@ -21,6 +23,7 @@ export default function AddScheduleScreen({ navigation }) {
       description,
       date: date.toLocaleDateString(),
       time: time.toLocaleTimeString(),
+      dogId: selectedDog.id, // Associate the schedule with the selected dog's ID
     };
 
     try {
@@ -30,31 +33,31 @@ export default function AddScheduleScreen({ navigation }) {
 
       await AsyncStorage.setItem('schedules', JSON.stringify(updatedSchedules));
 
-      // Agendar notificação para o horário do compromisso
+      // Schedule notification for the selected time
       const notificationDate = new Date(date);
       notificationDate.setHours(time.getHours());
       notificationDate.setMinutes(time.getMinutes());
 
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Lembrete de Compromisso',
-          body: `Compromisso: ${description}`,
+          title: 'Schedule Reminder',
+          body: `Reminder: ${description}`,
           sound: true,
         },
-        trigger: notificationDate, // O horário que a notificação deve ser disparada
+        trigger: notificationDate,
       });
 
-      Alert.alert('Sucesso', 'Compromisso salvo com sucesso e notificação agendada!');
+      Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
       navigation.goBack();
     } catch (error) {
-      console.error('Erro ao salvar compromisso', error);
+      console.error('Error saving schedule', error);
     }
   };
 
   return (
     <Container>
       <TextInput
-        placeholder="Descrição do Compromisso"
+        placeholder="Schedule Description"
         value={description}
         onChangeText={setDescription}
         style={{ marginBottom: 20, padding: 10, borderWidth: 1, borderColor: '#ccc' }}
@@ -72,7 +75,7 @@ export default function AddScheduleScreen({ navigation }) {
         onChange={(event, selectedTime) => setTime(selectedTime || time)}
       />
       <AddButton onPress={handleSave}>
-        <ButtonText>Salvar Compromisso</ButtonText>
+        <ButtonText>Save Schedule</ButtonText>
       </AddButton>
     </Container>
   );

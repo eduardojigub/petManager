@@ -14,6 +14,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
+import { DogProfileProvider } from './src/context/DogProfileContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -25,7 +26,10 @@ function ProfileStack() {
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ title: 'Profile' }}
+        options={{ 
+          title: 'Profile', 
+          headerShown: false 
+        }}
       />
       <Stack.Screen
         name="EditProfile"
@@ -179,6 +183,7 @@ export default function App() {
   }
 
   return (
+    <DogProfileProvider>
     <NavigationContainer>
       <SafeAreaView style={styles.safeArea}>
         <Stack.Navigator>
@@ -187,6 +192,7 @@ export default function App() {
         </Stack.Navigator>
       </SafeAreaView>
     </NavigationContainer>
+    </DogProfileProvider>
   );
 }
 

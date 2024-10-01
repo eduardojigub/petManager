@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Image, Button, Alert, View, Text } from 'react-native';
+import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Container, Label, Input, SaveButton, ButtonText } from "./styles";
+import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer } from './styles';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
@@ -13,11 +13,10 @@ export default function EditProfileScreen({ navigation, route }) {
   const [weight, setWeight] = useState(initialWeight || '');
   const [image, setImage] = useState(initialImage || null);
 
-  // Function to select an image from the gallery
   const pickImage = async () => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert("Permission needed", "Permission to access the gallery is required!");
+    if (!permissionResult.granted) {
+      Alert.alert('Permission needed', 'Permission to access the gallery is required!');
       return;
     }
 
@@ -28,25 +27,35 @@ export default function EditProfileScreen({ navigation, route }) {
       quality: 1,
     });
 
-
-// Verificar se a seleção não foi cancelada e se há assets disponíveis
-if (!result.canceled && result.assets && result.assets.length > 0) {
-  const selectedImageUri = result.assets[0].uri; // Acessa a URI correta
-  setImage(selectedImageUri); // Armazena a URI da imagem no estado
-} else {
-  console.log("Image selection was canceled or no assets available");
-}
-};
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    } else {
+      console.log('Image selection was canceled or no assets available');
+    }
+  };
 
   const handleSave = async () => {
-    // Profile data to be saved
-    const profile = { name, breed, age, weight, image };
-
+    const newProfile = { 
+      id: Math.random().toString(), // Unique ID for each profile
+      name, 
+      breed, 
+      age, 
+      weight, 
+      image 
+    };
+  
     try {
-      // Save profile to AsyncStorage
-      await AsyncStorage.setItem('dogProfile', JSON.stringify(profile));
-
-      // Navigate back to ProfileScreen with updated data
+      // Retrieve existing profiles from AsyncStorage
+      const storedProfiles = await AsyncStorage.getItem('dogProfiles');
+      const profiles = storedProfiles ? JSON.parse(storedProfiles) : [];
+  
+      // Add the new profile to the list
+      profiles.push(newProfile);
+  
+      // Save the updated list back to AsyncStorage
+      await AsyncStorage.setItem('dogProfiles', JSON.stringify(profiles));
+  
+      // Navigate back to the ProfileScreen
       navigation.navigate('Profile');
     } catch (error) {
       console.error('Failed to save profile:', error);
@@ -54,6 +63,7 @@ if (!result.canceled && result.assets && result.assets.length > 0) {
   };
 
   return (
+    <ScrollContainer>
     <Container>
       <Label>Edit Dog's Profile</Label>
 
@@ -66,24 +76,23 @@ if (!result.canceled && result.assets && result.assets.length > 0) {
       <Label>Age</Label>
       <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
 
-      <Label>Weight</Label>
+      <Label>Weight(kg)</Label>
       <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
 
-      <Button title="Add a Photo" onPress={pickImage} />
+      <AddPhotoButton onPress={pickImage}>
+        <ButtonText>Add a Photo</ButtonText>
+      </AddPhotoButton>
 
-      {/* Preview the uploaded image */}
       {image ? (
-        <View>
-          <Text>Preview:</Text>
-          <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 20 }} />
-        </View>
+        <ImagePreview source={{ uri: image }} />
       ) : (
-        <Text>No image selected</Text>
+        <NoImageText>No image selected</NoImageText>
       )}
 
       <SaveButton onPress={handleSave}>
         <ButtonText>Save Profile</ButtonText>
       </SaveButton>
     </Container>
+    </ScrollContainer>
   );
 }

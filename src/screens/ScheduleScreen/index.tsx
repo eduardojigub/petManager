@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Text, FlatList, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native'; // Importa useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
 import { Container, AddButton, ButtonText, ListItem, ListItemText } from './styles';
+import { DogProfileContext } from '../../context/DogProfileContext'; // Importa o contexto do cachorro selecionado
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
+  const { selectedDog } = useContext(DogProfileContext); // Obtém o cachorro selecionado do contexto
 
-  // Função para carregar compromissos do AsyncStorage
+  // Função para carregar compromissos do AsyncStorage e filtrar por dogId
   const loadSchedules = async () => {
     try {
       const storedSchedules = await AsyncStorage.getItem('schedules');
       if (storedSchedules) {
-        setSchedules(JSON.parse(storedSchedules));
+        const allSchedules = JSON.parse(storedSchedules);
+        // Filtra os compromissos pelo ID do cachorro selecionado
+        const filteredSchedules = allSchedules.filter(schedule => schedule.dogId === selectedDog.id);
+        setSchedules(filteredSchedules);
       }
     } catch (error) {
       console.error('Erro ao carregar compromissos', error);
@@ -22,8 +27,10 @@ export default function ScheduleScreen({ navigation }) {
   // useFocusEffect carrega os dados toda vez que a tela ganhar foco
   useFocusEffect(
     React.useCallback(() => {
-      loadSchedules(); // Recarregar os compromissos ao focar na tela
-    }, [])
+      if (selectedDog) {
+        loadSchedules(); // Recarregar os compromissos ao focar na tela
+      }
+    }, [selectedDog])
   );
 
   const renderSchedule = ({ item }) => (
@@ -37,14 +44,14 @@ export default function ScheduleScreen({ navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Compromissos</Text>
+      <Text style={{ fontSize: 24, marginBottom: 20 }}>Compromissos para {selectedDog?.name}</Text>
       <FlatList
         data={schedules}
         renderItem={renderSchedule}
         keyExtractor={item => item.id}
       />
       <AddButton onPress={() => navigation.navigate('AddSchedule')}>
-        <ButtonText>Adicionar Compromisso</ButtonText>
+        <ButtonText>Add Schedule</ButtonText>
       </AddButton>
     </Container>
   );
