@@ -43,7 +43,20 @@ export default function ProfileScreen() {
   const renderProfileItem = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectDog(item)} style={{ marginHorizontal: 10 }}>
       <View style={{ alignItems: 'center' }}>
-        <ProfileImage source={{ uri: item.image }} />
+        {item.image ? (
+          <ProfileImage source={{ uri: item.image }} />
+        ) : (
+          <View style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: '#fff  ',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#ccc',
+          }} />
+        )}
         <ProfileName>{item.name}</ProfileName>
       </View>
     </TouchableOpacity>
