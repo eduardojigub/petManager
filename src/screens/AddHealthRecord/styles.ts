@@ -28,15 +28,17 @@ export const Input = styled.TextInput`
   background-color: #fff;
 `;
 
-// Botão personalizado
 export const CustomButton = styled.TouchableOpacity`
-  background-color: #7289da; // Verde como cor principal
-  padding: 40px 60px; // Increase padding to make the button larger
-  border-radius: 20px;
+  background-color: #7289DA;
+  width: 100%; 
+  height: 40px; // Increase the height for a bigger button
+  padding: 15px;
+  border-radius: 8px;
   align-items: center;
-  margin-top: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  align-self: center; // Center the button horizontally in its container
 `;
-
 // Texto dentro do botão
 export const ButtonText = styled.Text`
   color: #fff;
