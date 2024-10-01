@@ -67,7 +67,7 @@ export default function LoginScreen() {
 
       <Label>Email:</Label>
       <Input
-        value={email}
+        value={email.toLocaleLowerCase()}
         onChangeText={setEmail}
         placeholder="Enter your email"
       />
