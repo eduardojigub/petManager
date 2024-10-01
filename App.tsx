@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -15,9 +15,12 @@ import LoginScreen from './src/screens/LoginScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
+import auth, { FirebaseAuthTypes, onAuthStateChanged } from '@react-native-firebase/auth';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+
 
 // Stack Navigator for Profile and Edit Profile
 function ProfileStack() {
@@ -146,9 +149,19 @@ function AppTabs() {
 }
 
 export default function App() {
-  const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
-  // Solicita permissão para notificações ao iniciar o app
+  const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
+    setUser(user);
+    if (initializing) setInitializing(false);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber;
+  }, []);
+  // Solicita permissão para notificações ao iniciar o app  
   useEffect(() => {
     const askNotificationPermission = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
@@ -174,11 +187,11 @@ export default function App() {
   }, []);
 
   // Exibe uma tela de carregamento enquanto verifica o status de login
-  if (loading) {
+  if (initializing) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color="#4caf50" />
-      </SafeAreaView>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#7289DA" />
+      </View>
     );
   }
 
