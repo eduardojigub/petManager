@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, Image } from 'react-native';
 import { Container } from "./styles"; // Se você já tiver estilos globais
 
 export default function HealthRecordDetailsScreen({ route, navigation }) {
@@ -11,8 +11,21 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
       <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>
         {record.type} Detalhes
       </Text>
-      <Text style={{ fontSize: 18 }}>Descrição: {record.description}</Text>
-      <Text style={{ fontSize: 18 }}>Data: {record.date}</Text>
+      <Text style={{ fontSize: 18, marginBottom: 5 }}>Descrição: {record.description}</Text>
+      <Text style={{ fontSize: 18, marginBottom: 5 }}>Data: {record.date}</Text>
+
+      {/* Exibe a imagem se ela existir */}
+      {record.image ? (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ fontSize: 18, marginBottom: 5 }}>Imagem:</Text>
+          <Image
+            source={{ uri: record.image }}
+            style={{ width: 200, height: 200, marginBottom: 10 }}
+          />
+        </View>
+      ) : (
+        <Text style={{ fontSize: 16, marginTop: 20 }}>Nenhuma imagem disponível</Text>
+      )}
 
       <Button
         title="Voltar"

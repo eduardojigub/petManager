@@ -20,7 +20,7 @@ const Stack = createStackNavigator();
 // Stack Navigator for Profile and Edit Profile
 function ProfileStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator>
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
@@ -38,7 +38,7 @@ function ProfileStack() {
 // Stack Navigator for Health Records and Details
 function HealthStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator>
       <Stack.Screen
         name="HealthRecords"
         component={HealthRecordsScreen}
@@ -61,7 +61,7 @@ function HealthStack() {
 // Stack Navigator for Schedule and Add Schedule
 function ScheduleStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator>
       <Stack.Screen
         name="ScheduleScreen"
         component={ScheduleScreen}

@@ -1,12 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Container } from "./styles";
+import * as ImagePicker from 'expo-image-picker'; // Importa o ImagePicker
+import { Container, Title, Input, CustomButton, ButtonText, ImagePreview } from "./styles";
 
 export default function AddHealthRecordScreen({ navigation, route }) {
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
+  const [image, setImage] = useState(null); // Estado para armazenar a imagem
+
+  // Função para selecionar uma imagem da galeria
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permissão necessária', 'Permissão para acessar a galeria é necessária!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    // Verificar se a seleção não foi cancelada e se há assets disponíveis
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedImageUri = result.assets[0].uri;
+      setImage(selectedImageUri); // Armazena a URI da imagem no estado
+    } else {
+      console.log("Image selection was canceled or no assets available");
+    }
+  };
 
   const handleSave = async () => {
     if (!type || !description || !date) {
@@ -19,6 +45,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       type,
       description,
       date,
+      image, // Adiciona a URI da imagem ao novo registro
     };
 
     try {
@@ -47,33 +74,37 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, marginBottom: 10 }}>Adicionar Registro de Saúde</Text>
+      <Title>Adicionar Registro de Saúde</Title>
 
-      <Text>Tipo:</Text>
-      <TextInput
+      <Input
         value={type}
         onChangeText={setType}
         placeholder="Ex: Vacina, Consulta"
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
 
-      <Text>Descrição:</Text>
-      <TextInput
+      <Input
         value={description}
         onChangeText={setDescription}
         placeholder="Descrição do Registro"
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
 
-      <Text>Data:</Text>
-      <TextInput
+      <Input
         value={date}
         onChangeText={setDate}
         placeholder="Data (YYYY-MM-DD)"
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
 
-      <Button title="Salvar" onPress={handleSave} />
+      {/* Botão para selecionar uma imagem */}
+      <CustomButton onPress={pickImage}>
+        <ButtonText>Selecionar Imagem</ButtonText>
+      </CustomButton>
+
+      {/* Exibir a imagem selecionada */}
+      {image && <ImagePreview source={{ uri: image }} />}
+
+      <CustomButton onPress={handleSave}>
+        <ButtonText>Salvar</ButtonText>
+      </CustomButton>
     </Container>
   );
 }
