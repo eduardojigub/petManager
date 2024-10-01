@@ -5,7 +5,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer } from './styles';
 
 export default function EditProfileScreen({ navigation, route }) {
-  const { name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
+  const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
+
+  // If there is no `id`, it means this is a new profile being created
+  const isNewProfile = !id;
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');
@@ -35,26 +38,40 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    const newProfile = { 
-      id: Math.random().toString(), // Unique ID for each profile
+    if (!name || !breed || !age || !weight) {
+      Alert.alert('Error', 'All fields are required!');
+      return;
+    }
+
+    // Prepare the profile object (either new or updated)
+    const profile = { 
+      id: id || Math.random().toString(), // Generate new id if it's a new profile
       name, 
       breed, 
       age, 
       weight, 
       image 
     };
-  
+
     try {
       // Retrieve existing profiles from AsyncStorage
       const storedProfiles = await AsyncStorage.getItem('dogProfiles');
       const profiles = storedProfiles ? JSON.parse(storedProfiles) : [];
-  
-      // Add the new profile to the list
-      profiles.push(newProfile);
-  
+
+      if (isNewProfile) {
+        // If it's a new profile, add it to the list
+        profiles.push(profile);
+      } else {
+        // If it's an existing profile, find it and update it
+        const profileIndex = profiles.findIndex(p => p.id === id);
+        if (profileIndex !== -1) {
+          profiles[profileIndex] = profile; // Update the existing profile
+        }
+      }
+
       // Save the updated list back to AsyncStorage
       await AsyncStorage.setItem('dogProfiles', JSON.stringify(profiles));
-  
+
       // Navigate back to the ProfileScreen
       navigation.navigate('Profile');
     } catch (error) {
@@ -64,35 +81,35 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <ScrollContainer>
-    <Container>
-      <Label>Edit Dog's Profile</Label>
+      <Container>
+        <Label>{isNewProfile ? "Add New Dog Profile" : "Edit Dog's Profile"}</Label>
 
-      <Label>Dog's Name</Label>
-      <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
+        <Label>Dog's Name</Label>
+        <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
 
-      <Label>Breed</Label>
-      <Input value={breed} onChangeText={setBreed} placeholder="Enter breed" />
+        <Label>Breed</Label>
+        <Input value={breed} onChangeText={setBreed} placeholder="Enter breed" />
 
-      <Label>Age</Label>
-      <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
+        <Label>Age</Label>
+        <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
 
-      <Label>Weight(kg)</Label>
-      <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
+        <Label>Weight (kg)</Label>
+        <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
 
-      <AddPhotoButton onPress={pickImage}>
-        <ButtonText>Add a Photo</ButtonText>
-      </AddPhotoButton>
+        <AddPhotoButton onPress={pickImage}>
+          <ButtonText>{image ? "Change Photo" : "Add a Photo"}</ButtonText>
+        </AddPhotoButton>
 
-      {image ? (
-        <ImagePreview source={{ uri: image }} />
-      ) : (
-        <NoImageText>No image selected</NoImageText>
-      )}
+        {image ? (
+          <ImagePreview source={{ uri: image }} />
+        ) : (
+          <NoImageText>No image selected</NoImageText>
+        )}
 
-      <SaveButton onPress={handleSave}>
-        <ButtonText>Save Profile</ButtonText>
-      </SaveButton>
-    </Container>
+        <SaveButton onPress={handleSave}>
+          <ButtonText>{isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
+        </SaveButton>
+      </Container>
     </ScrollContainer>
   );
 }
