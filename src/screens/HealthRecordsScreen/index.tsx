@@ -45,14 +45,14 @@ export default function HealthRecordsScreen({ navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Registros de Saúde</Text>
+      <Text style={{ fontSize: 24, marginBottom: 20 }}>Health Records</Text>
       <FlatList
         data={healthRecords}
         renderItem={renderRecord}
         keyExtractor={item => item.id}
       />
       <AddButton onPress={() => navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })}>
-        <ButtonText>Adicionar Registros de Saúde</ButtonText>
+        <ButtonText>Add Health Record</ButtonText>
       </AddButton>
     </Container>
   );
