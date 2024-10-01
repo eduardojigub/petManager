@@ -25,7 +25,7 @@ export default function ClearCacheButton() {
 
   return (
     <ButtonContainer onPress={handleClearCache}>
-      <ButtonText>Limpar Cache e Recarregar</ButtonText>
+      <ButtonText>Clean Cache and Reload</ButtonText>
     </ButtonContainer>
   );
 }
