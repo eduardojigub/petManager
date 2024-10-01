@@ -21,6 +21,7 @@ export default function ProfileScreen() {
           if (storedProfiles) {
             const parsedProfiles = JSON.parse(storedProfiles);
             setDogProfiles(parsedProfiles);
+            setSelectedDog(parsedProfiles[0]); // Set the first dog as the selected initially
           } else {
             setDogProfiles([]);
           }
