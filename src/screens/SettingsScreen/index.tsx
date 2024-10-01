@@ -1,8 +1,21 @@
 import React from 'react';
 import ClearCacheButton from '../../components/ClearCacheButton/ClearCacheButton';
 import { Container, Title, Button, ButtonText } from './styles'; // Importando os componentes estilizados
+import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
+
+  const navigation = useNavigation();
+
+  const handleLogout = () => {
+    // Aqui você pode adicionar qualquer lógica adicional de logout (ex: remover dados de sessão)
+    
+    // Redefine o fluxo de navegação e volta para a tela de login
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'AuthStack' }], // Navega para a stack de autenticação
+    });
+  };
   return (
     <Container>
       <Title>Configurações</Title>
@@ -36,7 +49,7 @@ export default function SettingsScreen() {
       </Button>
 
       {/* Logout (se aplicável) */}
-      <Button onPress={() => alert('Sair da conta')}>
+      <Button onPress={handleLogout}>
         <ButtonText>Sair da Conta</ButtonText>
       </Button>
     </Container>
