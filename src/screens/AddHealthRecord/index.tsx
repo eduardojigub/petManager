@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker'; // Importa o ImagePicker
 import { Container, Title, Input, CustomButton, ButtonText, ImagePreview } from "./styles";
+import { DogProfileContext } from '../../context/DogProfileContext';
 
 export default function AddHealthRecordScreen({ navigation, route }) {
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [image, setImage] = useState(null); // Estado para armazenar a imagem
+
+  const { selectedDog } = useContext(DogProfileContext); // Get the selected dog
 
   // Função para selecionar uma imagem da galeria
   const pickImage = async () => {
@@ -46,6 +49,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       description,
       date,
       image, // Adiciona a URI da imagem ao novo registro
+      dogId: selectedDog.id, // Attach dog ID to the record
     };
 
     try {
