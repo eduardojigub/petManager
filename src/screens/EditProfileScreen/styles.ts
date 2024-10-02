@@ -75,3 +75,14 @@ export const NoImageText = styled.Text`
   font-size: 16px;
   margin-top: 20px;
 `;
+
+export const DeleteButton = styled.TouchableOpacity`
+  background-color: #e74c3c; /* Red color for delete */
+  padding: 15px 30px;
+  border-radius: 25px;
+  margin-top: 20px;
+  width: 100%;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  elevation: 3;
+`;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../firebase/Firestore'; // Import the Firestore instance
-import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer } from './styles';
+import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton } from './styles';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
@@ -60,6 +60,18 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
+  // Delete profile from Firestore
+  const handleDelete = async () => {
+    try {
+      await db.collection('dogProfiles').doc(id).delete();
+      Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
+      navigation.navigate('Profile'); // Navigate back to the Profile screen
+    } catch (error) {
+      console.error('Failed to delete profile:', error);
+      Alert.alert('Error', 'Failed to delete profile');
+    }
+  };
+
   return (
     <ScrollContainer>
       <Container>
@@ -90,6 +102,13 @@ export default function EditProfileScreen({ navigation, route }) {
         <SaveButton onPress={handleSave}>
           <ButtonText>{isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
         </SaveButton>
+
+         {/* Conditionally show the Delete Profile button for existing profiles */}
+         {!isNewProfile && (
+          <DeleteButton onPress={handleDelete}>
+            <ButtonText>Delete Profile</ButtonText>
+          </DeleteButton>
+        )}
       </Container>
     </ScrollContainer>
   );
