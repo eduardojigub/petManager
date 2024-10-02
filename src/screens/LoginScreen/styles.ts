@@ -23,7 +23,7 @@ export const Input = styled.TextInput`
   border-width: 1px;
   border-color: #ccc;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px; /* Adjusted spacing for consistency */
   border-radius: 5px;
   background-color: #fff;
 `;
@@ -31,7 +31,7 @@ export const Input = styled.TextInput`
 export const CustomButton = styled.TouchableOpacity`
   background-color: #7289DA;
   padding: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 20px; /* Increased margin to add space between buttons */
   border-radius: 5px;
 `;
 
@@ -45,4 +45,13 @@ export const SwitchModeButton = styled.TouchableOpacity`
   background-color: #888;
   padding: 15px;
   border-radius: 5px;
+  margin-top: 20px; /* Add margin-top to separate from previous button */
+`;
+
+export const ForgotPasswordButton = styled.TouchableOpacity`
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 5px;
+  align-items: center;
+  background-color: #888;
 `;

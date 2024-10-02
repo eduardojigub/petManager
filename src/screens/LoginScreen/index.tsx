@@ -8,7 +8,8 @@ import {
   Input,
   CustomButton,
   ButtonText,
-  SwitchModeButton
+  SwitchModeButton,
+  ForgotPasswordButton
 } from './styles';
 import auth from '@react-native-firebase/auth';
 
@@ -61,6 +62,20 @@ export default function LoginScreen() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!validateEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email.');
+      return;
+    }
+
+    try {
+      await auth().sendPasswordResetEmail(email);
+      Alert.alert('Success', 'Password reset email has been sent.');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
   return (
     <Container>
       <Title>{isRegister ? 'Register' : 'Login'}</Title>
@@ -89,6 +104,11 @@ export default function LoginScreen() {
           {isRegister ? 'Already have an account? Login' : 'Create a new account'}
         </ButtonText>
       </SwitchModeButton>
+      {!isRegister && (
+        <ForgotPasswordButton onPress={handlePasswordReset}>
+          <ButtonText>Forgot Password?</ButtonText>
+        </ForgotPasswordButton>
+      )}
     </Container>
   );
 }
