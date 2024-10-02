@@ -18,23 +18,13 @@ export default function AddScheduleScreen({ navigation }) {
       return;
     }
 
-    const newSchedule = {
-      description,
-      date: date.toLocaleDateString(),
-      time: time.toLocaleTimeString(),
-      dogId: selectedDog.id, // Associate the schedule with the selected dog's ID
-    };
-
     try {
-      // Save the new schedule to Firestore
-      await db.collection('schedules').add(newSchedule);
-
       // Schedule notification for the selected time
       const notificationDate = new Date(date);
       notificationDate.setHours(time.getHours());
       notificationDate.setMinutes(time.getMinutes());
 
-      await Notifications.scheduleNotificationAsync({
+      const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Schedule Reminder',
           body: `Reminder: ${description}`,
@@ -42,6 +32,17 @@ export default function AddScheduleScreen({ navigation }) {
         },
         trigger: notificationDate,
       });
+
+      const newSchedule = {
+        description,
+        date: date.toLocaleDateString(),
+        time: time.toLocaleTimeString(),
+        dogId: selectedDog.id, // Associate the schedule with the selected dog's ID
+        notificationId, // Store the notification ID for future reference
+      };
+
+      // Save the schedule to Firestore
+      await db.collection('schedules').add(newSchedule);
 
       Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
       navigation.goBack();

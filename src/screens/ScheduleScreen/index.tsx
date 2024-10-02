@@ -42,17 +42,38 @@ export default function ScheduleScreen({ navigation }) {
   );
 
   // Function to delete a schedule and cancel its notification
-  const deleteSchedule = async (id, notificationId) => {
+  const deleteSchedule = async (scheduleId, notificationId) => {
     try {
-      await db.collection('schedules').doc(id).delete(); // Remove schedule from Firestore
-      await Notifications.cancelScheduledNotificationAsync(notificationId); // Cancel the scheduled notification
-      setSchedules((prevSchedules) => prevSchedules.filter((schedule) => schedule.id !== id)); // Remove from local state
-      Alert.alert('Success', 'Schedule deleted and notification canceled');
+      // Delete the notification using the notificationId
+      await Notifications.cancelScheduledNotificationAsync(notificationId);
+  
+      // Remove the schedule from Firestore
+      await db.collection('schedules').doc(scheduleId).delete();
+  
+      setSchedules((prevSchedules) =>
+        prevSchedules.filter((schedule) => schedule.id !== scheduleId)
+      );
+  
+      Alert.alert('Success', 'Schedule and notification deleted successfully');
     } catch (error) {
-      console.error('Error deleting schedule', error);
-      Alert.alert('Error', 'Failed to delete schedule');
+      console.error('Error deleting schedule and notification', error);
+      Alert.alert('Error', 'Failed to delete schedule or notification');
     }
   };
+  
+  // Usage example
+  const handleDelete = (scheduleId, notificationId) => {
+    Alert.alert(
+      'Delete Schedule',
+      'Are you sure you want to delete this schedule?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: () => deleteSchedule(scheduleId, notificationId) },
+      ],
+      { cancelable: true }
+    );
+  };
+  
 
   const renderSchedule = ({ item }) => (
     <ListItem>
@@ -61,7 +82,7 @@ export default function ScheduleScreen({ navigation }) {
         <ListItemText>{item.date} - {item.time}</ListItemText>
       </TouchableOpacity>
       {/* Trash can icon to delete the schedule */}
-      <TouchableOpacity onPress={() => deleteSchedule(item.id, item.notificationId)}>
+      <TouchableOpacity onPress={() => handleDelete(item.id, item.notificationId)}>
         <Feather name="trash" size={24} color="#e74c3c" />
       </TouchableOpacity>
     </ListItem>
