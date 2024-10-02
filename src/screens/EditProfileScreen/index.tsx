@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../firebase/Firestore'; // Import the Firestore instance
 import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton } from './styles';
+import { DogProfileContext } from '../../context/DogProfileContext';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
 
   const isNewProfile = !id;
+
+  const { setSelectedDog } = useContext(DogProfileContext); // Get the selected dog
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');
@@ -64,6 +67,8 @@ export default function EditProfileScreen({ navigation, route }) {
   const handleDelete = async () => {
     try {
       await db.collection('dogProfiles').doc(id).delete();
+      // Clear all related state data after deletion
+      setSelectedDog(null); // Reset the selected dog
       Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
       navigation.navigate('Profile'); // Navigate back to the Profile screen
     } catch (error) {
