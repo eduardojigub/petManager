@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 
-// Container principal que envolve a tela
+// Main container for the screen
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -8,9 +8,9 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-// Estilo para o botão "Adicionar Compromisso"
+// Add Schedule button style
 export const AddButton = styled.TouchableOpacity`
-  background-color: #7289da;  /* Cor semelhante ao Discord */
+  background-color: #7289da;
   padding: 15px 20px;
   border-radius: 8px;
   margin-top: 20px;
@@ -18,30 +18,33 @@ export const AddButton = styled.TouchableOpacity`
   width: 100%;
 `;
 
-// Texto dentro dos botões
+// Text for the buttons
 export const ButtonText = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
 `;
 
-// Estilo de cada item da lista de compromissos
+// Style for each item in the list
 export const ListItem = styled.View`
   background-color: #ffffff;
   padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 10px;
   width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
-// Texto dentro de cada item da lista
+// Text inside each list item
 export const ListItemText = styled.Text`
   font-size: 16px;
   color: #333;
 `;
 
-// Input de texto para a descrição dos compromissos
+// Input for schedule description
 export const Input = styled.TextInput`
   width: 100%;
   padding: 15px;

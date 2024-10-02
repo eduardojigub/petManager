@@ -1,9 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { Text, FlatList, TouchableOpacity } from 'react-native';
+import { Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Container, AddButton, ButtonText, ListItem, ListItemText } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext'; // Import the selected dog context
 import { db } from '../../firebase/Firestore'; // Firestore instance
+import * as Notifications from 'expo-notifications'; // Import Notifications
+import Feather from '@expo/vector-icons/Feather'; // For trash icon
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
@@ -39,13 +41,30 @@ export default function ScheduleScreen({ navigation }) {
     }, [selectedDog])
   );
 
+  // Function to delete a schedule and cancel its notification
+  const deleteSchedule = async (id, notificationId) => {
+    try {
+      await db.collection('schedules').doc(id).delete(); // Remove schedule from Firestore
+      await Notifications.cancelScheduledNotificationAsync(notificationId); // Cancel the scheduled notification
+      setSchedules((prevSchedules) => prevSchedules.filter((schedule) => schedule.id !== id)); // Remove from local state
+      Alert.alert('Success', 'Schedule deleted and notification canceled');
+    } catch (error) {
+      console.error('Error deleting schedule', error);
+      Alert.alert('Error', 'Failed to delete schedule');
+    }
+  };
+
   const renderSchedule = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('EditSchedule', { schedule: item })}>
-      <ListItem>
+    <ListItem>
+      <TouchableOpacity onPress={() => navigation.navigate('EditSchedule', { schedule: item })}>
         <ListItemText>{item.description}</ListItemText>
         <ListItemText>{item.date} - {item.time}</ListItemText>
-      </ListItem>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      {/* Trash can icon to delete the schedule */}
+      <TouchableOpacity onPress={() => deleteSchedule(item.id, item.notificationId)}>
+        <Feather name="trash" size={24} color="#e74c3c" />
+      </TouchableOpacity>
+    </ListItem>
   );
 
   return (
