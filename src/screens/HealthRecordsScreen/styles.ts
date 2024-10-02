@@ -10,6 +10,9 @@ export const Container = styled.View`
 
 // Style for each item in the list
 export const ListItem = styled.View`
+  flex-direction: row; /* Align items in a row */
+  justify-content: space-between; /* Space between text and icon */
+  align-items: center; /* Vertically align the items */
   background-color: #ffffff;
   padding: 15px 20px;
   border-radius: 8px;
@@ -22,8 +25,8 @@ export const ListItem = styled.View`
 export const ListItemText = styled.Text`
   font-size: 16px;
   color: #333;
+  flex: 1; /* Take up remaining space */
 `;
-
 // Add button for new health records
 export const AddButton = styled.TouchableOpacity`
   background-color: #7289DA;

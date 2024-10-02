@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, FlatList, TouchableOpacity } from 'react-native';
+import { Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Container, ListItem, ListItemText, AddButton, ButtonText } from "./styles";
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore'; // Firestore import
+import Feather from '@expo/vector-icons/Feather';
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
@@ -36,13 +37,29 @@ export default function HealthRecordsScreen({ navigation }) {
     setHealthRecords([...healthRecords, newRecord]);
   };
 
+   // Function to delete a health record
+   const deleteHealthRecord = async (id) => {
+    try {
+      await db.collection('healthRecords').doc(id).delete();
+      setHealthRecords((prevRecords) => prevRecords.filter((record) => record.id !== id));
+      Alert.alert('Success', 'Health record deleted successfully');
+    } catch (error) {
+      console.error('Error deleting health record', error);
+      Alert.alert('Error', 'Failed to delete health record');
+    }
+  };
+
   const renderRecord = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
-      <ListItem>
+    <ListItem>
+      <TouchableOpacity onPress={() => navigation.navigate('HealthRecordDetails', { record: item })} style={{ flex: 1 }}>
         <ListItemText>{item.type}: {item.description}</ListItemText>
         <ListItemText>Date: {item.date}</ListItemText>
-      </ListItem>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      {/* Trash can icon */}
+      <TouchableOpacity onPress={() => deleteHealthRecord(item.id)}>
+        <Feather name="trash" size={24} color="#e74c3c" />
+      </TouchableOpacity>
+    </ListItem>
   );
 
   return (

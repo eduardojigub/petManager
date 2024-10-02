@@ -17,6 +17,7 @@ export const Label = styled.Text`
   font-size: 18px;
   color: #333;
   margin-bottom: 8px;
+  margin-top: 8px;
 `;
 
 export const Input = styled.TextInput`
@@ -28,7 +29,6 @@ export const Input = styled.TextInput`
   background-color: #fff;
   font-size: 16px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  elevation: 2;
 `;
 
 export const AddPhotoButton = styled.TouchableOpacity`
@@ -40,18 +40,15 @@ export const AddPhotoButton = styled.TouchableOpacity`
   width: 100%;
   align-items: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  elevation: 3;
 `;
 
 export const SaveButton = styled.TouchableOpacity`
   background-color: #7289DA;
   padding: 15px 30px;
   border-radius: 25px;
-  margin-top: 20px;
   width: 100%;
   align-items: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  elevation: 3;
 `;
 
 export const ButtonText = styled.Text`
@@ -84,5 +81,4 @@ export const DeleteButton = styled.TouchableOpacity`
   width: 100%;
   align-items: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  elevation: 3;
 `;

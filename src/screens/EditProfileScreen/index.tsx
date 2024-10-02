@@ -77,6 +77,12 @@ export default function EditProfileScreen({ navigation, route }) {
       <Container>
         <Label>{isNewProfile ? "Add New Dog Profile" : "Edit Dog's Profile"}</Label>
 
+        {image ? (
+          <ImagePreview source={{ uri: image }} />
+        ) : (
+          <NoImageText>No image selected</NoImageText>
+        )}
+
         <Label>Dog's Name</Label>
         <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
 
@@ -92,12 +98,6 @@ export default function EditProfileScreen({ navigation, route }) {
         <AddPhotoButton onPress={pickImage}>
           <ButtonText>{image ? "Change Photo" : "Add a Photo"}</ButtonText>
         </AddPhotoButton>
-
-        {image ? (
-          <ImagePreview source={{ uri: image }} />
-        ) : (
-          <NoImageText>No image selected</NoImageText>
-        )}
 
         <SaveButton onPress={handleSave}>
           <ButtonText>{isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
