@@ -3,8 +3,9 @@ import { FlatList, Text, View, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Container, Header, ProfileList, ProfileImage, ProfileName, SelectedDogSection, DogDetails, DogImage, EditButton, EditButtonText, NotesSection, NotesTitle, NoteItem } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { db } from '../../firebase/Firestore'; // Firestore import
-import { DogProfileContext } from '../../context/DogProfileContext'
+import { db } from '../../firebase/Firestore';
+import { DogProfileContext } from '../../context/DogProfileContext';
+import auth from '@react-native-firebase/auth';
 
 export default function ProfileScreen() {
   const [dogProfiles, setDogProfiles] = useState([]); // List of dog profiles
@@ -12,20 +13,31 @@ export default function ProfileScreen() {
   const [upcomingSchedules, setUpcomingSchedules] = useState([]); // List of schedules for the selected dog
   const navigation = useNavigation();
 
+  const userId = auth().currentUser?.uid;
+
+  // Clear selectedDog when userId changes
+  useEffect(() => {
+    setSelectedDog(null);
+  }, [userId]);
+
   // Fetch dog profiles from Firestore
   const loadProfiles = async () => {
+    if (!userId) return; // Ensure userId is defined
+
     try {
-      const profileSnapshot = await db.collection('dogProfiles').get();
+      const profileSnapshot = await db
+        .collection('dogProfiles')
+        .where('userId', '==', userId) // Filter by userId
+        .get();
+
       const profiles = profileSnapshot.docs.map((doc) => ({
         id: doc.id, 
         ...doc.data(),
       }));
 
+      setDogProfiles(profiles);
       if (profiles.length > 0) {
-        setDogProfiles(profiles);
         setSelectedDog(profiles[0]); // Set the first dog as the selected initially
-      } else {
-        setDogProfiles([]);
       }
     } catch (error) {
       console.error('Failed to load dog profiles:', error);
@@ -34,11 +46,12 @@ export default function ProfileScreen() {
 
   // Fetch schedules for the selected dog from Firestore
   const loadSchedules = async () => {
-    if (selectedDog) {
+    if (selectedDog && userId) {
       try {
         const schedulesSnapshot = await db
           .collection('schedules')
           .where('dogId', '==', selectedDog.id)
+          .where('userId', '==', userId) // Filter by userId
           .get();
 
         const schedules = schedulesSnapshot.docs.map((doc) => ({
@@ -56,20 +69,18 @@ export default function ProfileScreen() {
   useFocusEffect(
     React.useCallback(() => {
       loadProfiles(); // Fetch dog profiles on screen focus
-    }, [])
+    }, [userId])
   );
 
   // Reload schedules every time the selected dog changes
   useEffect(() => {
-    if (selectedDog) {
-      loadSchedules();
-    }
+    loadSchedules();
   }, [selectedDog]);
 
   // Handle dog selection
   const handleSelectDog = (dog) => {
     setSelectedDog(dog);
-    loadSchedules(); // Load schedules for the newly selected dog
+    loadSchedules();
   };
 
   const renderProfileItem = ({ item }) => (
@@ -94,7 +105,6 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
-  // Add new profile button
   const renderAddProfileButton = () => (
     <TouchableOpacity
       style={{

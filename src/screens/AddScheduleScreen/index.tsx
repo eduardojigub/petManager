@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { Container, ButtonText, AddButton } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import auth from '@react-native-firebase/auth'; // Import Firebase Auth
 
 export default function AddScheduleScreen({ navigation }) {
   const { selectedDog } = useContext(DogProfileContext);
@@ -17,6 +18,13 @@ export default function AddScheduleScreen({ navigation }) {
   const handleSave = async () => {
     if (!description.trim()) {
       Alert.alert('Error', 'The schedule description cannot be empty.');
+      return;
+    }
+
+    const userId = auth().currentUser?.uid; // Get the current user's ID
+
+    if (!userId) {
+      Alert.alert('Error', 'User not logged in. Please log in to save schedules.');
       return;
     }
 
@@ -39,6 +47,7 @@ export default function AddScheduleScreen({ navigation }) {
         date: date.toLocaleDateString(),
         time: time.toLocaleTimeString(),
         dogId: selectedDog.id,
+        userId, // Attach the userId to the schedule
         notificationId,
       };
 
@@ -54,14 +63,14 @@ export default function AddScheduleScreen({ navigation }) {
 
   // Handle Date Picker change
   const onDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === 'ios'); // Keep picker open on iOS
-    if (selectedDate) setDate(selectedDate); // Set date only when confirmed
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) setDate(selectedDate);
   };
 
   // Handle Time Picker change
   const onTimeChange = (event, selectedTime) => {
     setShowTimePicker(Platform.OS === 'ios');
-    if (selectedTime) setTime(selectedTime); // Set time only when confirmed
+    if (selectedTime) setTime(selectedTime);
   };
 
   return (
@@ -73,7 +82,6 @@ export default function AddScheduleScreen({ navigation }) {
         style={{ marginBottom: 20, padding: 10, borderWidth: 1, borderColor: '#ccc' }}
       />
       
-      {/* Show selected date and button to open date picker */}
       <Button title={`Select Date: ${date.toLocaleDateString()}`} onPress={() => setShowDatePicker(true)} />
       {showDatePicker && (
         <DateTimePicker
@@ -84,7 +92,6 @@ export default function AddScheduleScreen({ navigation }) {
         />
       )}
 
-      {/* Show selected time and button to open time picker */}
       <Button title={`Select Time: ${time.toLocaleTimeString()}`} onPress={() => setShowTimePicker(true)} />
       {showTimePicker && (
         <DateTimePicker

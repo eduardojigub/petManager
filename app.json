@@ -39,11 +39,19 @@
           "photosPermission": "The app accesses your photos to let you pick images"
         }
       ],
-      ["expo-build-properties", {
-        "ios": {
-          "useFrameworks": "static"
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
-      }]
-    ]
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6b04da84-5e19-4d4d-8d3c-52d8afdcb5d2"
+      }
+    }
   }
 }

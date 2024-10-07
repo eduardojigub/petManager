@@ -3,22 +3,21 @@ import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../firebase/Firestore'; // Import Firestore
 import storage from '@react-native-firebase/storage'; // Import Firebase Storage
+import auth from '@react-native-firebase/auth'; // Import Firebase Auth
 import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
-
   const isNewProfile = !id;
-
-  const { setSelectedDog } = useContext(DogProfileContext); // Get the selected dog
+  const { setSelectedDog } = useContext(DogProfileContext);
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');
   const [age, setAge] = useState(initialAge || '');
   const [weight, setWeight] = useState(initialWeight || '');
   const [image, setImage] = useState(initialImage || null);
-  const [uploading, setUploading] = useState(false); // Track upload status
+  const [uploading, setUploading] = useState(false);
 
   const pickImage = async () => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -35,27 +34,26 @@ export default function EditProfileScreen({ navigation, route }) {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri); // Set the image URI locally
+      setImage(result.assets[0].uri);
     } else {
       console.log('Image selection was canceled or no assets available');
     }
   };
 
-  // Function to upload image to Firebase Storage
   const uploadImageToStorage = async (imageUri) => {
     const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri; // Remove 'file://' for iOS
-    const storageRef = storage().ref(`dogProfiles/${filename}`); // Reference to Firebase Storage path
+    const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
+    const storageRef = storage().ref(`dogProfiles/${filename}`);
 
-    setUploading(true); // Show uploading state
+    setUploading(true);
 
     try {
-      await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
-      const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
-      setUploading(false); // Hide uploading state
-      return downloadURL; // Return the URL to store in Firestore
+      await storageRef.putFile(uploadUri);
+      const downloadURL = await storageRef.getDownloadURL();
+      setUploading(false);
+      return downloadURL;
     } catch (error) {
-      setUploading(false); // Hide uploading state
+      setUploading(false);
       console.error('Error uploading image:', error);
       Alert.alert('Error', 'Failed to upload image.');
       return null;
@@ -63,30 +61,29 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    if (!name || !breed || !age || !weight) {
+    const userId = auth().currentUser?.uid;
+
+    if (!userId || !name || !breed || !age || !weight) {
       Alert.alert('Error', 'All fields are required!');
       return;
     }
 
     let imageUrl = image;
 
-    // Upload the image if it exists and has not already been uploaded
     if (image && image.startsWith('file://')) {
-      imageUrl = await uploadImageToStorage(image); // Upload the image to Firebase Storage
+      imageUrl = await uploadImageToStorage(image);
       if (!imageUrl) {
         Alert.alert('Error', 'Image upload failed. Cannot save the profile.');
-        return; // Exit if image upload fails
+        return;
       }
     }
 
-    const profile = { name, breed, age, weight, image: imageUrl }; // Store the image URL in Firestore
+    const profile = { name, breed, age, weight, image: imageUrl, userId };
 
     try {
       if (isNewProfile) {
-        // Create a new profile in Firestore
         await db.collection('dogProfiles').add(profile);
       } else {
-        // Update existing profile in Firestore
         await db.collection('dogProfiles').doc(id).update(profile);
       }
 
@@ -97,14 +94,12 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
-  // Delete profile from Firestore
   const handleDelete = async () => {
     try {
       await db.collection('dogProfiles').doc(id).delete();
-      // Clear all related state data after deletion
-      setSelectedDog(null); // Reset the selected dog
+      setSelectedDog(null);
       Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
-      navigation.navigate('Profile'); // Navigate back to the Profile screen
+      navigation.navigate('Profile');
     } catch (error) {
       console.error('Failed to delete profile:', error);
       Alert.alert('Error', 'Failed to delete profile');
