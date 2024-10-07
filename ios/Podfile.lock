@@ -1167,9 +1167,7 @@ PODS:
     - ExpoModulesCore
   - EXNotifications (0.28.18):
     - ExpoModulesCore
-  - EXPermissions (14.4.0):
-    - ExpoModulesCore
-  - Expo (51.0.35):
+  - Expo (51.0.36):
     - ExpoModulesCore
   - ExpoAsset (10.0.10):
     - ExpoModulesCore
@@ -1181,7 +1179,7 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.12.24):
+  - ExpoModulesCore (1.12.25):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1205,7 +1203,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - EXStructuredHeaders (3.8.0)
-  - EXUpdates (0.25.25):
+  - EXUpdates (0.25.26):
     - DoubleConversion
     - EASClient
     - EXManifests
@@ -1244,6 +1242,9 @@ PODS:
   - Firebase/Firestore (11.2.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 11.2.0)
+  - Firebase/Storage (11.2.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 11.2.0)
   - FirebaseAppCheckInterop (11.3.0)
   - FirebaseAuth (11.2.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -1284,6 +1285,13 @@ PODS:
     - leveldb-library (~> 1.22)
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (11.3.0)
+  - FirebaseStorage (11.2.0):
+    - FirebaseAppCheckInterop (~> 11.0)
+    - FirebaseAuthInterop (~> 11.0)
+    - FirebaseCore (~> 11.0)
+    - FirebaseCoreExtension (~> 11.0)
+    - GoogleUtilities/Environment (~> 8.0)
+    - GTMSessionFetcher/Core (~> 3.4)
   - fmt (9.1.0)
   - glog (0.3.5)
   - GoogleUtilities/AppDelegateSwizzler (8.0.2):
@@ -2583,6 +2591,10 @@ PODS:
     - Firebase/Firestore (= 11.2.0)
     - React-Core
     - RNFBApp
+  - RNFBStorage (21.0.0):
+    - Firebase/Storage (= 11.2.0)
+    - React-Core
+    - RNFBApp
   - RNGestureHandler (2.20.0):
     - DoubleConversion
     - glog
@@ -2663,7 +2675,6 @@ DEPENDENCIES:
   - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
   - EXManifests (from `../node_modules/expo-manifests/ios`)
   - EXNotifications (from `../node_modules/expo-notifications/ios`)
-  - EXPermissions (from `../node_modules/expo-permissions/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -2733,6 +2744,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
+  - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -2752,6 +2764,7 @@ SPEC REPOS:
     - FirebaseFirestore
     - FirebaseFirestoreInternal
     - FirebaseSharedSwift
+    - FirebaseStorage
     - GoogleUtilities
     - "gRPC-C++"
     - gRPC-Core
@@ -2782,8 +2795,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-manifests/ios"
   EXNotifications:
     :path: "../node_modules/expo-notifications/ios"
-  EXPermissions:
-    :path: "../node_modules/expo-permissions/ios"
   Expo:
     :path: "../node_modules/expo"
   ExpoAsset:
@@ -2919,6 +2930,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/auth"
   RNFBFirestore:
     :path: "../node_modules/@react-native-firebase/firestore"
+  RNFBStorage:
+    :path: "../node_modules/@react-native-firebase/storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNScreens:
@@ -2940,16 +2953,15 @@ SPEC CHECKSUMS:
   EXJSONUtils: 30c17fd9cc364d722c0946a550dfbf1be92ef6a4
   EXManifests: c1fab4c3237675e7b0299ea8df0bcb14baca4f42
   EXNotifications: dd289340c26bc5388e440fc90d0b2c661cbd0285
-  EXPermissions: 51c6115893689c3e9787f4819aa67ceeae601038
-  Expo: 76d7e2a8badda285c79ae69d01b6a40b3ec75e5c
+  Expo: 51c2d7fee7a8c7195ac257c9f9503378800d334e
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
   ExpoFont: 00756e6c796d8f7ee8d211e29c8b619e75cbf238
   ExpoImagePicker: 12a420923383ae38dccb069847218f27a3b87816
   ExpoKeepAwake: 3b8815d9dd1d419ee474df004021c69fdd316d08
-  ExpoModulesCore: db3e31e694684f08223d713e89f7648c6d3e04d0
+  ExpoModulesCore: 3f83202e3cfec3aa1485eaf2e68cc902b2b10737
   EXStructuredHeaders: cb8d1f698e144f4c5547b4c4963e1552f5d2b457
-  EXUpdates: c62c0a529da22a3f20754cae33cef91595d206c2
+  EXUpdates: 3561e817ffb4f26f835d7e9ecd94b8d8be8f7e5b
   EXUpdatesInterface: 996527fd7d1a5d271eb523258d603f8f92038f24
   FBLazyVector: ac12dc084d1c8ec4cc4d7b3cf1b0ebda6dab85af
   Firebase: 98e6bf5278170668a7983e12971a66b2cd57fc8c
@@ -2962,6 +2974,7 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 62708adbc1dfcd6d165a7c0a202067b441912dc9
   FirebaseFirestoreInternal: ad9b9ee2d3d430c8f31333a69b3b6737a7206232
   FirebaseSharedSwift: d39c2ad64a11a8d936ce25a42b00df47078bb59c
+  FirebaseStorage: 9353f926690b2329957860abfcbc8b4074fe45e8
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
@@ -3026,6 +3039,7 @@ SPEC CHECKSUMS:
   RNFBApp: c1337749fc4a372b515ba0eb82058efbd064e10b
   RNFBAuth: 64c5559b2f984a11ba4d360621224a15708912c0
   RNFBFirestore: a241440c1d48ee38cdee6049012ac4e59df35479
+  RNFBStorage: 687f8ee92412a32f9f39213197afcbac726f4e88
   RNGestureHandler: 83fd202dbc0b8971414c5c7c56ddd9f5cde05911
   RNScreens: db442e7b8c7bc8befec2ce057927305ff8598cc8
   RNVectorIcons: 3e3d9442edd8b15b0ef3cac19960048380a10399
