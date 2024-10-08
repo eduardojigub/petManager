@@ -52,7 +52,8 @@ export const ButtonSignIN = styled.TouchableOpacity`
 `;
 
 export const ButtonSignUP = styled.TouchableOpacity`
-  background-color: #41245C;
+  background-color: #fff;
+  border: 2px solid #41245C;
   margin: 10px;
   height: 50px;
   border-radius: 20px;
@@ -61,12 +62,20 @@ export const ButtonSignUP = styled.TouchableOpacity`
   align-items: center;
 `;
 
-export const ButtonText = styled.Text`
+export const ButtonTextSignIN = styled.Text`
   color: #fff;
   font-size: 16px;
   text-align: center;
   font-family: 'Poppins_400Regular';
 `;
+
+export const ButtonTextSignUP = styled.Text`
+  color: #41245C;
+  font-size: 16px;
+  text-align: center;
+  font-family: 'Poppins_400Regular';
+`;
+
 
 export const SmallText = styled.Text`
   font-size: 14px;
