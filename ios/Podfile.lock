@@ -1202,6 +1202,28 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - EXSplashScreen (0.27.6):
+    - DoubleConversion
+    - ExpoModulesCore
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - EXStructuredHeaders (3.8.0)
   - EXUpdates (0.25.26):
     - DoubleConversion
@@ -1260,9 +1282,9 @@ PODS:
     - FirebaseCoreInternal (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/Logger (~> 8.0)
-  - FirebaseCoreExtension (11.2.0):
+  - FirebaseCoreExtension (11.3.0):
     - FirebaseCore (~> 11.0)
-  - FirebaseCoreInternal (11.2.0):
+  - FirebaseCoreInternal (11.3.0):
     - "GoogleUtilities/NSData+zlib (~> 8.0)"
   - FirebaseFirestore (11.2.0):
     - FirebaseCore (~> 11.0)
@@ -1437,7 +1459,7 @@ PODS:
     - FBLazyVector (= 0.74.5)
     - RCTRequired (= 0.74.5)
     - React-Core (= 0.74.5)
-  - ReachabilitySwift (5.2.3)
+  - ReachabilitySwift (5.2.4)
   - React (0.74.5):
     - React-Core (= 0.74.5)
     - React-Core/DevSupport (= 0.74.5)
@@ -2682,6 +2704,7 @@ DEPENDENCIES:
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXStructuredHeaders (from `../node_modules/expo-structured-headers/ios`)
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
@@ -2809,6 +2832,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  EXSplashScreen:
+    :path: "../node_modules/expo-splash-screen/ios"
   EXStructuredHeaders:
     :path: "../node_modules/expo-structured-headers/ios"
   EXUpdates:
@@ -2960,6 +2985,7 @@ SPEC CHECKSUMS:
   ExpoImagePicker: 12a420923383ae38dccb069847218f27a3b87816
   ExpoKeepAwake: 3b8815d9dd1d419ee474df004021c69fdd316d08
   ExpoModulesCore: 3f83202e3cfec3aa1485eaf2e68cc902b2b10737
+  EXSplashScreen: 20d60cb03f05e50c23745bf2dc2573b9b2eb42ec
   EXStructuredHeaders: cb8d1f698e144f4c5547b4c4963e1552f5d2b457
   EXUpdates: 3561e817ffb4f26f835d7e9ecd94b8d8be8f7e5b
   EXUpdatesInterface: 996527fd7d1a5d271eb523258d603f8f92038f24
@@ -2969,8 +2995,8 @@ SPEC CHECKSUMS:
   FirebaseAuth: 2a198b8cdbbbd457f08d74df7040feb0a0e7777a
   FirebaseAuthInterop: c453b7ba7c49b88b2f519bb8d2e29edf7ada4a2a
   FirebaseCore: a282032ae9295c795714ded2ec9c522fc237f8da
-  FirebaseCoreExtension: cda74ddfb001224bd8fd1d6e74698b4ed07803de
-  FirebaseCoreInternal: 0c569513412da9f3b31bd0b340013bbee8f295c5
+  FirebaseCoreExtension: 30bb063476ef66cd46925243d64ad8b2c8ac3264
+  FirebaseCoreInternal: ac26d09a70c730e497936430af4e60fb0c68ec4e
   FirebaseFirestore: 62708adbc1dfcd6d165a7c0a202067b441912dc9
   FirebaseFirestoreInternal: ad9b9ee2d3d430c8f31333a69b3b6737a7206232
   FirebaseSharedSwift: d39c2ad64a11a8d936ce25a42b00df47078bb59c
@@ -2988,7 +3014,7 @@ SPEC CHECKSUMS:
   RCTDeprecation: 3afceddffa65aee666dafd6f0116f1d975db1584
   RCTRequired: ec1239bc9d8bf63e10fb92bd8b26171a9258e0c1
   RCTTypeSafety: f5ecbc86c5c5fa163c05acb7a1c5012e15b5f994
-  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   React: fc9fa7258eff606f44d58c5b233a82dc9cf09018
   React-callinvoker: e3fab14d69607fb7e8e3a57e5a415aed863d3599
   React-Codegen: bd1a15f54af401efee5f439aa6fd420b10550125

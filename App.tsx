@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -185,6 +189,13 @@ export default function App() {
       }),
     });
   }, []);
+
+    // Hide splash screen once initializing is false
+    useEffect(() => {
+      if (!initializing) {
+        SplashScreen.hideAsync();
+      }
+    }, [initializing]);
 
   // Exibe uma tela de carregamento enquanto verifica o status de login
   if (initializing) {
