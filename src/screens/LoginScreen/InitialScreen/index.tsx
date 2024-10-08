@@ -1,23 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Container, Title, Button, ButtonText } from './styles';
+import { useNavigation } from '@react-navigation/native';
 
-export default function InitialScreen({ navigation }) {
+export default function InitialScreen() {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the App</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignIn')}>
-        <Text style={styles.buttonText}>Sign In</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-    </View>
+    <Container>
+      <Title>Welcome to the App</Title>
+      <Button onPress={() => navigation.navigate('SignIn')}>
+        <ButtonText>Sign In</ButtonText>
+      </Button>
+      <Button onPress={() => navigation.navigate('SignUp')}>
+        <ButtonText>Sign Up</ButtonText>
+      </Button>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, marginBottom: 20 },
-  button: { backgroundColor: '#7289DA', padding: 15, margin: 10, borderRadius: 5 },
-  buttonText: { color: '#fff', fontSize: 16 },
-});
