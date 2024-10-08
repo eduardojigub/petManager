@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View } from 'react-native';
+import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -94,11 +94,47 @@ function ScheduleStack() {
 
 // Stack for Authentication
 function AuthStack() {
+
+  const CustomBackButton = ({ onPress }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: '#D1D1D1',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+      }}
+    >
+      <Icon name="chevron-left" size={20} color="#000" />
+    </TouchableOpacity>
+  );
+
   return (
     <Stack.Navigator initialRouteName="Initial">
       <Stack.Screen name="Initial" component={InitialScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignIn" component={SignInScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen name="SignIn" component={SignInScreen}  />
+      <Stack.Screen 
+        name="SignUp" 
+        component={SignUpScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Sign Up',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }} 
+      />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>
   );

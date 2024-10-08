@@ -1,32 +1,51 @@
-// SignUpScreen.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import {
+  Container,
+  Input,
+  CustomButton,
+  ButtonText
+} from './styles';
 
-export default function SignUpScreen({ navigation }) {
+export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigation = useNavigation();
 
   const handleSignUp = () => {
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    // Handle Sign Up logic here
-    navigation.navigate('Initial'); // Redirect back to initial screen
+    navigation.navigate('Initial'); // Redirect back to initial screen after signing up
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
-      <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
-      <Button title="Sign Up" onPress={handleSignUp} />
-    </View>
+    <Container>
+      <Input
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <Input
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <Input
+        placeholder="Confirm Password"
+        secureTextEntry
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+      />
+      <CustomButton onPress={handleSignUp}>
+        <ButtonText>Sign Up</ButtonText>
+      </CustomButton>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 5, borderColor: '#ccc' },
-});
