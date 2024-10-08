@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,12 +11,15 @@ import AddHealthRecordScreen from './src/screens/AddHealthRecord';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import LoginScreen from './src/screens/LoginScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
+import InitialScreen from './src/screens/LoginScreen/InitialScreen';
+import SignInScreen from './src/screens/LoginScreen/SignInScreen';
+import SignUpScreen from './src/screens/LoginScreen/SignUp';
+import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPasswordScreen';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -88,11 +91,14 @@ function ScheduleStack() {
   );
 }
 
-// Stack Navigator for Authentication
+// Stack for Authentication
 function AuthStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName="Initial">
+      <Stack.Screen name="Initial" component={InitialScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SignIn" component={SignInScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>
   );
 }
@@ -211,8 +217,11 @@ export default function App() {
     <NavigationContainer>
       <SafeAreaView style={styles.safeArea}>
         <Stack.Navigator>
-          <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
-          <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
+        {user ? (
+              <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
+            ) : (
+              <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
+            )}
         </Stack.Navigator>
       </SafeAreaView>
     </NavigationContainer>
