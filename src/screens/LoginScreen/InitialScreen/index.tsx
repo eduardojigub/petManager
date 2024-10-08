@@ -1,21 +1,28 @@
 import React from 'react';
-import { Container, Title, Button, ButtonText, StyledImage } from './styles';
+import { Container, TitleWrapper,SmallText, TitleContainer, Title, HighlightedTitle, Title2, ButtonSignUP, ButtonSignIN, ButtonText, StyledImage } from './styles';
 import { useNavigation } from '@react-navigation/native';
-import loginScreenImage from '../../../assets/loginScreenImage.png'
+import loginScreenImage from '../../../assets/loginScreenImage.png';
 
 export default function InitialScreen() {
   const navigation = useNavigation();
 
   return (
     <Container>
-      <Title>Welcome to the App</Title>
+      <TitleWrapper>
+        <TitleContainer>
+          <Title>Your </Title>
+          <HighlightedTitle>Pet's life,</HighlightedTitle>
+        </TitleContainer>
+        <Title2>organized!</Title2>
+      </TitleWrapper>
       <StyledImage source={loginScreenImage} />
-      <Button onPress={() => navigation.navigate('SignIn')}>
+      <ButtonSignIN onPress={() => navigation.navigate('SignIn')}>
         <ButtonText>Sign In</ButtonText>
-      </Button>
-      <Button onPress={() => navigation.navigate('SignUp')}>
+      </ButtonSignIN>
+      <SmallText>Don't have an account?</SmallText>
+      <ButtonSignUP onPress={() => navigation.navigate('SignUp')}>
         <ButtonText>Sign Up</ButtonText>
-      </Button>
+      </ButtonSignUP>
     </Container>
   );
 }

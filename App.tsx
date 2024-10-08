@@ -20,6 +20,7 @@ import InitialScreen from './src/screens/LoginScreen/InitialScreen';
 import SignInScreen from './src/screens/LoginScreen/SignIn';
 import SignUpScreen from './src/screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPassword';
+import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold  } from '@expo-google-fonts/poppins';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -162,6 +163,14 @@ export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
+   // Load fonts
+   const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold
+  });
+
   const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
     setUser(user);
     if (initializing) setInitializing(false);
@@ -198,13 +207,14 @@ export default function App() {
 
     // Hide splash screen once initializing is false
     useEffect(() => {
-      if (!initializing) {
+      if (!initializing && fontsLoaded) {
         SplashScreen.hideAsync();
       }
-    }, [initializing]);
+    }, [initializing, fontsLoaded]);
+  
 
   // Exibe uma tela de carregamento enquanto verifica o status de login
-  if (initializing) {
+  if (initializing || !fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#7289DA" />
@@ -232,6 +242,5 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
 });
