@@ -3,15 +3,23 @@ import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Container,
+  HeaderWrapper,
+  HeaderTitle,
+  HeaderSubtitle,
+  InputContainer,
+  Label,
   Input,
   CustomButton,
-  ButtonText
+  ButtonText,
+  TogglePasswordIcon
 } from './styles';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
 
   const handleSignUp = () => {
@@ -24,25 +32,36 @@ export default function SignUpScreen() {
 
   return (
     <Container>
-      <Input
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <Input
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Input
-        placeholder="Confirm Password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
+      <HeaderWrapper>
+        <HeaderTitle>Welcome</HeaderTitle>
+        <HeaderSubtitle>Please enter your account here</HeaderSubtitle>
+      </HeaderWrapper>
+
+      <InputContainer>
+        <Label>Email</Label>
+        <Input
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          placeholderTextColor="#7C7C7C"
+        />
+      </InputContainer>
+
+      <InputContainer>
+        <Label>Password</Label>
+        <Input
+          placeholder="Enter your password"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+          placeholderTextColor="#7C7C7C"
+        />
+        <TogglePasswordIcon onPress={() => setShowPassword(!showPassword)}>
+          <Icon name={showPassword ? "eye-off" : "eye"} size={20} color="#7C7C7C" />
+        </TogglePasswordIcon>
+      </InputContainer>
       <CustomButton onPress={handleSignUp}>
         <ButtonText>Sign Up</ButtonText>
       </CustomButton>
