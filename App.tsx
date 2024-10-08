@@ -148,7 +148,20 @@ function AuthStack() {
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }} 
       />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Forgot Password',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}  />
     </Stack.Navigator>
   );
 }

@@ -1,23 +1,58 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import { useNavigation } from '@react-navigation/native';
+import {
+  Container,
+  HeaderWrapper,
+  HeaderTitle,
+  HeaderSubtitle,
+  InputContainer,
+  Input,
+  CustomButton,
+  ButtonText
+} from './styles';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
+  const navigation = useNavigation();
 
-  const handlePasswordReset = () => {
-    // Trigger password reset logic here
-    Alert.alert('Success', 'Password reset instructions sent to your email');
+  const handlePasswordReset = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email.');
+      return;
+    }
+
+    try {
+      await auth().sendPasswordResetEmail(email);
+      Alert.alert('Success', 'Password reset email has been sent.');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput style={styles.input} placeholder="Enter your email" value={email} onChangeText={setEmail} />
-      <Button title="Reset Password" onPress={handlePasswordReset} />
-    </View>
+    <Container>
+      <HeaderWrapper>
+        <HeaderTitle>Forgot Password</HeaderTitle>
+        <HeaderSubtitle>Enter the email address associated with your account.</HeaderSubtitle>
+      </HeaderWrapper>
+
+      <InputContainer>
+        <Input
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          placeholderTextColor="#7C7C7C"
+        />
+      </InputContainer>
+
+      <CustomButton onPress={handlePasswordReset}>
+        <ButtonText>Proceed</ButtonText>
+      </CustomButton>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 5, borderColor: '#ccc' },
-});
