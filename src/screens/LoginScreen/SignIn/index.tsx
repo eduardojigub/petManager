@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import {
@@ -17,10 +16,14 @@ import {
   SignUpText,
   SignUpLink
 } from './styles';
+import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   const navigation = useNavigation();
 
   const validateEmail = (email) => {
@@ -28,9 +31,15 @@ export default function SignInScreen() {
     return emailRegex.test(email);
   };
 
+  const showAlert = (title, message) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
+
   const handleSignIn = async () => {
     if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email.');
+      showAlert('Error', 'Please enter a valid email.');
       return;
     }
 
@@ -41,7 +50,7 @@ export default function SignInScreen() {
         routes: [{ name: 'AppTabs' }],
       });
     } catch (error) {
-      Alert.alert('Login Error', error.message);
+      showAlert('Login Error', error.message);
     }
   };
 
@@ -88,6 +97,14 @@ export default function SignInScreen() {
           Don’t have an account? <SignUpLink onPress={() => navigation.navigate('SignUp')}>Sign Up</SignUpLink>
         </SignUpText>
       </SignUpLinkContainer>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </Container>
   );
 }
