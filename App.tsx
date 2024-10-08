@@ -116,7 +116,20 @@ function AuthStack() {
   return (
     <Stack.Navigator initialRouteName="Initial">
       <Stack.Screen name="Initial" component={InitialScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignIn" component={SignInScreen}  />
+      <Stack.Screen name="SignIn" component={SignInScreen}  options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Sign In',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}  />
       <Stack.Screen 
         name="SignUp" 
         component={SignUpScreen}

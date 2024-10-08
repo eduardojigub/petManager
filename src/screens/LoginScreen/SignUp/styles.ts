@@ -69,7 +69,7 @@ export const TogglePasswordIcon = styled.TouchableOpacity`
 export const CheckboxContainer = styled.View`
   flex-direction: row;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 20px;
   margin-bottom: 20px;
 `;
 
@@ -81,7 +81,7 @@ export const CheckboxLabel = styled.Text`
 
 export const SignInLinkContainer = styled.View`
   align-items: center;
-  margin-top: 25px;
+  margin-top: 55px;
 `;
 
 export const SignInText = styled.Text`
