@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Container,
@@ -20,31 +19,39 @@ import {
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CheckBox from '@react-native-community/checkbox';
-
+import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   const navigation = useNavigation();
+
+  const showAlert = (title, message) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
 
   const handleSignUp = () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'All fields are required.');
+      showAlert('Error', 'All fields are required.');
       return;
     }
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      showAlert('Error', 'Password must be at least 6 characters long.');
       return;
     }
     if (!agree) {
-      Alert.alert('Error', 'You must agree to the terms & conditions.');
+      showAlert('Error', 'You must agree to the terms & conditions.');
       return;
     }
     navigation.navigate('Initial'); // Redirect back to initial screen after signing up
   };
-  
 
   return (
     <Container>
@@ -78,8 +85,8 @@ export default function SignUpScreen() {
           <Icon name={showPassword ? "eye-off" : "eye"} size={20} color="#7C7C7C" />
         </TogglePasswordIcon>
       </InputContainer>
-        {/* Checkbox for terms & conditions */}
-        <CheckboxContainer>
+
+      <CheckboxContainer>
         <CheckBox
           value={agree}
           onValueChange={setAgree}
@@ -95,6 +102,14 @@ export default function SignUpScreen() {
       <SignInLinkContainer>
         <SignInText>Already have an account? <SignInLink onPress={() => navigation.navigate('SignIn')}>Sign In</SignInLink></SignInText>
       </SignInLinkContainer>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </Container>
   );
 }
