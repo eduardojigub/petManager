@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -12,23 +11,32 @@ import {
   CustomButton,
   ButtonText
 } from './styles';
+import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   const navigation = useNavigation();
 
   const handlePasswordReset = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email.');
+      setAlertTitle('Error');
+      setAlertMessage('Please enter your email.');
+      setAlertVisible(true);
       return;
     }
 
     try {
       await auth().sendPasswordResetEmail(email);
-      Alert.alert('Success', 'Password reset email has been sent.');
-      navigation.goBack();
+      setAlertTitle('Success');
+      setAlertMessage('Password reset email has been sent.');
+      setAlertVisible(true);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      setAlertTitle('Error');
+      setAlertMessage(error.message);
+      setAlertVisible(true);
     }
   };
 
@@ -53,6 +61,14 @@ export default function ForgotPasswordScreen() {
       <CustomButton onPress={handlePasswordReset}>
         <ButtonText>Proceed</ButtonText>
       </CustomButton>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </Container>
   );
 }
