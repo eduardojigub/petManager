@@ -1,19 +1,18 @@
 import React from 'react';
-import { Container, Title, Button, ButtonText } from './styles'; // Importing the styled components
+import { Container, Title, Button, ButtonText } from './styles'; 
+import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 export default function SettingsScreen() {
 
-  const navigation = useNavigation();
 
   const handleLogout = () => {
-    // Here you can add any additional logout logic (e.g. removing session data)
-    
-    // Reset navigation flow and return to the login screen
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'AuthStack' }], // Navigate to the authentication stack
-    });
+    auth()
+      .signOut()
+      .catch((error) => {
+        Alert.alert('Logout Error', error.message);
+      });
   };
 
   return (

@@ -17,9 +17,9 @@ import { DogProfileProvider } from './src/context/DogProfileContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import InitialScreen from './src/screens/LoginScreen/InitialScreen';
-import SignInScreen from './src/screens/LoginScreen/SignInScreen';
+import SignInScreen from './src/screens/LoginScreen/SignIn';
 import SignUpScreen from './src/screens/LoginScreen/SignUp';
-import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPasswordScreen';
+import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPassword';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
