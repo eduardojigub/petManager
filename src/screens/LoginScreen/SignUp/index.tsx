@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 import {
   Container,
   HeaderWrapper,
@@ -37,7 +38,7 @@ export default function SignUpScreen() {
     setAlertVisible(true);
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!email.trim() || !password.trim()) {
       showAlert('Error', 'All fields are required.');
       return;
@@ -50,7 +51,17 @@ export default function SignUpScreen() {
       showAlert('Error', 'You must agree to the terms & conditions.');
       return;
     }
-    navigation.navigate('Initial'); // Redirect back to initial screen after signing up
+
+    try {
+      await auth().createUserWithEmailAndPassword(email, password);
+      navigation.navigate('Initial'); // Redirect back to initial screen after signing up
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        showAlert('Error', 'Email already registered');
+      } else {
+        showAlert('Error', error.message);
+      }
+    }
   };
 
   return (
