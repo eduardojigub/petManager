@@ -23,3 +23,9 @@ export const ButtonText = styled.Text`
   font-size: 16px;
   text-align: center;
 `;
+
+export const StyledImage = styled.Image`
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+`;

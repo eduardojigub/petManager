@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Title, Button, ButtonText } from './styles';
+import { Container, Title, Button, ButtonText, StyledImage } from './styles';
 import { useNavigation } from '@react-navigation/native';
+import loginScreenImage from '../../../assets/loginScreenImage.png'
 
 export default function InitialScreen() {
   const navigation = useNavigation();
@@ -8,6 +9,7 @@ export default function InitialScreen() {
   return (
     <Container>
       <Title>Welcome to the App</Title>
+      <StyledImage source={loginScreenImage} />
       <Button onPress={() => navigation.navigate('SignIn')}>
         <ButtonText>Sign In</ButtonText>
       </Button>
