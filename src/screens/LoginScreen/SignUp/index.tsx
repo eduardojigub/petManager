@@ -11,24 +11,40 @@ import {
   Input,
   CustomButton,
   ButtonText,
-  TogglePasswordIcon
+  TogglePasswordIcon,
+  CheckboxContainer,
+  SignInLinkContainer,
+  SignInText,
+  SignInLink,
+  CheckboxLabel
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import CheckBox from '@react-native-community/checkbox';
+
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [agree, setAgree] = useState(false);
   const navigation = useNavigation();
 
   const handleSignUp = () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'All fields are required.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      return;
+    }
+    if (!agree) {
+      Alert.alert('Error', 'You must agree to the terms & conditions.');
       return;
     }
     navigation.navigate('Initial'); // Redirect back to initial screen after signing up
   };
+  
 
   return (
     <Container>
@@ -62,9 +78,23 @@ export default function SignUpScreen() {
           <Icon name={showPassword ? "eye-off" : "eye"} size={20} color="#7C7C7C" />
         </TogglePasswordIcon>
       </InputContainer>
+        {/* Checkbox for terms & conditions */}
+        <CheckboxContainer>
+        <CheckBox
+          value={agree}
+          onValueChange={setAgree}
+          tintColors={{ true: '#41245C', false: '#7C7C7C' }}
+        />
+        <CheckboxLabel>I agree with terms & conditions</CheckboxLabel>
+      </CheckboxContainer>
+
       <CustomButton onPress={handleSignUp}>
         <ButtonText>Sign Up</ButtonText>
       </CustomButton>
+
+      <SignInLinkContainer>
+        <SignInText>Already have an account? <SignInLink onPress={() => navigation.navigate('SignIn')}>Sign In</SignInLink></SignInText>
+      </SignInLinkContainer>
     </Container>
   );
 }

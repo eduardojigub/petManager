@@ -43,14 +43,19 @@ export const Input = styled.TextInput`
 `;
 
 export const CustomButton = styled.TouchableOpacity`
-  background-color: #41245C;
-  padding: 15px;
+  background-color: #fff;
   margin-top: 20px;
-  border-radius: 5px;
+  border-radius: 20px;
+  height: 50px;
+  width: 250px;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #41245C;
+  align-self: center;
 `;
 
 export const ButtonText = styled.Text`
-  color: #fff;
+  color: #41245C;
   font-size: 16px;
   text-align: center;
 `;
@@ -59,4 +64,33 @@ export const TogglePasswordIcon = styled.TouchableOpacity`
   position: absolute;
   right: 15px;
   top: 42px;
+`;
+
+export const CheckboxContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+`;
+
+export const CheckboxLabel = styled.Text`
+  color: #7C7C7C;
+  font-size: 14px;
+  margin-left: 5px;
+`;
+
+export const SignInLinkContainer = styled.View`
+  align-items: center;
+  margin-top: 25px;
+`;
+
+export const SignInText = styled.Text`
+  font-size: 14px;
+  color: #7C7C7C;
+`;
+
+export const SignInLink = styled.Text`
+  color: #EBA059;
+  font-size: 14px;
+  text-decoration: underline;
 `;
