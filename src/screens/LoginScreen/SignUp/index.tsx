@@ -107,11 +107,11 @@ export default function SignUpScreen() {
       </CheckboxContainer>
 
       <CustomButton onPress={handleSignUp}>
-        <ButtonText>Sign Up</ButtonText>
+        <ButtonText>Register</ButtonText>
       </CustomButton>
 
       <SignInLinkContainer>
-        <SignInText>Already have an account? <SignInLink onPress={() => navigation.navigate('SignIn')}>Sign In</SignInLink></SignInText>
+        <SignInText>Already have an account? <SignInLink onPress={() => navigation.navigate('SignIn')}>Login</SignInLink></SignInText>
       </SignInLinkContainer>
 
       {/* Custom Alert */}
