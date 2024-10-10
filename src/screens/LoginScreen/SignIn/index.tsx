@@ -89,12 +89,12 @@ export default function SignInScreen() {
       </ForgotPasswordContainer>
 
       <CustomButton onPress={handleSignIn}>
-        <ButtonText>Sign In</ButtonText>
+        <ButtonText>Login</ButtonText>
       </CustomButton>
 
       <SignUpLinkContainer>
         <SignUpText>
-          Don’t have an account? <SignUpLink onPress={() => navigation.navigate('SignUp')}>Sign Up</SignUpLink>
+          Don’t have an account? <SignUpLink onPress={() => navigation.navigate('SignUp')}>Register</SignUpLink>
         </SignUpText>
       </SignUpLinkContainer>
 
