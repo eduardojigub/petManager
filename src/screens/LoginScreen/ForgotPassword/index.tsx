@@ -59,7 +59,7 @@ export default function ForgotPasswordScreen() {
       </InputContainer>
 
       <CustomButton onPress={handlePasswordReset}>
-        <ButtonText>Proceed</ButtonText>
+        <ButtonText>Reset password</ButtonText>
       </CustomButton>
 
       {/* Custom Alert */}
