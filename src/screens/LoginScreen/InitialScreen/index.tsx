@@ -17,11 +17,11 @@ export default function InitialScreen() {
       </TitleWrapper>
       <StyledImage source={loginScreenImage} />
       <ButtonSignIN onPress={() => navigation.navigate('SignIn')}>
-        <ButtonTextSignIN>Sign In</ButtonTextSignIN>
+        <ButtonTextSignIN>Login</ButtonTextSignIN>
       </ButtonSignIN>
       <SmallText>Don't have an account?</SmallText>
       <ButtonSignUP onPress={() => navigation.navigate('SignUp')}>
-        <ButtonTextSignUP>Sign Up</ButtonTextSignUP>
+        <ButtonTextSignUP>Register</ButtonTextSignUP>
       </ButtonSignUP>
     </Container>
   );
