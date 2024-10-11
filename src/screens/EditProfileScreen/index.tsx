@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../firebase/Firestore'; // Import Firestore
 import storage from '@react-native-firebase/storage'; // Import Firebase Storage
 import auth from '@react-native-firebase/auth'; // Import Firebase Auth
-import { Container, Label, Input, SaveButton, ButtonText, ImagePreview, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton } from './styles';
+import { Container, Label, Input, SaveButton, ButtonText, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton, FormContainer, BannerImageBackground } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 
 export default function EditProfileScreen({ navigation, route }) {
@@ -108,42 +108,42 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <ScrollContainer>
-      <Container>
-        <Label>{isNewProfile ? "Add New Dog Profile" : "Edit Dog's Profile"}</Label>
+      {/* Banner image background */}
+      <BannerImageBackground source={{ uri: image || '' }}>
+        {!image && <NoImageText>No image selected</NoImageText>}
+      </BannerImageBackground>
 
-        {image ? (
-          <ImagePreview source={{ uri: image }} />
-        ) : (
-          <NoImageText>No image selected</NoImageText>
-        )}
+      <FormContainer>
+        <Container>
+          <Label>{isNewProfile ? "Add New Dog Profile" : "Edit Dog's Profile"}</Label>
 
-        <Label>Dog's Name</Label>
-        <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
+          <Label>Dog's Name</Label>
+          <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
 
-        <Label>Breed</Label>
-        <Input value={breed} onChangeText={setBreed} placeholder="Enter breed" />
+          <Label>Breed</Label>
+          <Input value={breed} onChangeText={setBreed} placeholder="Enter breed" />
 
-        <Label>Age</Label>
-        <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
+          <Label>Age</Label>
+          <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
 
-        <Label>Weight (kg)</Label>
-        <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
+          <Label>Weight (kg)</Label>
+          <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
 
-        <AddPhotoButton onPress={pickImage}>
-          <ButtonText>{image ? "Change Photo" : "Add a Photo"}</ButtonText>
-        </AddPhotoButton>
+          <AddPhotoButton onPress={pickImage}>
+            <ButtonText>{image ? "Change Photo" : "Add a Photo"}</ButtonText>
+          </AddPhotoButton>
 
-        <SaveButton onPress={handleSave} disabled={uploading}>
-          <ButtonText>{uploading ? "Uploading..." : isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
-        </SaveButton>
+          <SaveButton onPress={handleSave} disabled={uploading}>
+            <ButtonText>{uploading ? "Uploading..." : isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
+          </SaveButton>
 
-         {/* Conditionally show the Delete Profile button for existing profiles */}
-         {!isNewProfile && (
-          <DeleteButton onPress={handleDelete}>
-            <ButtonText>Delete Profile</ButtonText>
-          </DeleteButton>
-        )}
-      </Container>
+          {!isNewProfile && (
+            <DeleteButton onPress={handleDelete}>
+              <ButtonText>Delete Profile</ButtonText>
+            </DeleteButton>
+          )}
+        </Container>
+      </FormContainer>
     </ScrollContainer>
   );
 }

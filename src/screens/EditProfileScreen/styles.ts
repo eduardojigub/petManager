@@ -2,14 +2,30 @@ import styled from 'styled-components/native';
 
 export const ScrollContainer = styled.ScrollView`
   flex: 1;
-  background-color: #f0f2f5;
+  background-color: #fff;
+`;
+
+export const BannerImageBackground = styled.ImageBackground`
+  width: 100%;
+  height: 250px;
+  justify-content: flex-end;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  overflow: hidden;
+  background-color: #e0e0e0; // Placeholder color if no image is available
+`;
+
+export const FormContainer = styled.View`
+  margin-top: -40px; // Pull up the form container to overlay slightly on the banner
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 export const Container = styled.View`
-  flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: #f0f2f5;
   padding: 20px;
 `;
 
@@ -28,7 +44,6 @@ export const Input = styled.TextInput`
   border: 1px solid #ccc;
   background-color: #fff;
   font-size: 16px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 export const AddPhotoButton = styled.TouchableOpacity`
@@ -39,7 +54,6 @@ export const AddPhotoButton = styled.TouchableOpacity`
   margin-bottom: 20px;
   width: 100%;
   align-items: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 export const SaveButton = styled.TouchableOpacity`
@@ -48,37 +62,25 @@ export const SaveButton = styled.TouchableOpacity`
   border-radius: 25px;
   width: 100%;
   align-items: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 export const ButtonText = styled.Text`
   color: white;
   font-size: 18px;
   font-weight: bold;
-  text-align: center;
-`;
-
-export const ImagePreview = styled.Image`
-  width: 200px;
-  height: 200px;
-  margin-top: 20px;
-  border-radius: 100px;
-  border: 2px solid #7289DA;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 export const NoImageText = styled.Text`
   color: #888;
   font-size: 16px;
-  margin-top: 20px;
+  text-align: center;
 `;
 
 export const DeleteButton = styled.TouchableOpacity`
-  background-color: #e74c3c; /* Red color for delete */
+  background-color: #e74c3c;
   padding: 15px 30px;
   border-radius: 25px;
   margin-top: 20px;
   width: 100%;
   align-items: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;
