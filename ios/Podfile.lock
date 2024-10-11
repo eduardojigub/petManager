@@ -2664,6 +2664,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSVG (15.7.1):
+    - React-Core
   - RNVectorIcons (10.2.0):
     - DoubleConversion
     - glog
@@ -2775,6 +2777,7 @@ DEPENDENCIES:
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2969,6 +2972,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -3078,6 +3083,7 @@ SPEC CHECKSUMS:
   RNFBStorage: 687f8ee92412a32f9f39213197afcbac726f4e88
   RNGestureHandler: 83fd202dbc0b8971414c5c7c56ddd9f5cde05911
   RNScreens: db442e7b8c7bc8befec2ce057927305ff8598cc8
+  RNSVG: 4590aa95758149fa27c5c83e54a6a466349a1688
   RNVectorIcons: 3e3d9442edd8b15b0ef3cac19960048380a10399
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   sqlite3: 02d1f07eaaa01f80a1c16b4b31dfcbb3345ee01a

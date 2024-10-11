@@ -126,3 +126,54 @@ export const MoreButtonText = styled.Text`
 export const NotesSection = styled.View`
   margin-top: 20px;
 `;
+
+export const NoAppointmentText = styled.Text`
+  margin-top: 12px;
+`
+
+export const NoteItemRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+`;
+
+export const IconCircle = styled.View`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #eee;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+`;
+
+export const DescriptionContainer = styled.View`
+  flex: 1;
+`;
+
+export const DescriptionText = styled.Text`
+  font-size: 16px;
+  font-family: 'Poppins_400Regular';
+  color: #333;
+`;
+
+export const SubtitleText = styled.Text`
+  font-size: 14px;
+  color: #666666;
+  font-family: 'Poppins_400Regular';
+`;
+
+export const DetailsButton = styled.TouchableOpacity`
+  background-color: #FA6650;
+  padding: 8px 12px;
+  border-radius: 5px;
+`;
+
+export const DetailsButtonText = styled.Text`
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Poppins_600SemiBold';
+`;
