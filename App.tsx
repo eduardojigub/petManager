@@ -28,7 +28,23 @@ SplashScreen.preventAutoHideAsync();
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-
+const CustomBackButton = ({ onPress }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      borderWidth: 1,
+      borderColor: '#D1D1D1',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: 10,
+    }}
+  >
+    <Icon name="chevron-left" size={20} color="#000" />
+  </TouchableOpacity>
+);
 
 // Stack Navigator for Profile and Edit Profile
 function ProfileStack() {
@@ -45,7 +61,20 @@ function ProfileStack() {
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
-        options={{ title: 'Edit Profile' }}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Edit Profile',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
       />
     </Stack.Navigator>
   );
@@ -94,25 +123,6 @@ function ScheduleStack() {
 
 // Stack for Authentication
 function AuthStack() {
-
-  const CustomBackButton = ({ onPress }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#D1D1D1',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 10,
-      }}
-    >
-      <Icon name="chevron-left" size={20} color="#000" />
-    </TouchableOpacity>
-  );
-
   return (
     <Stack.Navigator initialRouteName="Initial">
       <Stack.Screen name="Initial" component={InitialScreen} options={{ headerShown: false }} />
