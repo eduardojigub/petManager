@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, Text, View, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { Container, Header, ProfileList, ProfileImage, ProfileName, SelectedDogSection, DogDetails, DogImage, EditButton, EditButtonText, NotesSection, NotesTitle, NoteItem } from './styles';
+import { Container, Header, ProfileList, ProfileImage, ProfileName, SelectedDogSection, DogDetails, DogImage, EditButton, EditButtonText, NotesSection, NotesTitle, NoteItem, WelcomeHeader, AddProfileCircle, MoreButtonText, NotesHeader } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import auth from '@react-native-firebase/auth';
 
 export default function ProfileScreen() {
-  const [dogProfiles, setDogProfiles] = useState([]); // List of dog profiles
-  const { selectedDog, setSelectedDog } = useContext(DogProfileContext); // Access context
+  const [dogProfiles, setDogProfiles] = useState<{ id: string; image?: string; name: string; breed: string; age: number; weight: number }[]>([]); // List of dog profiles
+  const { selectedDog, setSelectedDog } = useContext(DogProfileContext) as { selectedDog: any, setSelectedDog: (dog: any) => void }; // Access context
   const [upcomingSchedules, setUpcomingSchedules] = useState([]); // List of schedules for the selected dog
   const navigation = useNavigation();
 
@@ -106,20 +106,10 @@ export default function ProfileScreen() {
   );
 
   const renderAddProfileButton = () => (
-    <TouchableOpacity
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 80,
-        height: 80,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#ccc',
-        marginHorizontal: 10,
-      }}
-      onPress={() => navigation.navigate('EditProfile')}
-    >
-      <Icon name="plus" size={40} color="#7289DA" />
+    <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+      <AddProfileCircle>
+        <Icon name="plus" size={40} color="#000" />
+      </AddProfileCircle>
     </TouchableOpacity>
   );
 
@@ -127,7 +117,7 @@ export default function ProfileScreen() {
     <Container>
       {/* Header */}
       <Header>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#7289DA' }}>Profile</Text>
+        <WelcomeHeader>Welcome, human!</WelcomeHeader>
       </Header>
 
       {/* Horizontal List of Dog Profiles */}
@@ -164,7 +154,12 @@ export default function ProfileScreen() {
       {/* Upcoming Notes */}
       {selectedDog && (
         <NotesSection>
-          <NotesTitle>Upcoming Schedules</NotesTitle>
+          <NotesHeader>
+            <NotesTitle>Upcoming Appointments</NotesTitle>
+            <TouchableOpacity onPress={() => navigation.navigate('Schedule')}>
+              <MoreButtonText>More</MoreButtonText>
+            </TouchableOpacity>
+          </NotesHeader>
           {upcomingSchedules.length > 0 ? (
             upcomingSchedules.map((schedule) => (
               <NoteItem key={schedule.id}>{schedule.description} - {schedule.date} {schedule.time}</NoteItem>
