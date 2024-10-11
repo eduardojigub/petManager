@@ -27,6 +27,11 @@ import {
   SubtitleText,
   DetailsButton,
   DetailsButtonText,
+  DogImageBackground,
+  GradientOverlay,
+  DogDetailsContainer,
+  DogInfo,
+  DogInfoText,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
@@ -157,6 +162,26 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
+  const renderDogDetails = (dog) => (
+    <SelectedDogSection>
+      <DogImageBackground source={{ uri: dog.image }}>
+        <GradientOverlay>
+          <DogDetailsContainer>
+            <DogInfo>
+              <DogInfoText>{dog.name}</DogInfoText>
+              <DogInfoText>{dog.breed}</DogInfoText>
+              <DogInfoText>{dog.age} years</DogInfoText>
+              <DogInfoText>{dog.weight} kg</DogInfoText>
+            </DogInfo>
+            <EditButton onPress={() => navigation.navigate('EditProfile', dog)}>
+              <EditButtonText>Edit Profile</EditButtonText>
+            </EditButton>
+          </DogDetailsContainer>
+        </GradientOverlay>
+      </DogImageBackground>
+    </SelectedDogSection>
+  );
+
   const renderScheduleItem = (schedule) => (
     <NoteItemRow key={schedule.id}>
       <IconCircle>
@@ -201,26 +226,7 @@ export default function ProfileScreen() {
       </ProfileList>
 
       {/* Selected Dog Details */}
-      {selectedDog && (
-        <SelectedDogSection>
-          <DogDetails>
-            <DogImage source={{ uri: selectedDog.image }} />
-            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-              {selectedDog.name}
-            </Text>
-            <Text>Breed: {selectedDog.breed}</Text>
-            <Text>Age: {selectedDog.age} years</Text>
-            <Text>Weight: {selectedDog.weight} kg</Text>
-          </DogDetails>
-
-          {/* Edit Profile Button */}
-          <EditButton
-            onPress={() => navigation.navigate('EditProfile', selectedDog)}
-          >
-            <EditButtonText>Edit Dog Profile</EditButtonText>
-          </EditButton>
-        </SelectedDogSection>
-      )}
+      {selectedDog && renderDogDetails(selectedDog)}
 
       {/* Upcoming Notes */}
       {selectedDog && (

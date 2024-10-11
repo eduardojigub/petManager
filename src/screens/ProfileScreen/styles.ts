@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export const Container = styled.View`
   flex: 1;
@@ -59,13 +60,15 @@ export const ProfileName = styled.Text`
   color: #333;
 `;
 
+
+
 export const SelectedDogSection = styled.View`
   background-color: #ffffff;
-  padding: 15px;
   border-radius: 10px;
-  align-items: center;
+  overflow: hidden; // Ensures the image and gradient fit within the card
   margin-bottom: 20px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 `;
 
 export const DogDetails = styled.View`
@@ -82,18 +85,49 @@ export const DogImage = styled.Image`
   border-color: #7289DA;
 `;
 
+export const DogImageBackground = styled.ImageBackground`
+  width: 100%;
+  height: 180px;
+  justify-content: flex-end; // Align items to the bottom
+`;
+
+export const GradientOverlay = styled(LinearGradient).attrs({
+  colors: ['transparent', 'rgba(0, 0, 0, 0.6)'],
+})`
+  width: 100%;
+  padding: 10px;
+  padding-bottom: 15px;
+`;
+
+export const DogDetailsContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 export const EditButton = styled.TouchableOpacity`
-  background-color: #7289DA;
+  background-color: #ffffff;
   padding: 10px 20px;
-  border-radius: 30px;
+  border-radius: 20px;
+  margin-right: 10px;
 `;
 
 export const EditButtonText = styled.Text`
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
+  color: #000;
+  font-size: 14px;
+  font-family: 'Poppins_600SemiBold';
 `;
+
+export const DogInfoText = styled.Text`
+  color: white;
+  font-size: 14px;
+  font-family: 'Poppins_400Regular';
+`;
+
+export const DogInfo = styled.View`
+  padding-left: 10px;
+`;
+
 
 export const NotesHeader = styled.View`
   flex-direction: row;
