@@ -56,8 +56,8 @@ export const ProfileItem = styled.TouchableOpacity`
 
 export const ProfileName = styled.Text`
   font-size: 14px;
-  font-weight: bold;
-  color: #333;
+  font-family: 'Poppins_400Regular';
+  color: #666666;
 `;
 
 
@@ -66,7 +66,7 @@ export const SelectedDogSection = styled.View`
   background-color: #ffffff;
   border-radius: 10px;
   overflow: hidden; // Ensures the image and gradient fit within the card
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
 `;
@@ -87,7 +87,7 @@ export const DogImage = styled.Image`
 
 export const DogImageBackground = styled.ImageBackground`
   width: 100%;
-  height: 180px;
+  height: 220px;
   justify-content: flex-end; // Align items to the bottom
 `;
 
@@ -110,6 +110,7 @@ export const EditButton = styled.TouchableOpacity`
   padding: 10px 20px;
   border-radius: 20px;
   margin-right: 10px;
+  margin-top: 30px;
 `;
 
 export const EditButtonText = styled.Text`
@@ -121,11 +122,29 @@ export const EditButtonText = styled.Text`
 export const DogInfoText = styled.Text`
   color: white;
   font-size: 14px;
-  font-family: 'Poppins_400Regular';
+  font-family: 'Poppins_500Medium';
 `;
 
 export const DogInfo = styled.View`
   padding-left: 10px;
+`;
+
+export const DogInfoRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const InfoText = styled.Text`
+  color: white;
+  font-size: 14px;
+  font-family: 'Poppins_500Medium';
+`;
+
+export const BulletPoint = styled.Text`
+  color: white;
+  font-size: 14px;
+  font-family: 'Poppins_400Regular';
+  margin: 0 5px; // Adds space around the bullet point
 `;
 
 
@@ -135,9 +154,10 @@ export const NotesHeader = styled.View`
   align-items: center;
   width: 100%;
   padding-right: 10px; // Optional: Add slight padding for spacing from the right edge
+  margin-bottom: 20px;
 `;
 export const NotesTitle = styled.Text`
- font-size: 20px;
+  font-size: 20px;
   font-weight: normal;
   font-family: 'Poppins_600SemiBold';
   color: #333;

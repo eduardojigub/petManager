@@ -8,13 +8,10 @@ import {
   ProfileImage,
   ProfileName,
   SelectedDogSection,
-  DogDetails,
-  DogImage,
   EditButton,
   EditButtonText,
   NotesSection,
   NotesTitle,
-  NoteItem,
   WelcomeHeader,
   AddProfileCircle,
   MoreButtonText,
@@ -32,6 +29,9 @@ import {
   DogDetailsContainer,
   DogInfo,
   DogInfoText,
+  DogInfoRow,
+  InfoText,
+  BulletPoint,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
@@ -169,9 +169,12 @@ export default function ProfileScreen() {
           <DogDetailsContainer>
             <DogInfo>
               <DogInfoText>{dog.name}</DogInfoText>
+              <DogInfoRow>
+                <InfoText>{dog.age} years</InfoText>
+                <BulletPoint>•</BulletPoint>
+                <InfoText>{dog.weight} kg</InfoText>
+              </DogInfoRow>
               <DogInfoText>{dog.breed}</DogInfoText>
-              <DogInfoText>{dog.age} years</DogInfoText>
-              <DogInfoText>{dog.weight} kg</DogInfoText>
             </DogInfo>
             <EditButton onPress={() => navigation.navigate('EditProfile', dog)}>
               <EditButtonText>Edit Profile</EditButtonText>

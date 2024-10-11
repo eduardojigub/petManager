@@ -20,7 +20,7 @@ import InitialScreen from './src/screens/LoginScreen/InitialScreen';
 import SignInScreen from './src/screens/LoginScreen/SignIn';
 import SignUpScreen from './src/screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPassword';
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold  } from '@expo-google-fonts/poppins';
+import { useFonts, Poppins_400Regular,Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold  } from '@expo-google-fonts/poppins';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -228,6 +228,7 @@ export default function App() {
    // Load fonts
    const [fontsLoaded] = useFonts({
     Poppins_400Regular,
+    Poppins_500Medium,
     Poppins_600SemiBold,
     Poppins_700Bold,
     Poppins_800ExtraBold
