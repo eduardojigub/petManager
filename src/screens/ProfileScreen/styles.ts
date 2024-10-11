@@ -32,7 +32,7 @@ export const ProfileImage = styled.Image`
   border-radius: 40px;
   margin-bottom: 5px;
   border-width: 1px;
-  border-color: #000;
+  border-color: #41245C;
   margin-top: 10px;
 `;
 
@@ -40,7 +40,7 @@ export const AddProfileCircle = styled.View`
   width: 80px;
   height: 80px;
   border-radius: 40px; // Circular shape
-  background-color: #000;
+  background-color: #41245C;
   justify-content: center;
   align-items: center;
   border-width: 1px;
@@ -82,7 +82,7 @@ export const DogImage = styled.Image`
   border-radius: 60px;
   margin-bottom: 10px;
   border-width: 2px;
-  border-color: #7289DA;
+  border-color: #41245C;
 `;
 
 export const DogImageBackground = styled.ImageBackground`
@@ -177,8 +177,8 @@ export const MoreButtonText = styled.Text`
   font-family: 'Poppins_400Regular';
 `;
 
-export const NotesSection = styled.View`
-  margin-top: 20px;
+export const NotesSection = styled.ScrollView`
+  margin-top: 40px;
 `;
 
 export const NoAppointmentText = styled.Text`
@@ -195,10 +195,10 @@ export const NoteItemRow = styled.View`
 `;
 
 export const IconCircle = styled.View`
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 62px;
   border-radius: 20px;
-  background-color: #eee;
+  background-color: #DFC2FA;
   justify-content: center;
   align-items: center;
   margin-right: 10px;
@@ -221,7 +221,7 @@ export const SubtitleText = styled.Text`
 `;
 
 export const DetailsButton = styled.TouchableOpacity`
-  background-color: #FA6650;
+  background-color: #41245C;
   padding: 8px 12px;
   border-radius: 5px;
 `;

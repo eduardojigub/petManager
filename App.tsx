@@ -172,7 +172,7 @@ function AppTabs() {
     <Tab.Navigator
       initialRouteName="ProfileTab"
       screenOptions={{
-        tabBarActiveTintColor: '#4caf50',
+        tabBarActiveTintColor: '#41245C',
         tabBarInactiveTintColor: '#888',
         headerShown: false,
       }}

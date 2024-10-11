@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Text, View, TouchableOpacity } from 'react-native';
+import { FlatList, View, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   Container,
@@ -38,6 +38,7 @@ import { db } from '../../firebase/Firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import auth from '@react-native-firebase/auth';
 import * as IconPhospor from "phosphor-react-native";
+import { formatDateTime } from '../../utils/dateFormarter';
 
 export default function ProfileScreen() {
   const [dogProfiles, setDogProfiles] = useState<
@@ -157,7 +158,7 @@ export default function ProfileScreen() {
   const renderAddProfileButton = () => (
     <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
       <AddProfileCircle>
-        <Icon name="plus" size={40} color="#000" />
+        <Icon name="plus" size={40} color="#41245C" />
       </AddProfileCircle>
     </TouchableOpacity>
   );
@@ -188,12 +189,12 @@ export default function ProfileScreen() {
   const renderScheduleItem = (schedule) => (
     <NoteItemRow key={schedule.id}>
       <IconCircle>
-        <IconPhospor.Syringe size={20} color="#333" />
+        <IconPhospor.Syringe size={32} color="#41245C" />
       </IconCircle>
 
       <DescriptionContainer>
         <DescriptionText>{schedule.description}</DescriptionText>
-        <SubtitleText>{`${schedule.date} ${schedule.time}`}</SubtitleText>
+        <SubtitleText>{formatDateTime(`${schedule.date} ${schedule.time}`)}</SubtitleText>
       </DescriptionContainer>
 
       <DetailsButton
@@ -233,7 +234,7 @@ export default function ProfileScreen() {
 
       {/* Upcoming Notes */}
       {selectedDog && (
-        <NotesSection>
+        <NotesSection showsVerticalScrollIndicator={false}>
           <NotesHeader>
             <NotesTitle>Upcoming Appointments</NotesTitle>
             <TouchableOpacity onPress={() => navigation.navigate('Schedule')}>
