@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-// Container principal que envolve a tela
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -8,41 +7,7 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-// Estilo para o botão "Adicionar Compromisso"
-export const AddButton = styled.TouchableOpacity`
-  background-color: #7289da;  /* Cor semelhante ao Discord */
-  padding: 15px 20px;
-  border-radius: 8px;
-  margin-top: 20px;
-  align-items: center;
-  width: 100%;
-`;
-
-// Texto dentro dos botões
-export const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-`;
-
-// Estilo de cada item da lista de compromissos
-export const ListItem = styled.View`
-  background-color: #ffffff;
-  padding: 15px 20px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  width: 100%;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-// Texto dentro de cada item da lista
-export const ListItemText = styled.Text`
-  font-size: 16px;
-  color: #333;
-`;
-
-// Input de texto para a descrição dos compromissos
-export const Input = styled.TextInput`
+export const StyledTextInput = styled.TextInput`
   width: 100%;
   padding: 15px;
   border-radius: 8px;
@@ -51,4 +16,43 @@ export const Input = styled.TextInput`
   margin-bottom: 20px;
   font-size: 16px;
   color: #333;
+`;
+
+export const DatePickerButton = styled.TouchableOpacity`
+  background-color: #ffffff;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: #ddd;
+  margin-bottom: 15px;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+export const DatePickerText = styled.Text`
+  font-size: 16px;
+  color: #41245C;
+  margin-left: 15px;
+`;
+
+export const IconRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const AddButton = styled.TouchableOpacity`
+  background-color: #41245C;
+  padding: 15px 20px;
+  border-radius: 8px;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+`;
+
+export const ButtonText = styled.Text`
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
 `;

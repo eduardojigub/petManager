@@ -45,7 +45,6 @@ export default function HealthRecordsScreen({ navigation }) {
         records.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         setHealthRecords(records);
-        console.log("Loaded Health Records:", records); // Debug: Loaded records
       } catch (error) {
         console.error('Error loading health records', error);
       }
@@ -91,11 +90,9 @@ export default function HealthRecordsScreen({ navigation }) {
   };
 
   const filterRecords = () => {
-    console.log("Selected Month:", selectedMonth, "Selected Year:", selectedYear); // Debug: Log selected month and year
-  
+
     const filtered = healthRecords.filter(record => {
       const recordDate = new Date(record.date);
-      console.log("Checking Record Date:", record.date, "Parsed Date:", recordDate); // Log each date for debugging
   
       // Compare record date with selected month and year
       return recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear;
@@ -107,7 +104,6 @@ export default function HealthRecordsScreen({ navigation }) {
     setFilteredRecords(filtered);
     setIsFilterApplied(true); // Activate filter
     setShowDateModal(false); // Close modal after filter
-    console.log("Filtered Records:", filtered); // Debug: Log filtered data
   };
 
   const resetFilter = () => {
