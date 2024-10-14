@@ -120,25 +120,35 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await db.collection('dogProfiles').doc(id).delete();
-      setSelectedDog(null);
-      Alert.alert(
-        'Profile Deleted',
-        'The profile has been successfully deleted.'
-      );
-      navigation.navigate('Profile');
-    } catch (error) {
-      console.error('Failed to delete profile:', error);
-      Alert.alert('Error', 'Failed to delete profile');
-    }
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Profile',
+      'Are you sure you want to delete this profile?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Delete canceled'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            try {
+              await db.collection('dogProfiles').doc(id).delete();
+              setSelectedDog(null);
+              Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
+              navigation.navigate('Profile');
+            } catch (error) {
+              console.error('Failed to delete profile:', error);
+              Alert.alert('Error', 'Failed to delete profile');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
-
-  const handleInput = (input, setInput) => {
-    const integerOnly = input.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-    setInput(integerOnly);
-  };
+  
 
   return (
     <ScrollContainer>
