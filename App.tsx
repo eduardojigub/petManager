@@ -104,7 +104,20 @@ function HealthStack() {
       <Stack.Screen
         name="HealthRecordDetails"
         component={HealthRecordDetailsScreen}
-        options={{ title: 'Record Details' }}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Record Details',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
       />
       <Stack.Screen
         name="AddHealthRecord"

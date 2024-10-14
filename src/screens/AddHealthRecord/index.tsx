@@ -85,38 +85,38 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       }
     };
 
-  const handleSave = async () => {
-    if (!type || !description || !date) {
-      Alert.alert('Please fill out all fields');
-      return;
-    }
-
-    let imageUrl = image;
-    if (image && image.startsWith('file://')) {
-      imageUrl = await uploadImageToStorage(image);
-      if (!imageUrl) {
-        Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
+    const handleSave = async () => {
+      if (!type || !description || !date) {
+        Alert.alert('Please fill out all fields');
         return;
       }
-    }
-
-    const newRecord = {
-      type,
-      description,
-      date: date.toISOString().split('T')[0],
-      image: imageUrl,
-      dogId: selectedDog.id,
+    
+      let imageUrl = image;
+      if (image && image.startsWith('file://')) {
+        imageUrl = await uploadImageToStorage(image);
+        if (!imageUrl) {
+          Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
+          return;
+        }
+      }
+    
+      const newRecord = {
+        type,
+        description,
+        date: date.toISOString(), // Save the full ISO date string
+        image: imageUrl,
+        dogId: selectedDog.id,
+      };
+    
+      try {
+        await db.collection('healthRecords').add(newRecord);
+        if (route.params?.addRecord) route.params.addRecord(newRecord);
+        navigation.goBack();
+      } catch (error) {
+        console.error('Error saving health record', error);
+        Alert.alert('Error', 'Unable to save the health record.');
+      }
     };
-
-    try {
-      await db.collection('healthRecords').add(newRecord);
-      if (route.params?.addRecord) route.params.addRecord(newRecord);
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error saving health record', error);
-      Alert.alert('Error', 'Unable to save the health record.');
-    }
-  };
 
   return (
     <Container>

@@ -1,13 +1,32 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { Container, ListItem, ListItemText, AddButton, ButtonText, TypeIcon, ListItemDetailHint, TrashIconContainer, ListItemContent } from "./styles";
+import { Text, FlatList, Alert, Modal } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import {
+  Container,
+  ListItem,
+  ListItemText,
+  AddButton,
+  ButtonText,
+  TypeIcon,
+  ListItemDetailHint,
+  TrashIconContainer,
+  ListItemContent,
+  FilterButton,
+  ModalContainer,
+  ModalTitle,
+  DetailDateText,
+} from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import Feather from '@expo/vector-icons/Feather';
 import * as Icon from 'phosphor-react-native';
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [showDateModal, setShowDateModal] = useState(false); // Modal state
+  const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
   const { selectedDog } = useContext(DogProfileContext);
 
   useEffect(() => {
@@ -21,8 +40,12 @@ export default function HealthRecordsScreen({ navigation }) {
           id: doc.id,
           ...doc.data(),
         }));
+
+        // Sort records from newest to oldest
+        records.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         setHealthRecords(records);
+        console.log("Loaded Health Records:", records); // Debug: Loaded records
       } catch (error) {
         console.error('Error loading health records', error);
       }
@@ -66,7 +89,31 @@ export default function HealthRecordsScreen({ navigation }) {
       Alert.alert('Error', 'Failed to delete health record');
     }
   };
+
+  const filterRecords = () => {
+    console.log("Selected Month:", selectedMonth, "Selected Year:", selectedYear); // Debug: Log selected month and year
   
+    const filtered = healthRecords.filter(record => {
+      const recordDate = new Date(record.date);
+      console.log("Checking Record Date:", record.date, "Parsed Date:", recordDate); // Log each date for debugging
+  
+      // Compare record date with selected month and year
+      return recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear;
+    });
+  
+    // Sort filtered records by date in descending order
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    setFilteredRecords(filtered);
+    setIsFilterApplied(true); // Activate filter
+    setShowDateModal(false); // Close modal after filter
+    console.log("Filtered Records:", filtered); // Debug: Log filtered data
+  };
+
+  const resetFilter = () => {
+    setIsFilterApplied(false); // Deactivate filter
+    setFilteredRecords([]); // Clear filtered records
+  };
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -83,28 +130,83 @@ export default function HealthRecordsScreen({ navigation }) {
     }
   };
 
-  const renderRecord = ({ item }) => (
-    <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
-      <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
-      <ListItemContent>
-        <ListItemText>{item.type}</ListItemText>
-        <ListItemDetailHint>Tap to view details</ListItemDetailHint>
-      </ListItemContent>
-      <TrashIconContainer onPress={() => confirmDelete(item.id)}>
-        <Icon.TrashSimple size={20} color="#e74c3c" />
-      </TrashIconContainer>
-    </ListItem>
-  );
-  
+  const renderRecord = ({ item }) => {
+    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    return (
+      <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
+        <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
+        <ListItemContent>
+          <ListItemText>{item.type}</ListItemText>
+          <ListItemDetailHint>
+            Tap to view details <DetailDateText>• {formattedDate}</DetailDateText>
+          </ListItemDetailHint>
+        </ListItemContent>
+        <TrashIconContainer onPress={() => confirmDelete(item.id)}>
+          <Icon.TrashSimple size={20} color="#e74c3c" />
+        </TrashIconContainer>
+      </ListItem>
+    );
+  };
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, color: "#41245C", marginBottom: 20 }}>Health Records</Text>
+      
+      {/* <FilterButton onPress={() => setShowDateModal(true)}>
+        <ButtonText>Filter by Month & Year</ButtonText>
+      </FilterButton> */}
+      
+      {isFilterApplied && (
+        <FilterButton onPress={resetFilter}>
+          <ButtonText>Clear Filter</ButtonText>
+        </FilterButton>
+      )}
+
+      <Modal
+        visible={showDateModal}
+        animationType="slide"
+        onRequestClose={() => setShowDateModal(false)}
+      >
+        <ModalContainer>
+          <ModalTitle>Select Month and Year</ModalTitle>
+          
+          <Picker
+            selectedValue={selectedMonth}
+            onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+            style={{ width: '100%', marginBottom: 10 }}
+          >
+            {Array.from({ length: 12 }, (_, index) => (
+              <Picker.Item key={index} label={new Date(0, index).toLocaleString('default', { month: 'long' })} value={index} />
+            ))}
+          </Picker>
+          
+          <Picker
+            selectedValue={selectedYear}
+            onValueChange={(itemValue) => setSelectedYear(itemValue)}
+            style={{ width: '100%' }}
+          >
+            {Array.from({ length: 10 }, (_, index) => {
+              const year = new Date().getFullYear() - index;
+              return <Picker.Item key={year} label={`${year}`} value={year} />;
+            })}
+          </Picker>
+          
+          <AddButton onPress={filterRecords}>
+            <ButtonText>Apply Filter</ButtonText>
+          </AddButton>
+        </ModalContainer>
+      </Modal>
+
       <FlatList
-        data={healthRecords}
+        data={isFilterApplied ? filteredRecords : healthRecords}
         renderItem={renderRecord}
         keyExtractor={item => item.id}
       />
+      
       <AddButton onPress={() => navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })}>
         <ButtonText>Add Health Record</ButtonText>
       </AddButton>

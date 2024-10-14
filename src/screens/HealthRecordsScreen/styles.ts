@@ -60,3 +60,31 @@ export const TrashIconContainer = styled.TouchableOpacity`
   padding: 10px;
   margin-left: auto;
 `;
+
+export const ModalContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+`;
+
+export const ModalTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #fff;
+`;
+
+export const FilterButton = styled.TouchableOpacity`
+  background-color: #41245C;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  align-items: center;
+  width: 100%;
+`;
+
+export const DetailDateText = styled.Text`
+  color: #A9A9A9;
+  font-size: 12px;
+`;
