@@ -1,29 +1,50 @@
 import React from 'react';
-import { View, Text, Button, Image } from 'react-native';
-import { Container } from "./styles";
+import { View, Text } from 'react-native';
+import { Container, Section, DetailText, IconRow, IconText, DetailImage, StyledButton, ButtonText } from "./styles";
+import * as Icon from 'phosphor-react-native';
 
 export default function HealthRecordDetailsScreen({ route, navigation }) {
   const { record } = route.params; // Receive the health record passed via navigation
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>
+      <Text style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}>
         {record.type} Details
       </Text>
-      <Text style={{ fontSize: 18, marginBottom: 5 }}>Description: {record.description}</Text>
-      <Text style={{ fontSize: 18, marginBottom: 5 }}>Date: {record.date}</Text>
 
-      {/* Display the image if it exists */}
+      <Section>
+        <IconRow>
+          <Icon.FileText size={24} color="#41245C" />
+          <IconText>Description:</IconText>
+        </IconRow>
+        <DetailText>{record.description}</DetailText>
+      </Section>
+
+      <Section>
+        <IconRow>
+          <Icon.Calendar size={24} color="#41245C" />
+          <IconText>Date:</IconText>
+        </IconRow>
+        <DetailText>{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</DetailText>
+      </Section>
+
       {record.image ? (
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, marginBottom: 5 }}>Image:</Text>
-          <Image source={{ uri: record.image }} style={{ width: 200, height: 200, marginBottom: 10 }} />
-        </View>
+        <Section>
+          <IconRow>
+            <Icon.Image size={24} color="#41245C" />
+            <IconText>Image:</IconText>
+          </IconRow>
+          <DetailImage source={{ uri: record.image }} />
+        </Section>
       ) : (
-        <Text style={{ fontSize: 16, marginTop: 20 }}>No image available</Text>
+        <Section>
+          <DetailText>No image available</DetailText>
+        </Section>
       )}
 
-      <Button title="Go Back" onPress={() => navigation.goBack()} />
+      <StyledButton onPress={() => navigation.goBack()}>
+        <ButtonText>Go Back</ButtonText>
+      </StyledButton>
     </Container>
   );
 }
