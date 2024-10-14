@@ -120,7 +120,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
   return (
     <Container>
-      <Title>Add Health Record</Title>
+      <Title>Select the type</Title>
 
       <TypeSelector>
         {types.map((item) => (
