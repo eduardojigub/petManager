@@ -87,7 +87,19 @@ function HealthStack() {
       <Stack.Screen
         name="HealthRecords"
         component={HealthRecordsScreen}
-        options={{ title: 'Health Records' }}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Health Records',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+        }}
       />
       <Stack.Screen
         name="HealthRecordDetails"
@@ -97,7 +109,20 @@ function HealthStack() {
       <Stack.Screen
         name="AddHealthRecord"
         component={AddHealthRecordScreen}
-        options={{ title: 'Add Health Record' }}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Add Health Record',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
       />
     </Stack.Navigator>
   );
