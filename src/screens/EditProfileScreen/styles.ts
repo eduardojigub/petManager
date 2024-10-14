@@ -12,11 +12,11 @@ export const BannerImageBackground = styled.ImageBackground`
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   overflow: hidden;
-  background-color: #e0e0e0; // Placeholder color if no image is available
+  background-color: #41245C;
 `;
 
 export const FormContainer = styled.View`
-  margin-top: -40px; // Pull up the form container to overlay slightly on the banner
+  margin-top: -40px;
   padding: 20px;
   background-color: #fff;
   border-radius: 20px;
@@ -26,7 +26,6 @@ export const FormContainer = styled.View`
 export const Container = styled.View`
   justify-content: center;
   align-items: center;
-  padding: 20px;
 `;
 
 export const Label = styled.Text`
@@ -36,18 +35,25 @@ export const Label = styled.Text`
   margin-top: 8px;
 `;
 
-export const Input = styled.TextInput`
+export const InputWithIcon = styled.View`
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  flex-direction: row;
+  align-items: center;
   border-radius: 8px;
   border: 1px solid #ccc;
   background-color: #fff;
+  padding: 12px;
+  margin-bottom: 15px;
+`;
+
+export const IconInput = styled.TextInput`
+  flex: 1;
+  padding-left: 10px;
   font-size: 16px;
 `;
 
 export const AddPhotoButton = styled.TouchableOpacity`
-  background-color: #7289DA;
+  background-color: #41245C;
   padding: 12px 20px;
   border-radius: 25px;
   margin-top: 10px;
@@ -57,7 +63,7 @@ export const AddPhotoButton = styled.TouchableOpacity`
 `;
 
 export const SaveButton = styled.TouchableOpacity`
-  background-color: #7289DA;
+  background-color: #41245C;
   padding: 15px 30px;
   border-radius: 25px;
   width: 100%;
@@ -83,4 +89,5 @@ export const DeleteButton = styled.TouchableOpacity`
   margin-top: 20px;
   width: 100%;
   align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;

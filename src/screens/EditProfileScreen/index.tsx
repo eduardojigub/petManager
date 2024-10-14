@@ -1,14 +1,35 @@
 import React, { useContext, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { db } from '../../firebase/Firestore'; // Import Firestore
-import storage from '@react-native-firebase/storage'; // Import Firebase Storage
-import auth from '@react-native-firebase/auth'; // Import Firebase Auth
-import { Container, Label, Input, SaveButton, ButtonText, NoImageText, AddPhotoButton, ScrollContainer, DeleteButton, FormContainer, BannerImageBackground } from './styles';
+import { db } from '../../firebase/Firestore';
+import storage from '@react-native-firebase/storage';
+import auth from '@react-native-firebase/auth';
+import {
+  Container,
+  Label,
+  IconInput,
+  SaveButton,
+  ButtonText,
+  NoImageText,
+  AddPhotoButton,
+  ScrollContainer,
+  DeleteButton,
+  FormContainer,
+  BannerImageBackground,
+  InputWithIcon,
+} from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
+import * as Icon from 'phosphor-react-native';
 
 export default function EditProfileScreen({ navigation, route }) {
-  const { id, name: initialName, breed: initialBreed, age: initialAge, weight: initialWeight, image: initialImage } = route.params || {};
+  const {
+    id,
+    name: initialName,
+    breed: initialBreed,
+    age: initialAge,
+    weight: initialWeight,
+    image: initialImage,
+  } = route.params || {};
   const isNewProfile = !id;
   const { setSelectedDog } = useContext(DogProfileContext);
 
@@ -20,9 +41,13 @@ export default function EditProfileScreen({ navigation, route }) {
   const [uploading, setUploading] = useState(false);
 
   const pickImage = async () => {
-    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      Alert.alert('Permission needed', 'Permission to access the gallery is required!');
+      Alert.alert(
+        'Permission needed',
+        'Permission to access the gallery is required!'
+      );
       return;
     }
 
@@ -42,7 +67,8 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const uploadImageToStorage = async (imageUri) => {
     const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
+    const uploadUri =
+      Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
     const storageRef = storage().ref(`dogProfiles/${filename}`);
 
     setUploading(true);
@@ -98,7 +124,10 @@ export default function EditProfileScreen({ navigation, route }) {
     try {
       await db.collection('dogProfiles').doc(id).delete();
       setSelectedDog(null);
-      Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
+      Alert.alert(
+        'Profile Deleted',
+        'The profile has been successfully deleted.'
+      );
       navigation.navigate('Profile');
     } catch (error) {
       console.error('Failed to delete profile:', error);
@@ -106,35 +135,74 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
+  const handleInput = (input, setInput) => {
+    const integerOnly = input.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    setInput(integerOnly);
+  };
+
   return (
     <ScrollContainer>
-      {/* Banner image background */}
-      <BannerImageBackground source={{ uri: image || '' }}>
+      <BannerImageBackground source={image ? { uri: image } : null}>
         {!image && <NoImageText>No image selected</NoImageText>}
       </BannerImageBackground>
 
       <FormContainer>
         <Container>
-          <Label>{isNewProfile ? "Add New Dog Profile" : "Edit Dog's Profile"}</Label>
+          <Label>
+            {isNewProfile ? 'Add New Dog Profile' : "Edit Dog's Profile"}
+          </Label>
 
-          <Label>Dog's Name</Label>
-          <Input value={name} onChangeText={setName} placeholder="Enter dog's name" />
+          <InputWithIcon>
+            <Icon.Dog size={24} color="#666" />
+            <IconInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter dog's name"
+              maxLength={20} // Enforces a maximum of 20 characters
+            />
+          </InputWithIcon>
 
-          <Label>Breed</Label>
-          <Input value={breed} onChangeText={setBreed} placeholder="Enter breed" />
+          <InputWithIcon>
+            <Icon.PawPrint size={24} color="#666" />
+            <IconInput
+              value={breed}
+              onChangeText={setBreed}
+              placeholder="Enter breed"
+            />
+          </InputWithIcon>
 
-          <Label>Age</Label>
-          <Input value={age} onChangeText={setAge} placeholder="Enter age" keyboardType="numeric" />
+          <InputWithIcon>
+            <Icon.Cake size={24} color="#666" />
+            <IconInput
+              value={age}
+              onChangeText={(text) => handleInput(text, setAge)}
+              placeholder="Enter age(number only), Ex: 9"
+              keyboardType="numeric"
+            />
+          </InputWithIcon>
 
-          <Label>Weight (kg)</Label>
-          <Input value={weight} onChangeText={setWeight} placeholder="Enter weight" keyboardType="numeric" />
+          <InputWithIcon>
+            <Icon.Scales size={24} color="#666" />
+            <IconInput
+              value={weight}
+              onChangeText={(text) => handleInput(text, setWeight)}
+              placeholder="Enter weight(number only) (kg), Ex: 5"
+              keyboardType="numeric"
+            />
+          </InputWithIcon>
 
           <AddPhotoButton onPress={pickImage}>
-            <ButtonText>{image ? "Change Photo" : "Add a Photo"}</ButtonText>
+            <ButtonText>{image ? 'Change Photo' : 'Add a Photo'}</ButtonText>
           </AddPhotoButton>
 
           <SaveButton onPress={handleSave} disabled={uploading}>
-            <ButtonText>{uploading ? "Uploading..." : isNewProfile ? "Create Profile" : "Save Changes"}</ButtonText>
+            <ButtonText>
+              {uploading
+                ? 'Uploading...'
+                : isNewProfile
+                ? 'Create Profile'
+                : 'Save Changes'}
+            </ButtonText>
           </SaveButton>
 
           {!isNewProfile && (
