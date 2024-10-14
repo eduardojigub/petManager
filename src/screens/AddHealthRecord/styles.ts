@@ -1,23 +1,44 @@
 import styled from 'styled-components/native';
 
-// Container principal para a tela
-export const Container = styled.View`
+export const Container = styled.ScrollView`
   flex: 1;
   padding: 20px;
   background-color: #f5f5f5;
-  justify-content: center;
 `;
 
-// Título principal da tela
 export const Title = styled.Text`
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #333;
+  color: #41245C;
 `;
 
-// Input estilizado para os campos de texto
+export const TypeSelector = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+`;
+
+export const TypeOption = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  background-color: ${({ selected }) => (selected ? '#41245C' : '#f5f5f5')};
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  flex-basis: 48%; /* Two options per row */
+  justify-content: center;
+`;
+
+export const TypeText = styled.Text`
+  margin-left: 8px;
+  color: ${({ selected }) => (selected ? '#fff' : '#666')};
+  font-weight: bold;
+`;
+
 export const Input = styled.TextInput`
   width: 100%;
   padding: 15px;
@@ -29,24 +50,21 @@ export const Input = styled.TextInput`
 `;
 
 export const CustomButton = styled.TouchableOpacity`
-  background-color: #7289DA;
-  width: 100%; 
-  height: 40px; // Increase the height for a bigger button
-  padding: 15px;
+  background-color: #41245C;
+  width: 100%;
+  height: 50px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
   margin-top: 20px;
-  align-self: center; // Center the button horizontally in its container
 `;
-// Texto dentro do botão
+
 export const ButtonText = styled.Text`
   color: #fff;
   font-size: 16px;
   font-weight: bold;
 `;
 
-// Estilo para a imagem de pré-visualização
 export const ImagePreview = styled.Image`
   width: 200px;
   height: 200px;
@@ -55,4 +73,19 @@ export const ImagePreview = styled.Image`
   align-self: center;
   border-width: 1px;
   border-color: #ddd;
+`;
+
+export const DatePickerButton = styled.TouchableOpacity`
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const DatePickerText = styled.Text`
+  color: #333;
+  font-size: 16px;
 `;

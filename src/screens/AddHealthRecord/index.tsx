@@ -1,21 +1,48 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Modal, View, TouchableOpacity, Text, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Container, Title, Input, CustomButton, ButtonText, ImagePreview } from "./styles";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {
+  Container,
+  Title,
+  Input,
+  CustomButton,
+  ButtonText,
+  ImagePreview,
+  TypeSelector,
+  TypeOption,
+  TypeText,
+  DatePickerButton, // New styled component for date picker button
+  DatePickerText, // Text styling for date display
+} from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
-import { db } from '../../firebase/Firestore'; // Firestore import
-import storage from '@react-native-firebase/storage'; // Firebase Storage import
+import { db } from '../../firebase/Firestore';
+import storage from '@react-native-firebase/storage';
+import * as Icon from 'phosphor-react-native';
 
 export default function AddHealthRecordScreen({ navigation, route }) {
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [image, setImage] = useState(null); // State to store the image URI
-  const [uploading, setUploading] = useState(false); // Track upload status
+  const [date, setDate] = useState(new Date());
+  const [showDateModal, setShowDateModal] = useState(false); // Modal state
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const { selectedDog } = useContext(DogProfileContext);
 
-  const { selectedDog } = useContext(DogProfileContext); // Get the selected dog
+  const types = [
+    { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
+    { label: 'Vet Appointment', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
+    { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
+    { label: 'Dog Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
+    { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
+  ];
 
-  // Function to select an image from the gallery
+  const formattedDate = date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -31,32 +58,32 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri); // Store selected image URI
+      setImage(result.assets[0].uri);
     } else {
       console.log("Image selection was canceled or no assets available");
     }
   };
 
-  // Function to upload image to Firebase Storage
-  const uploadImageToStorage = async (imageUri) => {
-    const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
-    const storageRef = storage().ref(`healthRecords/${filename}`); // Reference to Firebase Storage path
-
-    setUploading(true); // Show uploading state
-
-    try {
-      await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
-      const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
-      setUploading(false); // Hide uploading state
-      return downloadURL; // Return the URL to store in Firestore
-    } catch (error) {
-      setUploading(false); // Hide uploading state
-      console.error('Error uploading image:', error);
-      Alert.alert('Error', 'Failed to upload image.');
-      return null;
-    }
-  };
+    // Function to upload image to Firebase Storage
+    const uploadImageToStorage = async (imageUri) => {
+      const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+      const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
+      const storageRef = storage().ref(`healthRecords/${filename}`); // Reference to Firebase Storage path
+  
+      setUploading(true); // Show uploading state
+  
+      try {
+        await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
+        const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
+        setUploading(false); // Hide uploading state
+        return downloadURL; // Return the URL to store in Firestore
+      } catch (error) {
+        setUploading(false); // Hide uploading state
+        console.error('Error uploading image:', error);
+        Alert.alert('Error', 'Failed to upload image.');
+        return null;
+      }
+    };
 
   const handleSave = async () => {
     if (!type || !description || !date) {
@@ -65,32 +92,25 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     }
 
     let imageUrl = image;
-
-    // Upload the image if it exists and has not already been uploaded
     if (image && image.startsWith('file://')) {
-      imageUrl = await uploadImageToStorage(image); // Upload the image to Firebase Storage
+      imageUrl = await uploadImageToStorage(image);
       if (!imageUrl) {
         Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
-        return; // Exit if image upload fails
+        return;
       }
     }
 
     const newRecord = {
       type,
       description,
-      date,
-      image: imageUrl, // Store the image URL in Firestore
-      dogId: selectedDog.id, // Attach the selected dog's ID
+      date: date.toISOString().split('T')[0],
+      image: imageUrl,
+      dogId: selectedDog.id,
     };
 
     try {
-      // Save the new health record to Firestore
       await db.collection('healthRecords').add(newRecord);
-
-      if (route.params?.addRecord) {
-        route.params.addRecord(newRecord);
-      }
-
+      if (route.params?.addRecord) route.params.addRecord(newRecord);
       navigation.goBack();
     } catch (error) {
       console.error('Error saving health record', error);
@@ -102,30 +122,63 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     <Container>
       <Title>Add Health Record</Title>
 
-      <Input
-        value={type}
-        onChangeText={setType}
-        placeholder="Ex: Vaccine, Consultation"
-      />
+      <TypeSelector>
+        {types.map((item) => (
+          <TypeOption key={item.label} onPress={() => setType(item.label)} selected={type === item.label}>
+            {item.icon}
+            <TypeText selected={type === item.label}>{item.label}</TypeText>
+          </TypeOption>
+        ))}
+      </TypeSelector>
 
       <Input
         value={description}
         onChangeText={setDescription}
-        placeholder="Record Description"
+        placeholder="Write any details about the record, like prices, notes, or other relevant info you might need later"
+        multiline
       />
 
-      <Input
-        value={date}
-        onChangeText={setDate}
-        placeholder="Date (YYYY-MM-DD)"
-      />
+      {/* Date Picker Button */}
+      <DatePickerButton onPress={() => setShowDateModal(true)}>
+        <DatePickerText>{formattedDate}</DatePickerText>
+      </DatePickerButton>
 
-      {/* Button to select an image */}
+      {/* Date Picker Modal */}
+      <Modal
+        visible={showDateModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDateModal(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '90%' }}>
+            <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}>Select Date</Text>
+            
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) setDate(selectedDate);
+              }}
+            />
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+              <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                <Text style={{ color: '#7289DA', fontSize: 16 }}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <CustomButton onPress={pickImage}>
         <ButtonText>Select Image</ButtonText>
       </CustomButton>
 
-      {/* Display the selected image */}
       {image && <ImagePreview source={{ uri: image }} />}
 
       <CustomButton onPress={handleSave} disabled={uploading}>
