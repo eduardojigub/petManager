@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-// Main container for the screen
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -8,11 +7,9 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-// Style for each item in the list
-export const ListItem = styled.View`
-  flex-direction: row; /* Align items in a row */
-  justify-content: space-between; /* Space between text and icon */
-  align-items: center; /* Vertically align the items */
+export const ListItem = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
   background-color: #ffffff;
   padding: 15px 20px;
   border-radius: 8px;
@@ -21,15 +18,31 @@ export const ListItem = styled.View`
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
-// Text inside the list items
+export const ListItemContent = styled.View`
+  flex: 1;
+  margin-left: 10px;
+`;
+
 export const ListItemText = styled.Text`
   font-size: 16px;
   color: #333;
-  flex: 1; /* Take up remaining space */
 `;
-// Add button for new health records
+
+export const TypeIcon = styled.View`
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const ListItemDetailHint = styled.Text`
+  color: #7289DA;
+  font-size: 12px;
+  margin-top: 4px;
+`;
+
 export const AddButton = styled.TouchableOpacity`
-  background-color: #7289DA;
+  background-color: #41245C;
   padding: 15px 20px;
   border-radius: 8px;
   margin-top: 20px;
@@ -37,9 +50,13 @@ export const AddButton = styled.TouchableOpacity`
   width: 100%;
 `;
 
-// Text inside the button
 export const ButtonText = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
+`;
+
+export const TrashIconContainer = styled.TouchableOpacity`
+  padding: 10px;
+  margin-left: auto;
 `;
