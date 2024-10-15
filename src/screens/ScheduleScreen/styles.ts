@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 interface ListItemProps {
@@ -7,7 +8,7 @@ interface ListItemProps {
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
-  background-color: #fff;
+  background-color: ${Platform.OS === 'ios' ? '#ffffff' : '#ededed '};
   align-items: center;
 `;
 
