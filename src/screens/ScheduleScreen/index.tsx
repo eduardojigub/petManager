@@ -12,11 +12,15 @@ import {
   ButtonText,
   DetailDateText,
   TypeIcon,
+  EmptyListContainer,
+  EmptyListText,
+  EmptyListImage,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
+import dogThingsImage from '../../assets/dogThings.png';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
@@ -117,6 +121,15 @@ export default function ScheduleScreen({ navigation }) {
     </ListItem>
   );
 
+  const renderEmptyList = () => (
+    <EmptyListContainer>
+      <EmptyListImage source={dogThingsImage} />
+      <EmptyListText>
+        No schedules yet. Start adding to keep track of your pet's appointments.
+      </EmptyListText>
+    </EmptyListContainer>
+  );
+
   return (
     <Container>
       <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
@@ -126,6 +139,7 @@ export default function ScheduleScreen({ navigation }) {
         data={schedules}
         renderItem={renderSchedule}
         keyExtractor={(item) => item.id}
+        ListEmptyComponent={renderEmptyList}
       />
       <AddButton onPress={() => navigation.navigate('AddSchedule')}>
         <ButtonText>Add Schedule</ButtonText>
