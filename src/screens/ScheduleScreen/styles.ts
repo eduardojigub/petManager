@@ -1,6 +1,9 @@
 import styled from 'styled-components/native';
 
-// Main container for the screen
+interface ListItemProps {
+  isPast: boolean;
+}
+
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -8,9 +11,8 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-// Add Schedule button style
 export const AddButton = styled.TouchableOpacity`
-  background-color: #7289da;
+  background-color: #41245C;
   padding: 15px 20px;
   border-radius: 8px;
   margin-top: 20px;
@@ -18,40 +20,43 @@ export const AddButton = styled.TouchableOpacity`
   width: 100%;
 `;
 
-// Text for the buttons
 export const ButtonText = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
 `;
 
-// Style for each item in the list
-export const ListItem = styled.View`
-  background-color: #ffffff;
+
+
+export const ListItem = styled.View<ListItemProps>`
+  background-color: ${({ isPast }) => (isPast ? 'rgba(128, 128, 128, 0.2)' : '#ffffff')};
   padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 10px;
   width: 100%;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
-// Text inside each list item
-export const ListItemText = styled.Text`
+export const ListItemText = styled.Text<{ isPast: boolean }>`
   font-size: 16px;
-  color: #333;
+  color: ${({ isPast }) => (isPast ? '#A9A9A9' : '#41245C')};
+  flex-shrink: 1;
 `;
 
-// Input for schedule description
-export const Input = styled.TextInput`
-  width: 100%;
-  padding: 15px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-color: #ccc;
-  margin-bottom: 20px;
-  font-size: 16px;
-  color: #333;
+export const ListItemContent = styled.View`
+  flex: 1;
+  flex-direction: column;
+`;
+
+export const IconRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-top: 5px;
+`;
+
+export const TrashIconContainer = styled.TouchableOpacity`
+  margin-left: 10px;
 `;

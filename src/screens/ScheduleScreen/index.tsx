@@ -1,17 +1,17 @@
 import React, { useState, useContext } from 'react';
 import { Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Container, AddButton, ButtonText, ListItem, ListItemText } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext'; // Import the selected dog context
-import { db } from '../../firebase/Firestore'; // Firestore instance
-import * as Notifications from 'expo-notifications'; // Import Notifications
-import Feather from '@expo/vector-icons/Feather'; // For trash icon
+import { Container, AddButton, ButtonText, ListItem, ListItemContent, ListItemText, IconRow, TrashIconContainer } from './styles';
+import { DogProfileContext } from '../../context/DogProfileContext';
+import { db } from '../../firebase/Firestore';
+import * as Notifications from 'expo-notifications';
+import * as Icon from 'phosphor-react-native';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
-  const { selectedDog } = useContext(DogProfileContext); // Get the selected dog from context
-
-  // Function to load schedules from Firestore filtered by dogId
+  const { selectedDog } = useContext(DogProfileContext);
+  
+  
   const loadSchedules = async () => {
     try {
       if (selectedDog) {
@@ -19,49 +19,58 @@ export default function ScheduleScreen({ navigation }) {
           .collection('schedules')
           .where('dogId', '==', selectedDog.id)
           .get();
-
-        const loadedSchedules = schedulesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
+  
+        const loadedSchedules = schedulesSnapshot.docs.map((doc) => {
+          const data = doc.data();
+  
+          // Desestrutura a data e hora
+          const [year, month, day] = data.date.split('-').map(Number);
+          const [hours, minutes] = data.time.split(':').map(Number);
+          
+          // Cria uma data explícita usando os valores separados
+          const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
+          
+          const isPastSchedule = scheduleDateTime.getTime() < new Date().getTime();
+  
+          console.log(`Schedule ${data.description}:`, {
+            scheduleDateTime: scheduleDateTime.toString(),
+            currentDateTime: new Date().toString(),
+            isPast: isPastSchedule,
+          });
+  
+          return { id: doc.id, ...data, isPast: isPastSchedule };
+        });
+  
         setSchedules(loadedSchedules);
       }
     } catch (error) {
       console.error('Error loading schedules', error);
     }
   };
+  
 
-  // useFocusEffect to load data every time the screen gains focus
   useFocusEffect(
     React.useCallback(() => {
       if (selectedDog) {
-        loadSchedules(); // Reload schedules on screen focus
+        loadSchedules();
       }
     }, [selectedDog])
   );
 
-  // Function to delete a schedule and cancel its notification
   const deleteSchedule = async (scheduleId, notificationId) => {
     try {
-      // Delete the notification using the notificationId
       await Notifications.cancelScheduledNotificationAsync(notificationId);
-  
-      // Remove the schedule from Firestore
       await db.collection('schedules').doc(scheduleId).delete();
-  
       setSchedules((prevSchedules) =>
         prevSchedules.filter((schedule) => schedule.id !== scheduleId)
       );
-  
       Alert.alert('Success', 'Schedule and notification deleted successfully');
     } catch (error) {
       console.error('Error deleting schedule and notification', error);
       Alert.alert('Error', 'Failed to delete schedule or notification');
     }
   };
-  
-  // Usage example
+
   const handleDelete = (scheduleId, notificationId) => {
     Alert.alert(
       'Delete Schedule',
@@ -73,23 +82,35 @@ export default function ScheduleScreen({ navigation }) {
       { cancelable: true }
     );
   };
-  
 
-  const renderSchedule = ({ item }) => (
-    <ListItem>
-      <TouchableOpacity onPress={() => navigation.navigate('EditSchedule', { schedule: item })}>
-        <ListItemText>{item.description}</ListItemText>
-        <ListItemText>{item.date} - {item.time}</ListItemText>
-      </TouchableOpacity>
-      {/* Trash can icon to delete the schedule */}
-      <TouchableOpacity onPress={() => handleDelete(item.id, item.notificationId)}>
-        <Feather name="trash" size={24} color="#e74c3c" />
-      </TouchableOpacity>
-    </ListItem>
-  );
+  const renderSchedule = ({ item }) => {
+    return (
+      <ListItem isPast={item.isPast}>
+        <TouchableOpacity onPress={() => navigation.navigate('EditSchedule', { schedule: item })} style={{ flex: 1 }}>
+          <ListItemContent>
+            <ListItemText isPast={item.isPast} numberOfLines={1} ellipsizeMode="tail">
+              {item.description}
+            </ListItemText>
+            <IconRow>
+              <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
+              <ListItemText isPast={item.isPast}>{item.date}</ListItemText>
+              <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
+              <ListItemText isPast={item.isPast}>{item.time}</ListItemText>
+            </IconRow>
+          </ListItemContent>
+        </TouchableOpacity>
+        <TrashIconContainer onPress={() => handleDelete(item.id, item.notificationId)}>
+          <Icon.Trash size={24} color="#e74c3c" />
+        </TrashIconContainer>
+      </ListItem>
+    );
+  };
+  
   return (
     <Container>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Schedules {selectedDog ? 'for ' + selectedDog?.name : null}</Text>
+      <Text style={{ fontSize: 24, color: "#41245C", marginBottom: 20 }}>
+        Schedules {selectedDog ? 'for ' + selectedDog?.name : null}
+      </Text>
       <FlatList
         data={schedules}
         renderItem={renderSchedule}

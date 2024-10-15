@@ -77,3 +77,20 @@ export const CheckboxText = styled.Text`
   color: #41245C;
   margin-left: 10px;
 `;
+
+export const TypeOption = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: ${({ selected }) => (selected ? '#7289DA' : '#ddd')};
+  background-color: ${({ selected }) => (selected ? 'rgba(114,137,218,0.2)' : '#ffffff')};
+`;
+
+export const TypeOptionText = styled.Text`
+  font-size: 14px;
+  color: #41245C;
+  margin-left: 5px;
+`;

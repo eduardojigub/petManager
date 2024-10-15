@@ -3,7 +3,7 @@ import { Alert, Modal, Text, TouchableOpacity, View, Platform } from 'react-nati
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Notifications from 'expo-notifications';
 import * as Icon from 'phosphor-react-native';
-import { Container, StyledTextInput, DatePickerButton, DatePickerText, AddButton, ButtonText, IconRow, CheckboxRow, CheckboxText } from './styles';
+import { Container, StyledTextInput, DatePickerButton, DatePickerText, AddButton, ButtonText, IconRow, CheckboxRow, CheckboxText, TypeOption, TypeOptionText } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import auth from '@react-native-firebase/auth';
@@ -17,6 +17,7 @@ export default function AddScheduleScreen({ navigation }) {
   const [tempTime, setTempTime] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
+  const [type, setType] = useState('Other'); // Default type
   const [isEmailReminder, setIsEmailReminder] = useState(false);
   const [isPushNotificationReminder, setIsPushNotificationReminder] = useState(false);
 
@@ -59,6 +60,7 @@ export default function AddScheduleScreen({ navigation }) {
         dogId: selectedDog.id,
         userId,
         notificationId,
+        type,  // Add type to Firestore document
         emailReminder: isEmailReminder,
         pushNotification: isPushNotificationReminder,
       };
@@ -89,6 +91,23 @@ export default function AddScheduleScreen({ navigation }) {
         value={description}
         onChangeText={setDescription}
       />
+
+        {/* Type Selection */}
+        <Text style={{ fontSize: 18, color: "#41245C", marginBottom: 10 }}>Select Type:</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 }}>
+        {[
+          { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
+          { label: 'Vet Appointment', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
+          { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
+          { label: 'Dog Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
+          { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
+        ].map((option) => (
+          <TypeOption key={option.label} onPress={() => setType(option.label)} selected={type === option.label}>
+            {option.icon}
+            <TypeOptionText>{option.label}</TypeOptionText>
+          </TypeOption>
+        ))}
+      </View>
 
       {/* Date Picker Button */}
       <DatePickerButton onPress={() => setShowDateModal(true)}>
