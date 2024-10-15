@@ -148,6 +148,11 @@ export default function EditProfileScreen({ navigation, route }) {
       { cancelable: false }
     );
   };
+
+  const handleInput = (input, setInput) => {
+    const integerOnly = input.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    setInput(integerOnly);
+  };
   
 
   return (
