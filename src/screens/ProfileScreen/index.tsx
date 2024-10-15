@@ -37,7 +37,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import auth from '@react-native-firebase/auth';
-import * as IconPhospor from "phosphor-react-native";
+import * as IconPhospor from 'phosphor-react-native';
 import { formatDateTime } from '../../utils/dateFormarter';
 
 export default function ProfileScreen() {
@@ -79,22 +79,32 @@ export default function ProfileScreen() {
           .where('dogId', '==', selectedDog.id)
           .where('userId', '==', userId)
           .get();
-  
+
         const now = new Date(); // Current date and time
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Start of today
-  
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        ); // Start of today
+
         const schedules = schedulesSnapshot.docs
           .map((doc) => {
             const data = doc.data();
-  
+
             // Parse schedule date and time
             const [year, month, day] = data.date.split('-').map(Number);
             const [hours, minutes] = data.time.split(':').map(Number);
-            const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
-  
+            const scheduleDateTime = new Date(
+              year,
+              month - 1,
+              day,
+              hours,
+              minutes
+            );
+
             // Determine if the schedule is upcoming (today or later)
             const isUpcoming = scheduleDateTime >= today;
-  
+
             return {
               id: doc.id,
               ...data,
@@ -102,14 +112,13 @@ export default function ProfileScreen() {
             };
           })
           .filter((schedule) => schedule.isUpcoming); // Only include upcoming schedules
-  
+
         setUpcomingSchedules(schedules);
       } catch (error) {
         console.error('Error loading schedules:', error);
       }
     }
   };
-  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -200,16 +209,21 @@ export default function ProfileScreen() {
         <IconCircle>{icon}</IconCircle>
         <DescriptionContainer>
           <DescriptionText>{schedule.description}</DescriptionText>
-          <SubtitleText>{formatDateTime(`${schedule.date} ${schedule.time}`)}</SubtitleText>
+          <SubtitleText>
+            {formatDateTime(`${schedule.date} ${schedule.time}`)}
+          </SubtitleText>
         </DescriptionContainer>
 
         <DetailsButton
-        onPress={() =>
-          navigation.navigate('AddSchedule', { schedule, isEditMode: true }) // Navigate to AddScheduleScreen with editing parameters
-        }
-      >
-        <DetailsButtonText>Details</DetailsButtonText>
-      </DetailsButton>
+          onPress={() =>
+            navigation.navigate('Schedule', {
+              screen: 'AddSchedule',
+              params: { schedule, isEditMode: true },
+            })
+          }
+        >
+          <DetailsButtonText>Details</DetailsButtonText>
+        </DetailsButton>
       </NoteItemRow>
     );
   };
@@ -227,7 +241,9 @@ export default function ProfileScreen() {
           renderItem={renderProfileItem}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={renderAddProfileButton}
-          ListFooterComponent={dogProfiles.length > 0 ? renderAddProfileButton : null}
+          ListFooterComponent={
+            dogProfiles.length > 0 ? renderAddProfileButton : null
+          }
           showsHorizontalScrollIndicator={false}
         />
       </ProfileList>
@@ -246,7 +262,9 @@ export default function ProfileScreen() {
           {upcomingSchedules.length > 0 ? (
             upcomingSchedules.map(renderScheduleItem)
           ) : (
-            <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
+            <NoAppointmentText>
+              No upcoming schedules for now.
+            </NoAppointmentText>
           )}
         </NotesSection>
       )}
