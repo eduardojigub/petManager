@@ -263,7 +263,7 @@ export default function ProfileScreen() {
 
   const renderNoAppointment = () => (
     <View style={{ alignItems: 'center', marginTop: 20 }}>
-      <IconPhospor.CalendarBlank size={64} color="#000" weight="thin" style={{ marginBottom: 10 }} />
+      <IconPhospor.CalendarDots size={64} color="#000" weight="thin" style={{ marginBottom: 10 }} />
       <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
     </View>
   );
