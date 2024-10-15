@@ -11,31 +11,26 @@ import auth from '@react-native-firebase/auth';
 export default function AddScheduleScreen({ route, navigation }) {
   const { schedule, isEditMode = false } = route.params || {};
   const { selectedDog } = useContext(DogProfileContext);
+
   function convertTo24HourFormat(timeString) {
     const [time, modifier] = timeString.split(' ');
     let [hours, minutes, seconds] = time.split(':').map(Number);
-  
     if (modifier === 'PM' && hours < 12) hours += 12;
     if (modifier === 'AM' && hours === 12) hours = 0;
-  
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds || 0).padStart(2, '0')}`;
-  }  
-  
+  }
+
   const parsedDate = schedule?.date
-  ? new Date(Date.parse(`${schedule.date}T00:00:00`))
-  : new Date();
-  // Initialize state
+    ? new Date(Date.parse(`${schedule.date}T00:00:00`))
+    : new Date();
+
   const [description, setDescription] = useState(schedule?.description || '');
   const [date, setDate] = useState(parsedDate);
   const [tempDate, setTempDate] = useState(parsedDate);
 
-
-
-  // Check if schedule.time exists and parse it correctly
-  // Ensure the time has the right format (HH:mm:ss) by padding if necessary
   const parsedTime = schedule?.time
-  ? new Date(`1970-01-01T${convertTo24HourFormat(schedule.time)}`)
-  : new Date();
+    ? new Date(`1970-01-01T${convertTo24HourFormat(schedule.time)}`)
+    : new Date();
 
   const [time, setTime] = useState(parsedTime);
   const [tempTime, setTempTime] = useState(parsedTime);
@@ -51,49 +46,42 @@ export default function AddScheduleScreen({ route, navigation }) {
       Alert.alert('Error', 'The schedule description cannot be empty.');
       return;
     }
-  
+
     const userId = auth().currentUser?.uid;
     if (!userId) {
       Alert.alert('Error', 'User not logged in. Please log in to save schedules.');
       return;
     }
-  
+
     // Get the current date and time
     const now = new Date();
-  
-    // Combine selected date and time for validation
+
+    // Combine selected date and time in local time zone without further adjustments
     const selectedDateTime = new Date(date);
     selectedDateTime.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0);
-  
-    // Check if selected date is in the past or the same day but with an earlier time
-    if (selectedDateTime < now) {
-      Alert.alert(
-        'Invalid Date/Time',
-        'Please select a date and time that is in the future.'
-      );
+
+    console.log("Selected Local Notification Date:", selectedDateTime.toISOString());
+    console.log("Current UTC Date:", now.toISOString());
+
+    // Validation: Ensure selected date is in the future
+    if (selectedDateTime <= now) {
+      Alert.alert('Invalid Date/Time', 'Please select a date and time that is in the future.');
       return;
     }
-  
+
     try {
-      const notificationDate = new Date(date);
-      notificationDate.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0);
-  
-      if (isNaN(notificationDate.getTime())) {
-        throw new Error('Invalid date for notification');
-      }
-  
+      // Schedule the notification with date-based trigger
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Schedule Reminder',
           body: `Reminder: ${description}`,
           sound: true,
         },
-        trigger: {
-          type: 'date',
-          timestamp: notificationDate.getTime(),
-        },
+        trigger: { date: selectedDateTime },  // Directly set local time for the trigger
       });
-  
+
+      console.log("Notification ID:", notificationId);
+
       const scheduleData = {
         description,
         date: date.toLocaleDateString('en-CA'),
@@ -105,7 +93,9 @@ export default function AddScheduleScreen({ route, navigation }) {
         emailReminder: isEmailReminder,
         pushNotification: isPushNotificationReminder,
       };
-  
+
+      console.log("Schedule Data:", scheduleData);
+
       if (isEditMode && schedule) {
         await db.collection('schedules').doc(schedule.id).update(scheduleData);
         Alert.alert('Success', 'Schedule updated successfully!');
@@ -118,7 +108,7 @@ export default function AddScheduleScreen({ route, navigation }) {
       console.error('Error saving schedule', error);
       Alert.alert('Error', 'Failed to save schedule.');
     }
-  };;
+  };
 
   return (
     <Container>
