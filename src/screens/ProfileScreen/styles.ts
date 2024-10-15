@@ -203,6 +203,11 @@ export const NotesSection = styled.ScrollView`
 
 export const NoAppointmentText = styled.Text`
   margin-top: 12px;
+  font-family: 'Poppins_400Regular';
+  font-size: 16px;
+  color: #000;
+  text-align: center;
+  margin-top: 8px;
 `
 
 export const NoteItemRow = styled.View`

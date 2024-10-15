@@ -261,6 +261,13 @@ export default function ProfileScreen() {
     );
   };
 
+  const renderNoAppointment = () => (
+    <View style={{ alignItems: 'center', marginTop: 20 }}>
+      <IconPhospor.CalendarBlank size={64} color="#000" weight="thin" style={{ marginBottom: 10 }} />
+      <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
+    </View>
+  );
+
   return (
     <Container>
       <Header>
@@ -293,19 +300,17 @@ export default function ProfileScreen() {
           </NotesHeader>
 
           {isLoadingSchedules ? (
-            <ActivityIndicator
-              size="large"
-              color="#41245C"
-              style={{ marginVertical: 20 }}
-            />
-          ) : upcomingSchedules.length > 0 ? (
-            upcomingSchedules.map(renderScheduleItem)
-          ) : (
-            <NoAppointmentText>
-              No upcoming schedules for now.
-            </NoAppointmentText>
-          )}
-        </NotesSection>
+          <ActivityIndicator
+            size="large"
+            color="#41245C"
+            style={{ marginVertical: 20 }}
+          />
+        ) : upcomingSchedules.length > 0 ? (
+          upcomingSchedules.map(renderScheduleItem)
+        ) : (
+          renderNoAppointment() // Display the icon and text when no schedules are available
+        )}
+      </NotesSection>
       )}
     </Container>
   );
