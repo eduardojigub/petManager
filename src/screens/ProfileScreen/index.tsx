@@ -38,7 +38,6 @@ import {
   InfoText,
   BulletPoint,
   ProfilePlaceholder,
-  Overlay,
   PlaceholderBackground,
   NoDogsContainer,
   NoDogsText,
@@ -49,6 +48,8 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import auth from '@react-native-firebase/auth';
 import * as IconPhospor from 'phosphor-react-native';
 import { formatDateTime } from '../../utils/dateFormarter';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function ProfileScreen() {
   const [dogProfiles, setDogProfiles] = useState([]);
@@ -77,7 +78,14 @@ export default function ProfileScreen() {
         ...doc.data(),
       }));
       setDogProfiles(profiles);
-      if (profiles.length > 0) {
+  
+      const storedDogId = await AsyncStorage.getItem('selectedDogId'); // Retrieve saved ID
+      const savedDog = profiles.find((dog) => dog.id === storedDogId);
+  
+      // Set selectedDog to the saved dog if it exists, else default to first profile
+      if (savedDog) {
+        setSelectedDog(savedDog);
+      } else if (profiles.length > 0) {
         setSelectedDog(profiles[0]);
       }
     } catch (error) {
@@ -153,9 +161,15 @@ export default function ProfileScreen() {
     loadSchedules();
   }, [selectedDog]);
 
-  const handleSelectDog = (dog) => {
+  const handleSelectDog = async (dog) => {
     setSelectedDog(dog);
     loadSchedules();
+  
+    try {
+      await AsyncStorage.setItem('selectedDogId', dog.id); // Save selected dog's ID
+    } catch (error) {
+      console.error('Failed to save selected dog ID', error);
+    }
   };
 
   const renderProfileItem = ({ item }) => (
