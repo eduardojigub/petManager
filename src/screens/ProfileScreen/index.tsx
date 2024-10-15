@@ -1,5 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { FlatList, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  FlatList,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   Container,
@@ -51,9 +56,8 @@ export default function ProfileScreen() {
   const userId = auth().currentUser?.uid;
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
 
-   // Ref to track the current loadId
-   const loadIdRef = useRef(0);
-
+  // Ref to track the current loadId
+  const loadIdRef = useRef(0);
 
   useEffect(() => {
     setSelectedDog(null);
@@ -123,8 +127,8 @@ export default function ProfileScreen() {
           })
           .filter((schedule) => schedule.isUpcoming); // Only include upcoming schedules
 
-         // Only set schedules if loadId hasn't changed
-         if (currentLoadId === loadIdRef.current) {
+        // Only set schedules if loadId hasn't changed
+        if (currentLoadId === loadIdRef.current) {
           setUpcomingSchedules(schedules);
         }
       } catch (error) {
@@ -152,7 +156,10 @@ export default function ProfileScreen() {
   };
 
   const renderProfileItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleSelectDog(item)} style={{ marginHorizontal: 10 }}>
+    <TouchableOpacity
+      onPress={() => handleSelectDog(item)}
+      style={{ marginHorizontal: 10 }}
+    >
       <View style={{ alignItems: 'center' }}>
         {item.image ? (
           <ProfileImage source={{ uri: item.image }} />
@@ -189,7 +196,9 @@ export default function ProfileScreen() {
                 </DogInfoRow>
                 <DogInfoText>{dog.breed}</DogInfoText>
               </DogInfo>
-              <EditButton onPress={() => navigation.navigate('EditProfile', dog)}>
+              <EditButton
+                onPress={() => navigation.navigate('EditProfile', dog)}
+              >
                 <EditButtonText>Edit Profile</EditButtonText>
               </EditButton>
             </DogDetailsContainer>
@@ -239,9 +248,9 @@ export default function ProfileScreen() {
 
         <DetailsButton
           onPress={() =>
-            navigation.navigate('Schedule', {
-              screen: 'AddSchedule',
-              params: { schedule, isEditMode: true },
+            navigation.navigate('AddSchedule', {
+              schedule,
+              isEditMode: true,
             })
           }
         >
@@ -283,11 +292,17 @@ export default function ProfileScreen() {
           </NotesHeader>
 
           {isLoadingSchedules ? (
-            <ActivityIndicator size="large" color="#41245C" style={{ marginVertical: 20 }} />
+            <ActivityIndicator
+              size="large"
+              color="#41245C"
+              style={{ marginVertical: 20 }}
+            />
           ) : upcomingSchedules.length > 0 ? (
             upcomingSchedules.map(renderScheduleItem)
           ) : (
-            <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
+            <NoAppointmentText>
+              No upcoming schedules for now.
+            </NoAppointmentText>
           )}
         </NotesSection>
       )}
