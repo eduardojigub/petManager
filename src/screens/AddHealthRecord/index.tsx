@@ -1,5 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Modal, View, TouchableOpacity, Text, Platform } from 'react-native';
+import {
+  Alert,
+  Modal,
+  View,
+  TouchableOpacity,
+  Text,
+  Platform,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -31,7 +38,10 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
   const types = [
     { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
-    { label: 'Vet Appointment', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
+    {
+      label: 'Vet Appointment',
+      icon: <Icon.Stethoscope size={20} color="#7289DA" />,
+    },
     { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
     { label: 'Dog Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
     { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
@@ -44,9 +54,13 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   });
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the gallery is required!');
+      Alert.alert(
+        'Permission required',
+        'Permission to access the gallery is required!'
+      );
       return;
     }
 
@@ -60,63 +74,67 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImage(result.assets[0].uri);
     } else {
-      console.log("Image selection was canceled or no assets available");
+      console.log('Image selection was canceled or no assets available');
     }
   };
 
-    // Function to upload image to Firebase Storage
-    const uploadImageToStorage = async (imageUri) => {
-      const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-      const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
-      const storageRef = storage().ref(`healthRecords/${filename}`); // Reference to Firebase Storage path
-  
-      setUploading(true); // Show uploading state
-  
-      try {
-        await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
-        const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
-        setUploading(false); // Hide uploading state
-        return downloadURL; // Return the URL to store in Firestore
-      } catch (error) {
-        setUploading(false); // Hide uploading state
-        console.error('Error uploading image:', error);
-        Alert.alert('Error', 'Failed to upload image.');
-        return null;
-      }
-    };
+  // Function to upload image to Firebase Storage
+  const uploadImageToStorage = async (imageUri) => {
+    const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+    const uploadUri =
+      Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
+    const storageRef = storage().ref(`healthRecords/${filename}`); // Reference to Firebase Storage path
 
-    const handleSave = async () => {
-      if (!type || !description || !date) {
-        Alert.alert('Please fill out all fields');
+    setUploading(true); // Show uploading state
+
+    try {
+      await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
+      const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
+      setUploading(false); // Hide uploading state
+      return downloadURL; // Return the URL to store in Firestore
+    } catch (error) {
+      setUploading(false); // Hide uploading state
+      console.error('Error uploading image:', error);
+      Alert.alert('Error', 'Failed to upload image.');
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    if (!type || !description || !date) {
+      Alert.alert('Please fill out all fields');
+      return;
+    }
+
+    let imageUrl = image;
+    if (image && image.startsWith('file://')) {
+      imageUrl = await uploadImageToStorage(image);
+      if (!imageUrl) {
+        Alert.alert(
+          'Error',
+          'Image upload failed. Cannot save the health record.'
+        );
         return;
       }
-    
-      let imageUrl = image;
-      if (image && image.startsWith('file://')) {
-        imageUrl = await uploadImageToStorage(image);
-        if (!imageUrl) {
-          Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
-          return;
-        }
-      }
-    
-      const newRecord = {
-        type,
-        description,
-        date: date.toISOString(), // Save the full ISO date string
-        image: imageUrl,
-        dogId: selectedDog.id,
-      };
-    
-      try {
-        await db.collection('healthRecords').add(newRecord);
-        if (route.params?.addRecord) route.params.addRecord(newRecord);
-        navigation.goBack();
-      } catch (error) {
-        console.error('Error saving health record', error);
-        Alert.alert('Error', 'Unable to save the health record.');
-      }
+    }
+
+    const newRecord = {
+      type,
+      description,
+      date: date.toISOString(), // Save the full ISO date string
+      image: imageUrl,
+      dogId: selectedDog.id,
     };
+
+    try {
+      await db.collection('healthRecords').add(newRecord);
+      if (route.params?.addRecord) route.params.addRecord(newRecord);
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving health record', error);
+      Alert.alert('Error', 'Unable to save the health record.');
+    }
+  };
 
   return (
     <Container>
@@ -124,7 +142,11 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
       <TypeSelector>
         {types.map((item) => (
-          <TypeOption key={item.label} onPress={() => setType(item.label)} selected={type === item.label}>
+          <TypeOption
+            key={item.label}
+            onPress={() => setType(item.label)}
+            selected={type === item.label}
+          >
             {item.icon}
             <TypeText selected={type === item.label}>{item.label}</TypeText>
           </TypeOption>
@@ -139,41 +161,91 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       />
 
       {/* Date Picker Button */}
-      <DatePickerButton onPress={() => setShowDateModal(true)}>
+      <DatePickerButton
+        onPress={() => {
+          if (Platform.OS === 'ios') {
+            setShowDateModal(true); // Show modal on iOS
+          } else {
+            setShowDateModal(true); // Open DateTimePicker directly on Android
+          }
+        }}
+      >
         <DatePickerText>{formattedDate}</DatePickerText>
       </DatePickerButton>
 
-      {/* Date Picker Modal */}
-      <Modal
-        visible={showDateModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowDateModal(false)}
-      >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '90%' }}>
-            <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}>Select Date</Text>
-            
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                if (selectedDate) setDate(selectedDate);
+      {/* Date Picker Modal for iOS only */}
+      {Platform.OS === 'ios' && (
+        <Modal
+          visible={showDateModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowDateModal(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: 'white',
+                padding: 20,
+                borderRadius: 10,
+                width: '90%',
               }}
-            />
+            >
+              <Text
+                style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}
+              >
+                Select Date
+              </Text>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-              <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Confirm</Text>
-              </TouchableOpacity>
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) setDate(selectedDate);
+                  setShowDateModal(false); // Close after selection
+                }}
+              />
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginTop: 20,
+                }}
+              >
+                <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                  <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                  <Text style={{ color: '#7289DA', fontSize: 16 }}>
+                    Confirm
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
+
+      {/* Date Picker Direct for Android */}
+      {Platform.OS === 'android' && showDateModal && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            if (selectedDate) setDate(selectedDate);
+            setShowDateModal(false); // Close DateTimePicker after selection
+          }}
+        />
+      )}
 
       <CustomButton onPress={pickImage}>
         <ButtonText>Select Image</ButtonText>
@@ -184,7 +256,6 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       </CustomButton>
 
       {image && <ImagePreview source={{ uri: image }} />}
-
     </Container>
   );
 }
