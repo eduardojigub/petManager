@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Alert, Modal, Text, TouchableOpacity, View, Platform } from 'react-native';
+import { Alert, Modal, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Notifications from 'expo-notifications';
 import * as Icon from 'phosphor-react-native';
@@ -51,23 +51,37 @@ export default function AddScheduleScreen({ route, navigation }) {
       Alert.alert('Error', 'The schedule description cannot be empty.');
       return;
     }
-
+  
     const userId = auth().currentUser?.uid;
     if (!userId) {
       Alert.alert('Error', 'User not logged in. Please log in to save schedules.');
       return;
     }
-
+  
+    // Get the current date and time
+    const now = new Date();
+  
+    // Combine selected date and time for validation
+    const selectedDateTime = new Date(date);
+    selectedDateTime.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0);
+  
+    // Check if selected date is in the past or the same day but with an earlier time
+    if (selectedDateTime < now) {
+      Alert.alert(
+        'Invalid Date/Time',
+        'Please select a date and time that is in the future.'
+      );
+      return;
+    }
+  
     try {
-      // Create a full Date object for notification with date and time combined
       const notificationDate = new Date(date);
-      notificationDate.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0); // Set hours, minutes, seconds, milliseconds
-
+      notificationDate.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0);
+  
       if (isNaN(notificationDate.getTime())) {
         throw new Error('Invalid date for notification');
       }
-
-      // Schedule the notification
+  
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Schedule Reminder',
@@ -79,7 +93,7 @@ export default function AddScheduleScreen({ route, navigation }) {
           timestamp: notificationDate.getTime(),
         },
       });
-
+  
       const scheduleData = {
         description,
         date: date.toLocaleDateString('en-CA'),
@@ -91,7 +105,7 @@ export default function AddScheduleScreen({ route, navigation }) {
         emailReminder: isEmailReminder,
         pushNotification: isPushNotificationReminder,
       };
-
+  
       if (isEditMode && schedule) {
         await db.collection('schedules').doc(schedule.id).update(scheduleData);
         Alert.alert('Success', 'Schedule updated successfully!');
@@ -104,7 +118,7 @@ export default function AddScheduleScreen({ route, navigation }) {
       console.error('Error saving schedule', error);
       Alert.alert('Error', 'Failed to save schedule.');
     }
-  };
+  };;
 
   return (
     <Container>

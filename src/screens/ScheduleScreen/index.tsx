@@ -23,14 +23,17 @@ export default function ScheduleScreen({ navigation }) {
         const loadedSchedules = schedulesSnapshot.docs.map((doc) => {
           const data = doc.data();
   
-          // Desestrutura a data e hora
+          // Parse date and time components separately
           const [year, month, day] = data.date.split('-').map(Number);
           const [hours, minutes] = data.time.split(':').map(Number);
-          
-          // Cria uma data explícita usando os valores separados
+  
+          // Create scheduleDateTime in the local timezone
           const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
-          
-          const isPastSchedule = scheduleDateTime.getTime() < new Date().getTime();
+  
+          const now = new Date();
+          const isPastSchedule = scheduleDateTime < now && (
+            scheduleDateTime.toDateString() !== now.toDateString() // Only mark as past if not today
+          );
   
           return { id: doc.id, ...data, isPast: isPastSchedule };
         });
@@ -41,6 +44,7 @@ export default function ScheduleScreen({ navigation }) {
       console.error('Error loading schedules', error);
     }
   };
+  
   
 
   useFocusEffect(

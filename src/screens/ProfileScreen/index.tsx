@@ -80,27 +80,28 @@ export default function ProfileScreen() {
           .where('userId', '==', userId)
           .get();
   
-        const currentDateTime = new Date().getTime();
+        const now = new Date(); // Current date and time
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Start of today
   
         const schedules = schedulesSnapshot.docs
           .map((doc) => {
             const data = doc.data();
-            
-            // Destructure date and time
+  
+            // Parse schedule date and time
             const [year, month, day] = data.date.split('-').map(Number);
             const [hours, minutes] = data.time.split(':').map(Number);
-  
-            // Create a Date object for the schedule
             const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
   
-            // Return schedule with date comparison
+            // Determine if the schedule is upcoming (today or later)
+            const isUpcoming = scheduleDateTime >= today;
+  
             return {
               id: doc.id,
               ...data,
-              isUpcoming: scheduleDateTime.getTime() >= currentDateTime,
+              isUpcoming,
             };
           })
-          .filter((schedule) => schedule.isUpcoming); // Only include future schedules
+          .filter((schedule) => schedule.isUpcoming); // Only include upcoming schedules
   
         setUpcomingSchedules(schedules);
       } catch (error) {
@@ -108,6 +109,7 @@ export default function ProfileScreen() {
       }
     }
   };
+  
 
   useFocusEffect(
     React.useCallback(() => {
