@@ -153,20 +153,20 @@ function ScheduleStack() {
       <Stack.Screen
         name="AddSchedule"
         component={AddScheduleScreen}
-        options={{
+        options={({ route }) => ({
           headerStyle: {
             backgroundColor: '#fff',
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Add Schedule',
+          headerTitle: route.params?.isEditMode ? 'Edit Schedule' : 'Add Schedule',
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
           },
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
-        }}
+        })}
       />
     </Stack.Navigator>
   );

@@ -83,28 +83,29 @@ export default function ScheduleScreen({ navigation }) {
     );
   };
 
-  const renderSchedule = ({ item }) => {
-    return (
-      <ListItem isPast={item.isPast}>
-        <TouchableOpacity onPress={() => navigation.navigate('EditSchedule', { schedule: item })} style={{ flex: 1 }}>
-          <ListItemContent>
-            <ListItemText isPast={item.isPast} numberOfLines={1} ellipsizeMode="tail">
-              {item.description}
-            </ListItemText>
-            <IconRow>
-              <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
-              <ListItemText isPast={item.isPast}>{item.date}</ListItemText>
-              <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
-              <ListItemText isPast={item.isPast}>{item.time}</ListItemText>
-            </IconRow>
-          </ListItemContent>
-        </TouchableOpacity>
-        <TrashIconContainer onPress={() => handleDelete(item.id, item.notificationId)}>
-          <Icon.Trash size={24} color="#e74c3c" />
-        </TrashIconContainer>
-      </ListItem>
-    );
-  };
+  const renderSchedule = ({ item }) => (
+    <ListItem isPast={item.isPast}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('AddSchedule', { schedule: item, isEditMode: true })}
+        style={{ flex: 1 }}
+      >
+        <ListItemContent>
+          <ListItemText isPast={item.isPast} numberOfLines={1} ellipsizeMode="tail">
+            {item.description}
+          </ListItemText>
+          <IconRow>
+            <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
+            <ListItemText isPast={item.isPast}>{item.date}</ListItemText>
+            <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
+            <ListItemText isPast={item.isPast}>{item.time}</ListItemText>
+          </IconRow>
+        </ListItemContent>
+      </TouchableOpacity>
+      <TrashIconContainer onPress={() => handleDelete(item.id, item.notificationId)}>
+        <Icon.Trash size={24} color="#e74c3c" />
+      </TrashIconContainer>
+    </ListItem>
+  );
   
   return (
     <Container>

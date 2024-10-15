@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Alert, Modal, Text, TouchableOpacity, View, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Notifications from 'expo-notifications';
@@ -8,18 +8,19 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import auth from '@react-native-firebase/auth';
 
-export default function AddScheduleScreen({ navigation }) {
+export default function AddScheduleScreen({ route, navigation }) {
+  const { schedule, isEditMode } = route.params || {}; // Get schedule and edit mode from params
   const { selectedDog } = useContext(DogProfileContext);
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(new Date());
-  const [tempDate, setTempDate] = useState(new Date());
-  const [tempTime, setTempTime] = useState(new Date());
+
+  // Initialize state with either existing data (for edit mode) or default values
+  const [description, setDescription] = useState(schedule?.description || '');
+  const [date, setDate] = useState(schedule ? new Date(schedule.date) : new Date());
+  const [time, setTime] = useState(schedule ? new Date(`1970-01-01T${schedule.time}`) : new Date());
+  const [type, setType] = useState(schedule?.type || 'Other'); // Default type
+  const [isEmailReminder, setIsEmailReminder] = useState(schedule?.emailReminder || false);
+  const [isPushNotificationReminder, setIsPushNotificationReminder] = useState(schedule?.pushNotification || false);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
-  const [type, setType] = useState('Other'); // Default type
-  const [isEmailReminder, setIsEmailReminder] = useState(false);
-  const [isPushNotificationReminder, setIsPushNotificationReminder] = useState(false);
 
   const handleSave = async () => {
     if (!description.trim()) {
@@ -38,7 +39,7 @@ export default function AddScheduleScreen({ navigation }) {
       const notificationDate = new Date(date);
       notificationDate.setHours(time.getHours());
       notificationDate.setMinutes(time.getMinutes());
-  
+
       // Schedule the notification
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
@@ -48,40 +49,35 @@ export default function AddScheduleScreen({ navigation }) {
         },
         trigger: notificationDate,
       });
-  
-      // Format date as a local date string instead of UTC
-      const localDateString = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-  
-      // Create a new schedule object with formatted date
-      const newSchedule = {
+
+      // Prepare schedule data with the type and other values
+      const scheduleData = {
         description,
-        date: localDateString, // Save as local date string
+        date: date.toLocaleDateString('en-CA'), // Format as YYYY-MM-DD
         time: time.toLocaleTimeString(),
         dogId: selectedDog.id,
         userId,
         notificationId,
-        type,  // Add type to Firestore document
+        type, // Include type in data
         emailReminder: isEmailReminder,
         pushNotification: isPushNotificationReminder,
       };
-  
-      // Save the schedule to Firestore
-      await db.collection('schedules').add(newSchedule);
-  
-      Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
+
+      // Check if editing an existing schedule or creating a new one
+      if (isEditMode && schedule) {
+        // Update the existing schedule
+        await db.collection('schedules').doc(schedule.id).update(scheduleData);
+        Alert.alert('Success', 'Schedule updated successfully!');
+      } else {
+        // Add a new schedule
+        await db.collection('schedules').add(scheduleData);
+        Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
+      }
       navigation.goBack();
     } catch (error) {
       console.error('Error saving schedule', error);
       Alert.alert('Error', 'Failed to save schedule.');
     }
-  };
-
-  const onDateChange = (event, selectedDate) => {
-    if (selectedDate) setTempDate(selectedDate);
-  };
-
-  const onTimeChange = (event, selectedTime) => {
-    if (selectedTime) setTempTime(selectedTime);
   };
 
   return (
@@ -92,8 +88,8 @@ export default function AddScheduleScreen({ navigation }) {
         onChangeText={setDescription}
       />
 
-        {/* Type Selection */}
-        <Text style={{ fontSize: 18, color: "#41245C", marginBottom: 10 }}>Select Type:</Text>
+      {/* Type Selection */}
+      <Text style={{ fontSize: 18, color: "#41245C", marginBottom: 10 }}>Select Type:</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 }}>
         {[
           { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
@@ -121,19 +117,12 @@ export default function AddScheduleScreen({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '90%' }}>
             <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}>Select Date</Text>
-            <DateTimePicker value={tempDate} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onDateChange} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-              <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setDate(tempDate); setShowDateModal(false); }}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
+            <DateTimePicker value={date} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={(event, selectedDate) => { if (selectedDate) setDate(selectedDate); setShowDateModal(false); }} />
           </View>
         </View>
       </Modal>
 
+      {/* Time Picker Button */}
       <DatePickerButton onPress={() => setShowTimeModal(true)}>
         <IconRow>
           <Icon.Clock size={24} color="#41245C" />
@@ -145,26 +134,10 @@ export default function AddScheduleScreen({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '90%' }}>
             <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}>Select Time</Text>
-            <DateTimePicker value={tempTime} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onTimeChange} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-              <TouchableOpacity onPress={() => setShowTimeModal(false)}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setTime(tempTime); setShowTimeModal(false); }}>
-                <Text style={{ color: '#7289DA', fontSize: 16 }}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
+            <DateTimePicker value={time} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={(event, selectedTime) => { if (selectedTime) setTime(selectedTime); setShowTimeModal(false); }} />
           </View>
         </View>
       </Modal>
-
-      {/* Checkbox for email reminder */}
-      {/* <CheckboxRow>
-        <TouchableOpacity onPress={() => setIsEmailReminder(!isEmailReminder)}>
-          <Icon.CheckSquare size={24} color={isEmailReminder ? "#41245C" : "#ddd"} />
-        </TouchableOpacity>
-        <CheckboxText>Send me a reminder per email</CheckboxText>
-      </CheckboxRow> */}
 
       {/* Checkbox for push notification reminder */}
       <CheckboxRow>
@@ -175,7 +148,7 @@ export default function AddScheduleScreen({ navigation }) {
       </CheckboxRow>
 
       <AddButton onPress={handleSave}>
-        <ButtonText>Save Schedule</ButtonText>
+        <ButtonText>{isEditMode ? 'Update Schedule' : 'Save Schedule'}</ButtonText>
       </AddButton>
     </Container>
   );
