@@ -32,6 +32,9 @@ import {
   DogInfoRow,
   InfoText,
   BulletPoint,
+  ProfilePlaceholder,
+  Overlay,
+  PlaceholderBackground,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
@@ -149,26 +152,14 @@ export default function ProfileScreen() {
   };
 
   const renderProfileItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => handleSelectDog(item)}
-      style={{ marginHorizontal: 10 }}
-    >
+    <TouchableOpacity onPress={() => handleSelectDog(item)} style={{ marginHorizontal: 10 }}>
       <View style={{ alignItems: 'center' }}>
         {item.image ? (
           <ProfileImage source={{ uri: item.image }} />
         ) : (
-          <View
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              backgroundColor: '#fff',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderWidth: 2,
-              borderColor: '#ccc',
-            }}
-          />
+          <ProfilePlaceholder>
+            <Icon name="dog" size={32} color="#ffffff" />
+          </ProfilePlaceholder>
         )}
         <ProfileName>{item.name}</ProfileName>
       </View>
@@ -185,8 +176,27 @@ export default function ProfileScreen() {
 
   const renderDogDetails = (dog) => (
     <SelectedDogSection>
-      <DogImageBackground source={{ uri: dog.image }}>
-        <GradientOverlay>
+      {dog.image ? (
+        <DogImageBackground source={{ uri: dog.image }}>
+          <GradientOverlay>
+            <DogDetailsContainer>
+              <DogInfo>
+                <DogInfoText>{dog.name}</DogInfoText>
+                <DogInfoRow>
+                  <InfoText>{dog.age} years</InfoText>
+                  <BulletPoint>•</BulletPoint>
+                  <InfoText>{dog.weight} kg</InfoText>
+                </DogInfoRow>
+                <DogInfoText>{dog.breed}</DogInfoText>
+              </DogInfo>
+              <EditButton onPress={() => navigation.navigate('EditProfile', dog)}>
+                <EditButtonText>Edit Profile</EditButtonText>
+              </EditButton>
+            </DogDetailsContainer>
+          </GradientOverlay>
+        </DogImageBackground>
+      ) : (
+        <PlaceholderBackground>
           <DogDetailsContainer>
             <DogInfo>
               <DogInfoText>{dog.name}</DogInfoText>
@@ -201,11 +211,10 @@ export default function ProfileScreen() {
               <EditButtonText>Edit Profile</EditButtonText>
             </EditButton>
           </DogDetailsContainer>
-        </GradientOverlay>
-      </DogImageBackground>
+        </PlaceholderBackground>
+      )}
     </SelectedDogSection>
   );
-
   // Map each type to its corresponding icon
   const typeIcons = {
     Vaccine: <IconPhospor.Syringe size={32} color="#41245C" />,

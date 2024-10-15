@@ -30,7 +30,6 @@ export const ProfileImage = styled.Image`
   width: 80px;
   height: 80px;
   border-radius: 40px;
-  margin-bottom: 5px;
   border-width: 1px;
   border-color: #41245C;
   margin-top: 10px;
@@ -39,12 +38,22 @@ export const ProfileImage = styled.Image`
 export const AddProfileCircle = styled.View`
   width: 80px;
   height: 80px;
-  border-radius: 40px; // Circular shape
-  background-color: #41245C;
+  border-radius: 40px;
   justify-content: center;
   align-items: center;
-  border-width: 1px;
   margin-left: 10px;
+  margin-top: 10px;
+`;
+
+export const ProfilePlaceholder = styled.View`
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  background-color: #DFC2FA; /* Placeholder background color */
+  justify-content: center;
+  align-items: center;
+  border-width: 2px;
+  border-color: #41245C;
   margin-top: 10px;
 `;
 
@@ -58,14 +67,14 @@ export const ProfileName = styled.Text`
   font-size: 14px;
   font-family: 'Poppins_400Regular';
   color: #666666;
+  margin-top: 5px;
 `;
-
 
 
 export const SelectedDogSection = styled.View`
   background-color: #ffffff;
   border-radius: 10px;
-  overflow: hidden; // Ensures the image and gradient fit within the card
+  overflow: hidden;
   margin-bottom: 30px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -88,8 +97,19 @@ export const DogImage = styled.Image`
 export const DogImageBackground = styled.ImageBackground`
   width: 100%;
   height: 220px;
-  justify-content: flex-end; // Align items to the bottom
+  justify-content: flex-end;
+  position: relative;
 `;
+
+export const Overlay = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3); /* Overlay with slight opacity */
+`;
+
 
 export const GradientOverlay = styled(LinearGradient).attrs({
   colors: ['transparent', 'rgba(0, 0, 0, 0.6)'],
@@ -230,4 +250,13 @@ export const DetailsButtonText = styled.Text`
   color: #fff;
   font-size: 14px;
   font-family: 'Poppins_600SemiBold';
+`;
+
+export const PlaceholderBackground = styled.View`
+  width: 100%;
+  height: 220px;
+  background-color: #DFC2FA; /* Adjust to a preferred placeholder color */
+  justify-content: flex-end;
+  padding: 10px;
+  padding-bottom: 15px;
 `;
