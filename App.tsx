@@ -21,6 +21,7 @@ import SignInScreen from './src/screens/LoginScreen/SignIn';
 import SignUpScreen from './src/screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPassword';
 import { useFonts, Poppins_400Regular,Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold  } from '@expo-google-fonts/poppins';
+import ManageNotificationsScreen from './src/screens/ManageNotificationScreen';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -227,6 +228,24 @@ function AuthStack() {
   );
 }
 
+function SettingsStack() {
+  return (
+    <Stack.Navigator initialRouteName="SettingsMain">
+      <Stack.Screen
+        name="SettingsMain"
+        component={SettingsScreen}
+        options={{ headerTitle: 'Settings', headerShown: false }}
+      />
+      <Stack.Screen
+        name="ManageNotifications"
+        component={ManageNotificationsScreen}
+        options={{ headerTitle: 'Manage Notifications' }}
+      />
+      {/* Add more settings-related screens as needed */}
+    </Stack.Navigator>
+  );
+}
+
 // Bottom Tab Navigator for the main application
 function AppTabs() {
   return (
@@ -268,9 +287,9 @@ function AppTabs() {
           ),
         }}
       />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+       <Tab.Screen 
+        name="Settings" 
+        component={SettingsStack} 
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => (
