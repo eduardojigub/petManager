@@ -214,6 +214,7 @@ export default function HealthRecordsScreen({ navigation }) {
         data={isFilterApplied ? filteredRecords : healthRecords}
         renderItem={renderRecord}
         keyExtractor={item => item.id}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyList} // Display image if list is empty
       />
       

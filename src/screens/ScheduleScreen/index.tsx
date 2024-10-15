@@ -140,6 +140,7 @@ export default function ScheduleScreen({ navigation }) {
         renderItem={renderSchedule}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyList}
+        showsVerticalScrollIndicator={false}
       />
       <AddButton onPress={() => navigation.navigate('AddSchedule')}>
         <ButtonText>Add Schedule</ButtonText>
