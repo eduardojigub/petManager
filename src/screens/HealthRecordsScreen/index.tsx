@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, FlatList, Alert, Modal, View, Image } from 'react-native';
+import { FlatList, Alert, Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import {
   Container,
@@ -200,7 +200,7 @@ export default function HealthRecordsScreen({ navigation }) {
             style={{ width: '100%', marginBottom: 10 }}
           >
             {Array.from({ length: 12 }, (_, index) => (
-              <Picker.Item key={index} label={new Date(0, index).toLocaleString('default', { month: 'long' })} value={index} />
+              <Picker.Item  key={`month-${index}-${new Date().getTime()}`} label={new Date(0, index).toLocaleString('default', { month: 'long' })} value={index} />
             ))}
           </Picker>
           
@@ -211,7 +211,7 @@ export default function HealthRecordsScreen({ navigation }) {
           >
             {Array.from({ length: 10 }, (_, index) => {
               const year = new Date().getFullYear() - index;
-              return <Picker.Item key={year} label={`${year}`} value={year} />;
+              return <Picker.Item key={`year-${year}-${index}-${new Date().getTime()}`} label={`${year}`} value={year} />;
             })}
           </Picker>
           
@@ -224,7 +224,7 @@ export default function HealthRecordsScreen({ navigation }) {
       <FlatList
         data={isFilterApplied ? filteredRecords : healthRecords}
         renderItem={renderRecord}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyList} // Display image if list is empty
       />

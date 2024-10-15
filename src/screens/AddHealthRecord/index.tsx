@@ -252,7 +252,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       </CustomButton>
 
       <CustomButton onPress={handleSave} disabled={uploading}>
-        <ButtonText>{uploading ? 'Uploading...' : 'Save'}</ButtonText>
+        <ButtonText>{uploading ? 'Uploading...' : 'Save Health Record'}</ButtonText>
       </CustomButton>
 
       {image && <ImagePreview source={{ uri: image }} />}
