@@ -102,8 +102,9 @@ export const EmptyListImage = styled.Image`
 
 export const EmptyListText = styled.Text`
   font-size: 16px;
-  color: #7289DA;
+  color: #000;
   text-align: center;
   margin-horizontal: 20px;
   margin-top: 30px;
+  font-family: 'Poppins_400Regular';
 `;
