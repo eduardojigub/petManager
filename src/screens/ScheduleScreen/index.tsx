@@ -32,12 +32,6 @@ export default function ScheduleScreen({ navigation }) {
           
           const isPastSchedule = scheduleDateTime.getTime() < new Date().getTime();
   
-          console.log(`Schedule ${data.description}:`, {
-            scheduleDateTime: scheduleDateTime.toString(),
-            currentDateTime: new Date().toString(),
-            isPast: isPastSchedule,
-          });
-  
           return { id: doc.id, ...data, isPast: isPastSchedule };
         });
   

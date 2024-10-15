@@ -203,12 +203,12 @@ export default function ProfileScreen() {
         </DescriptionContainer>
 
         <DetailsButton
-          onPress={() =>
-            navigation.navigate('DetailsScreen', { scheduleId: schedule.id })
-          }
-        >
-          <DetailsButtonText>Details</DetailsButtonText>
-        </DetailsButton>
+        onPress={() =>
+          navigation.navigate('AddSchedule', { schedule, isEditMode: true }) // Navigate to AddScheduleScreen with editing parameters
+        }
+      >
+        <DetailsButtonText>Details</DetailsButtonText>
+      </DetailsButton>
       </NoteItemRow>
     );
   };

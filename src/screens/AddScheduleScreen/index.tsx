@@ -9,7 +9,7 @@ import { db } from '../../firebase/Firestore';
 import auth from '@react-native-firebase/auth';
 
 export default function AddScheduleScreen({ route, navigation }) {
-  const { schedule, isEditMode } = route.params || {}; // Get schedule and edit mode from params
+  const { schedule, isEditMode = false } = route.params || {}; // Get schedule and edit mode from params
   const { selectedDog } = useContext(DogProfileContext);
 
   // Initialize state with either existing data (for edit mode) or default values
