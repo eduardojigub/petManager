@@ -41,7 +41,6 @@ export const AddProfileCircle = styled.View`
   border-radius: 40px;
   justify-content: center;
   align-items: center;
-  margin-left: 10px;
   margin-top: 10px;
 `;
 
@@ -264,4 +263,19 @@ export const PlaceholderBackground = styled.View`
   justify-content: flex-end;
   padding: 10px;
   padding-bottom: 15px;
+`;
+
+export const NoDogsContainer = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+export const NoDogsText = styled.Text`
+  font-size: 16px;
+  color: #41245C;
+  font-family: 'Poppins_400Regular';
+  margin-top: 10px;
+  text-align: center;
 `;

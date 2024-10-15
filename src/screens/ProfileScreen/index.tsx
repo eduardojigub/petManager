@@ -40,6 +40,8 @@ import {
   ProfilePlaceholder,
   Overlay,
   PlaceholderBackground,
+  NoDogsContainer,
+  NoDogsText,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
@@ -150,7 +152,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     loadSchedules();
   }, [selectedDog]);
-  
+
   const handleSelectDog = (dog) => {
     setSelectedDog(dog);
     loadSchedules();
@@ -263,54 +265,74 @@ export default function ProfileScreen() {
 
   const renderNoAppointment = () => (
     <View style={{ alignItems: 'center', marginTop: 20 }}>
-      <IconPhospor.CalendarDots size={64} color="#000" weight="thin" style={{ marginBottom: 10 }} />
+      <IconPhospor.CalendarDots
+        size={64}
+        color="#000"
+        weight="thin"
+        style={{ marginBottom: 10 }}
+      />
       <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
     </View>
   );
 
+  const renderNoDogs = () => (
+    <NoDogsContainer>
+      <IconPhospor.PawPrint size={64} color="#41245C" weight="thin" />
+      <NoDogsText>No dog profiles added. Start by creating one!</NoDogsText>
+      <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+        <AddProfileCircle>
+          <Icon name="plus" size={40} color="#41245C" />
+        </AddProfileCircle>
+      </TouchableOpacity>
+    </NoDogsContainer>
+  );
   return (
     <Container>
       <Header>
         <WelcomeHeader>Welcome, human!</WelcomeHeader>
       </Header>
 
-      <ProfileList>
-        <FlatList
-          horizontal
-          data={dogProfiles}
-          renderItem={renderProfileItem}
-          keyExtractor={(item) => item.id}
-          ListEmptyComponent={renderAddProfileButton}
-          ListFooterComponent={
-            dogProfiles.length > 0 ? renderAddProfileButton : null
-          }
-          showsHorizontalScrollIndicator={false}
-        />
-      </ProfileList>
+      {dogProfiles.length === 0 ? (
+        renderNoDogs() // Exibe o ícone e mensagem no centro da tela quando não há cachorros cadastrados
+      ) : (
+        <>
+          <ProfileList>
+            <FlatList
+              horizontal
+              data={dogProfiles}
+              renderItem={renderProfileItem}
+              keyExtractor={(item) => item.id}
+              ListEmptyComponent={renderAddProfileButton}
+              ListFooterComponent={
+                dogProfiles.length > 0 ? renderAddProfileButton : null
+              }
+              showsHorizontalScrollIndicator={false}
+            />
+          </ProfileList>
 
-      {selectedDog && renderDogDetails(selectedDog)}
+          {selectedDog && renderDogDetails(selectedDog)}
 
-      {selectedDog && (
-        <NotesSection showsVerticalScrollIndicator={false}>
-          <NotesHeader>
-            <NotesTitle>Upcoming Appointments</NotesTitle>
-            <TouchableOpacity onPress={() => navigation.navigate('Schedule')}>
-              <MoreButtonText>More</MoreButtonText>
-            </TouchableOpacity>
-          </NotesHeader>
+          <NotesSection showsVerticalScrollIndicator={false}>
+            <NotesHeader>
+              <NotesTitle>Upcoming Appointments</NotesTitle>
+              <TouchableOpacity onPress={() => navigation.navigate('Schedule')}>
+                <MoreButtonText>More</MoreButtonText>
+              </TouchableOpacity>
+            </NotesHeader>
 
-          {isLoadingSchedules ? (
-          <ActivityIndicator
-            size="large"
-            color="#41245C"
-            style={{ marginVertical: 20 }}
-          />
-        ) : upcomingSchedules.length > 0 ? (
-          upcomingSchedules.map(renderScheduleItem)
-        ) : (
-          renderNoAppointment() // Display the icon and text when no schedules are available
-        )}
-      </NotesSection>
+            {isLoadingSchedules ? (
+              <ActivityIndicator
+                size="large"
+                color="#41245C"
+                style={{ marginVertical: 20 }}
+              />
+            ) : upcomingSchedules.length > 0 ? (
+              upcomingSchedules.map(renderScheduleItem)
+            ) : (
+              renderNoAppointment() // Display the icon and text when no schedules are available
+            )}
+          </NotesSection>
+        </>
       )}
     </Container>
   );
