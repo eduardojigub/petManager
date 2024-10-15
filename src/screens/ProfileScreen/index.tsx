@@ -150,6 +150,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     loadSchedules();
   }, [selectedDog]);
+  
   const handleSelectDog = (dog) => {
     setSelectedDog(dog);
     loadSchedules();

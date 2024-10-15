@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #ffff;
   align-items: center;
 `;
 
@@ -87,4 +87,23 @@ export const FilterButton = styled.TouchableOpacity`
 export const DetailDateText = styled.Text`
   color: #A9A9A9;
   font-size: 12px;
+`;
+
+export const EmptyListContainer = styled.View`
+  align-items: center;
+  margin-top: 80px;
+`;
+
+export const EmptyListImage = styled.Image`
+  width: 300px;
+  height: 300px;
+  margin-bottom: 20px;
+`;
+
+export const EmptyListText = styled.Text`
+  font-size: 16px;
+  color: #7289DA;
+  text-align: center;
+  margin-horizontal: 20px;
+  margin-top: 30px;
 `;

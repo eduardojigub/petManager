@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, FlatList, Alert, Modal } from 'react-native';
+import { Text, FlatList, Alert, Modal, View, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import {
   Container,
@@ -15,10 +15,14 @@ import {
   ModalContainer,
   ModalTitle,
   DetailDateText,
+  EmptyListContainer,
+  EmptyListImage,
+  EmptyListText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
+import healthRecordsImage from '../../assets/healthRecords.png'
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
@@ -149,6 +153,15 @@ export default function HealthRecordsScreen({ navigation }) {
     );
   };
 
+  const renderEmptyList = () => (
+    <EmptyListContainer>
+      <EmptyListImage source={healthRecordsImage} />
+      <EmptyListText>
+        No health records yet. Start adding records to keep track of your pet’s health.
+      </EmptyListText>
+    </EmptyListContainer>
+  );
+
   return (
     <Container>
       
@@ -201,6 +214,7 @@ export default function HealthRecordsScreen({ navigation }) {
         data={isFilterApplied ? filteredRecords : healthRecords}
         renderItem={renderRecord}
         keyExtractor={item => item.id}
+        ListEmptyComponent={renderEmptyList} // Display image if list is empty
       />
       
       <AddButton onPress={() => navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })}>
