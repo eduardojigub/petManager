@@ -87,7 +87,6 @@ export default function ScheduleScreen({ navigation }) {
       </TouchableOpacity>
     </ListItem>
   );
-
   return (
     <Container>
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Schedules {selectedDog ? 'for ' + selectedDog?.name : null}</Text>

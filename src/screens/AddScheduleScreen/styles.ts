@@ -7,16 +7,24 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const StyledTextInput = styled.TextInput`
+export const StyledTextInput = styled.TextInput.attrs({
+  placeholderTextColor: '#888',
+  multiline: true,
+  textAlignVertical: 'top',
+})`
   width: 100%;
+  min-height: 100px;
   padding: 15px;
   border-radius: 8px;
   border-width: 1px;
-  border-color: #ccc;
+  border-color: #ddd;
   margin-bottom: 20px;
   font-size: 16px;
   color: #333;
+  background-color: #fff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
+
 
 export const DatePickerButton = styled.TouchableOpacity`
   background-color: #ffffff;
@@ -55,4 +63,17 @@ export const ButtonText = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
+`;
+
+export const CheckboxRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 15px;
+  margin-top: 20px;
+`;
+
+export const CheckboxText = styled.Text`
+  font-size: 16px;
+  color: #41245C;
+  margin-left: 10px;
 `;
