@@ -60,9 +60,6 @@ export default function AddScheduleScreen({ route, navigation }) {
     const selectedDateTime = new Date(date);
     selectedDateTime.setHours(tempTime.getHours(), tempTime.getMinutes(), 0, 0);
 
-    console.log("Selected Local Notification Date:", selectedDateTime.toISOString());
-    console.log("Current UTC Date:", now.toISOString());
-
     // Validation: Ensure selected date is in the future
     if (selectedDateTime <= now) {
       Alert.alert('Invalid Date/Time', 'Please select a date and time that is in the future.');
@@ -80,7 +77,6 @@ export default function AddScheduleScreen({ route, navigation }) {
         trigger: { date: selectedDateTime },  // Directly set local time for the trigger
       });
 
-      console.log("Notification ID:", notificationId);
 
       const scheduleData = {
         description,
@@ -93,8 +89,6 @@ export default function AddScheduleScreen({ route, navigation }) {
         emailReminder: isEmailReminder,
         pushNotification: isPushNotificationReminder,
       };
-
-      console.log("Schedule Data:", scheduleData);
 
       if (isEditMode && schedule) {
         await db.collection('schedules').doc(schedule.id).update(scheduleData);

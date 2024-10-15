@@ -60,3 +60,16 @@ export const IconRow = styled.View`
 export const TrashIconContainer = styled.TouchableOpacity`
   margin-left: 10px;
 `;
+
+export const DetailDateText = styled.Text`
+  color: #A9A9A9;
+  font-size: 12px;
+`;
+
+export const TypeIcon = styled.View`
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+`;

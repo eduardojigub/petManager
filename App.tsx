@@ -149,7 +149,7 @@ function ScheduleStack() {
       <Stack.Screen
         name="ScheduleScreen"
         component={ScheduleScreen}
-        options={({ route }) => ({
+        options={{
           headerStyle: {
             backgroundColor: '#fff',
             elevation: 0,
@@ -160,8 +160,8 @@ function ScheduleStack() {
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
-          }
-        })}
+          }}
+        }
       />
       <Stack.Screen
         name="AddSchedule"
