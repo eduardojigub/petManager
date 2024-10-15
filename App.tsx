@@ -149,7 +149,19 @@ function ScheduleStack() {
       <Stack.Screen
         name="ScheduleScreen"
         component={ScheduleScreen}
-        options={{ title: 'Schedule' }}
+        options={({ route }) => ({
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Schedule',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          }
+        })}
       />
       <Stack.Screen
         name="AddSchedule"
@@ -239,7 +251,20 @@ function SettingsStack() {
       <Stack.Screen
         name="ManageNotifications"
         component={ManageNotificationsScreen}
-        options={{ headerTitle: 'Manage Notifications' }}
+        options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Manage notifications',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
       />
       {/* Add more settings-related screens as needed */}
     </Stack.Navigator>
