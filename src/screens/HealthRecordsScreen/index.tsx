@@ -18,6 +18,7 @@ import {
   EmptyListContainer,
   EmptyListImage,
   EmptyListText,
+  DisabledAddButton,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -35,8 +36,15 @@ export default function HealthRecordsScreen({ navigation }) {
 
   useEffect(() => {
     const loadRecords = async () => {
+      if (!selectedDog) {
+        setHealthRecords([]);
+        setFilteredRecords([]);
+        return;
+      }
+
       try {
-        const recordsSnapshot = await db.collection('healthRecords')
+        const recordsSnapshot = await db
+          .collection('healthRecords')
           .where('dogId', '==', selectedDog.id)
           .get();
           
@@ -54,8 +62,11 @@ export default function HealthRecordsScreen({ navigation }) {
       }
     };
 
-    if (selectedDog) {
-      loadRecords();
+    loadRecords();
+
+    // Navigate back to Profile screen if no dog is selected
+    if (!selectedDog) {
+      navigation.navigate('Profile');
     }
   }, [selectedDog]);
 
@@ -157,7 +168,7 @@ export default function HealthRecordsScreen({ navigation }) {
     <EmptyListContainer>
       <EmptyListImage source={healthRecordsImage} />
       <EmptyListText>
-        No health records yet. Start adding records to keep track of your pet’s health.
+        No health records yet. Add your first pet and start adding records to keep track of your pet’s health.
       </EmptyListText>
     </EmptyListContainer>
   );
@@ -218,9 +229,15 @@ export default function HealthRecordsScreen({ navigation }) {
         ListEmptyComponent={renderEmptyList} // Display image if list is empty
       />
       
-      <AddButton onPress={() => navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })}>
-        <ButtonText>Add Health Record</ButtonText>
-      </AddButton>
+      {selectedDog ? (
+        <AddButton onPress={() => navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })}>
+          <ButtonText>Add Health Record</ButtonText>
+        </AddButton>
+      ) : (
+        <DisabledAddButton disabled>
+          <ButtonText>Add Health Record</ButtonText>
+        </DisabledAddButton>
+      )}
     </Container>
   );
 }

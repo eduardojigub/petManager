@@ -108,3 +108,13 @@ export const EmptyListText = styled.Text`
   margin-top: 30px;
   font-family: 'Poppins_400Regular';
 `;
+
+export const DisabledAddButton = styled.TouchableOpacity`
+  background-color: #41245C;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  align-items: center;
+  width: 100%;
+  opacity: 0.5; // Reduced opacity for disabled effect
+`;
