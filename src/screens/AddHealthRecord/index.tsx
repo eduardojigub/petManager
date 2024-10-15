@@ -179,11 +179,12 @@ export default function AddHealthRecordScreen({ navigation, route }) {
         <ButtonText>Select Image</ButtonText>
       </CustomButton>
 
-      {image && <ImagePreview source={{ uri: image }} />}
-
       <CustomButton onPress={handleSave} disabled={uploading}>
         <ButtonText>{uploading ? 'Uploading...' : 'Save'}</ButtonText>
       </CustomButton>
+
+      {image && <ImagePreview source={{ uri: image }} />}
+
     </Container>
   );
 }
