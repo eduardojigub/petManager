@@ -131,7 +131,7 @@ export default function ScheduleScreen({ navigation }) {
     <EmptyListContainer>
       <EmptyListImage source={dogThingsImage} />
       <EmptyListText>
-        No schedules yet. Start adding to keep track of your pet's appointments.
+        No schedules yet. Add your first pet and start adding to keep track of your pet's appointments.
       </EmptyListText>
     </EmptyListContainer>
   );
