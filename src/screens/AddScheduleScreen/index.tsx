@@ -19,11 +19,17 @@ export default function AddScheduleScreen({ route, navigation }) {
     if (modifier === 'AM' && hours === 12) hours = 0;
   
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds || 0).padStart(2, '0')}`;
-  }
+  }  
+  
+  const parsedDate = schedule?.date
+  ? new Date(Date.parse(`${schedule.date}T00:00:00`))
+  : new Date();
   // Initialize state
   const [description, setDescription] = useState(schedule?.description || '');
-  const [date, setDate] = useState(schedule ? new Date(schedule.date) : new Date());
-  const [tempDate, setTempDate] = useState(new Date(schedule?.date || Date.now()));
+  const [date, setDate] = useState(parsedDate);
+  const [tempDate, setTempDate] = useState(parsedDate);
+
+
 
   // Check if schedule.time exists and parse it correctly
   // Ensure the time has the right format (HH:mm:ss) by padding if necessary
@@ -33,10 +39,6 @@ export default function AddScheduleScreen({ route, navigation }) {
 
   const [time, setTime] = useState(parsedTime);
   const [tempTime, setTempTime] = useState(parsedTime);
-  console.log("Schedule Time:", schedule?.time);
-  console.log("Parsed Time:", parsedTime);
-console.log("Time:", time);
-console.log("Temp Time:", tempTime);
 
   const [type, setType] = useState(schedule?.type || 'Other');
   const [isEmailReminder, setIsEmailReminder] = useState(schedule?.emailReminder || false);
