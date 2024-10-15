@@ -1,10 +1,13 @@
-import React from 'react';
-import { Container, Title, Button, ButtonText } from './styles';
-import { Alert } from 'react-native';
+import React, { useState } from 'react';
+import { Container, Title, Button, ButtonText, ModalOverlay, ModalContainer, ModalText, CloseButton, CloseButtonText, ScrollContainer } from './styles';
+import { Alert, Modal } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const navigation = useNavigation();
 
   const handleLogout = () => {
     auth()
@@ -13,34 +16,87 @@ export default function SettingsScreen() {
         Alert.alert('Logout Error', error.message);
       });
   };
-  const navigation = useNavigation();
+
+  const toggleAboutModal = () => {
+    setShowAboutModal(!showAboutModal);
+  };
+
+  const toggleTermsModal = () => {
+    setShowTermsModal(!showTermsModal);
+  };
+
   return (
     <Container>
       <Title>Settings</Title>
 
-      {/* <Button onPress={() => alert('Navigate to edit profile')}>
-        <ButtonText>Edit Profile</ButtonText>
-      </Button> */}
+      <Button onPress={() => navigation.navigate('ManageNotifications')}>
+        <ButtonText>Manage Notifications</ButtonText>
+      </Button>
 
-        <Button onPress={() => navigation.navigate('ManageNotifications')}>
-          <ButtonText>Manage Notifications</ButtonText>
-        </Button>
-{/* 
-      <Button onPress={() => alert('Choose language')}>
-        <ButtonText>Choose Language</ButtonText>
-      </Button> */}
-
-      <Button onPress={() => alert('Show terms of use')}>
+      <Button onPress={toggleTermsModal}>
         <ButtonText>Terms of Use and Privacy</ButtonText>
       </Button>
 
-      <Button onPress={() => alert('Show app information')}>
+      <Button onPress={toggleAboutModal}>
         <ButtonText>About the App</ButtonText>
       </Button>
 
       <Button onPress={handleLogout}>
         <ButtonText>Log Out</ButtonText>
       </Button>
+
+      {/* About Modal */}
+      <Modal
+        visible={showAboutModal}
+        transparent
+        animationType="slide"
+        onRequestClose={toggleAboutModal}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <Title>About the App</Title>
+            <ModalText>Version: 0.0.1</ModalText>
+            <ModalText>Developed by C.A.T</ModalText>
+            <CloseButton onPress={toggleAboutModal}>
+              <CloseButtonText>Close</CloseButtonText>
+            </CloseButton>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+
+      {/* Terms and Privacy Modal */}
+      <Modal
+        visible={showTermsModal}
+        transparent
+        animationType="slide"
+        onRequestClose={toggleTermsModal}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <Title>Terms of Use & Privacy Policy</Title>
+            <ScrollContainer>
+              <ModalText>
+                Welcome to our application. By using this app, you agree to the following terms and conditions. We reserve the right to update these terms at any time. 
+              </ModalText>
+              <ModalText>
+                1. **Data Collection**: We collect data to improve user experience. We respect your privacy and ensure your data is secure.
+              </ModalText>
+              <ModalText>
+                2. **Usage**: You agree not to misuse our services, including unlawful or unauthorized activities.
+              </ModalText>
+              <ModalText>
+                3. **Disclaimer**: We are not liable for any losses or damages arising from your use of this app.
+              </ModalText>
+              <ModalText>
+                For more details, please contact support@catapp.com. Thank you for choosing us.
+              </ModalText>
+            </ScrollContainer>
+            <CloseButton onPress={toggleTermsModal}>
+              <CloseButtonText>Close</CloseButtonText>
+            </CloseButton>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
     </Container>
   );
 }
