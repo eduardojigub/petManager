@@ -94,3 +94,9 @@ export const SignUpLink = styled.Text`
   font-size: 14px;
   text-decoration: underline;
 `;
+
+export const TogglePasswordIconSignIn = styled.TouchableOpacity`
+  position: absolute;
+  right: 15px;
+  top: 12px; // Adjust if needed to align with your input field
+`;

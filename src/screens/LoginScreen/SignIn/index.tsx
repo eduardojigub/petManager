@@ -14,9 +14,11 @@ import {
   ForgotPasswordLink,
   SignUpLinkContainer,
   SignUpText,
-  SignUpLink
+  SignUpLink,
+  TogglePasswordIconSignIn
 } from './styles';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
+import { Eye, EyeSlash } from 'phosphor-react-native'; // Import eye icons
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -24,6 +26,7 @@ export default function SignInScreen() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const navigation = useNavigation();
 
   const validateEmail = (email) => {
@@ -75,11 +78,18 @@ export default function SignInScreen() {
       <InputContainer>
         <Input
           placeholder="Enter your password"
-          secureTextEntry
+          secureTextEntry={!showPassword} // Control visibility based on `showPassword`
           value={password}
           onChangeText={setPassword}
           placeholderTextColor="#7C7C7C"
         />
+           <TogglePasswordIconSignIn onPress={() => setShowPassword(!showPassword)}>
+          {showPassword ? (
+            <Eye size={24} color="#7C7C7C" /> // Show eye icon
+          ) : (
+            <EyeSlash size={24} color="#7C7C7C" /> // Show eye-slash icon
+          )}
+        </TogglePasswordIconSignIn>
       </InputContainer>
 
       <ForgotPasswordContainer>
