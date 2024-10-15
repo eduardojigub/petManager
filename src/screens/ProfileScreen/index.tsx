@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, View, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { FlatList, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   Container,
@@ -46,6 +46,11 @@ export default function ProfileScreen() {
   const [upcomingSchedules, setUpcomingSchedules] = useState([]);
   const navigation = useNavigation();
   const userId = auth().currentUser?.uid;
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
+
+   // Ref to track the current loadId
+   const loadIdRef = useRef(0);
+
 
   useEffect(() => {
     setSelectedDog(null);
@@ -73,6 +78,8 @@ export default function ProfileScreen() {
 
   const loadSchedules = async () => {
     if (selectedDog && userId) {
+      const currentLoadId = ++loadIdRef.current;
+      setIsLoadingSchedules(true); // Start loading indicator
       try {
         const schedulesSnapshot = await db
           .collection('schedules')
@@ -113,9 +120,16 @@ export default function ProfileScreen() {
           })
           .filter((schedule) => schedule.isUpcoming); // Only include upcoming schedules
 
-        setUpcomingSchedules(schedules);
+         // Only set schedules if loadId hasn't changed
+         if (currentLoadId === loadIdRef.current) {
+          setUpcomingSchedules(schedules);
+        }
       } catch (error) {
         console.error('Error loading schedules:', error);
+      } finally {
+        if (currentLoadId === loadIdRef.current) {
+          setIsLoadingSchedules(false); // Stop loading only if still the latest
+        }
       }
     }
   };
@@ -259,12 +273,12 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </NotesHeader>
 
-          {upcomingSchedules.length > 0 ? (
+          {isLoadingSchedules ? (
+            <ActivityIndicator size="large" color="#41245C" style={{ marginVertical: 20 }} />
+          ) : upcomingSchedules.length > 0 ? (
             upcomingSchedules.map(renderScheduleItem)
           ) : (
-            <NoAppointmentText>
-              No upcoming schedules for now.
-            </NoAppointmentText>
+            <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
           )}
         </NotesSection>
       )}
