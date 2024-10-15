@@ -15,6 +15,7 @@ import {
   EmptyListContainer,
   EmptyListText,
   EmptyListImage,
+  DisabledAddButton,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -27,33 +28,38 @@ export default function ScheduleScreen({ navigation }) {
   const { selectedDog } = useContext(DogProfileContext);
 
   const loadSchedules = async () => {
-    if (selectedDog) {
-      const schedulesSnapshot = await db
-        .collection('schedules')
-        .where('dogId', '==', selectedDog.id)
-        .get();
-
-      const loadedSchedules = schedulesSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const [year, month, day] = data.date.split('-').map(Number);
-        const [hours, minutes] = data.time.split(':').map(Number);
-        const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
-
-        const now = new Date();
-        const isPastSchedule = scheduleDateTime < now && scheduleDateTime.toDateString() !== now.toDateString();
-
-        return { id: doc.id, ...data, isPast: isPastSchedule };
-      });
-      setSchedules(loadedSchedules);
+    if (!selectedDog) {
+      setSchedules([]); // Clear schedules if no dog is selected
+      return;
     }
+
+    const schedulesSnapshot = await db
+      .collection('schedules')
+      .where('dogId', '==', selectedDog.id)
+      .get();
+
+    const loadedSchedules = schedulesSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      const [year, month, day] = data.date.split('-').map(Number);
+      const [hours, minutes] = data.time.split(':').map(Number);
+      const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
+
+      const now = new Date();
+      const isPastSchedule = scheduleDateTime < now && scheduleDateTime.toDateString() !== now.toDateString();
+
+      return { id: doc.id, ...data, isPast: isPastSchedule };
+    });
+    setSchedules(loadedSchedules);
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      if (selectedDog) {
-        loadSchedules();
+      if (!selectedDog) {
+        setSchedules([]); // Clear schedules if no dog is selecte
+      } else {
+        loadSchedules(); // Load schedules if a dog is selected
       }
-    }, [selectedDog])
+    }, [selectedDog, navigation])
   );
 
   const deleteSchedule = async (scheduleId, notificationId) => {
@@ -142,9 +148,15 @@ export default function ScheduleScreen({ navigation }) {
         ListEmptyComponent={renderEmptyList}
         showsVerticalScrollIndicator={false}
       />
-      <AddButton onPress={() => navigation.navigate('AddSchedule')}>
-        <ButtonText>Add Schedule</ButtonText>
-      </AddButton>
+      {selectedDog ? (
+        <AddButton onPress={() => navigation.navigate('AddSchedule')}>
+          <ButtonText>Add Schedule</ButtonText>
+        </AddButton>
+      ) : (
+        <DisabledAddButton disabled>
+          <ButtonText>Add Schedule</ButtonText>
+        </DisabledAddButton>
+      )}
     </Container>
   );
 }
