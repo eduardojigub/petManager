@@ -41,69 +41,67 @@ import * as IconPhospor from "phosphor-react-native";
 import { formatDateTime } from '../../utils/dateFormarter';
 
 export default function ProfileScreen() {
-  const [dogProfiles, setDogProfiles] = useState<
-    {
-      id: string;
-      image?: string;
-      name: string;
-      breed: string;
-      age: number;
-      weight: number;
-    }[]
-  >([]); // List of dog profiles
-  const { selectedDog, setSelectedDog } = useContext(DogProfileContext) as {
-    selectedDog: any;
-    setSelectedDog: (dog: any) => void;
-  }; // Access context
-  const [upcomingSchedules, setUpcomingSchedules] = useState([]); // List of schedules for the selected dog
+  const [dogProfiles, setDogProfiles] = useState([]);
+  const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
+  const [upcomingSchedules, setUpcomingSchedules] = useState([]);
   const navigation = useNavigation();
-
   const userId = auth().currentUser?.uid;
 
-  // Clear selectedDog when userId changes
   useEffect(() => {
     setSelectedDog(null);
   }, [userId]);
 
-  // Fetch dog profiles from Firestore
   const loadProfiles = async () => {
-    if (!userId) return; // Ensure userId is defined
-
+    if (!userId) return;
     try {
       const profileSnapshot = await db
         .collection('dogProfiles')
-        .where('userId', '==', userId) // Filter by userId
+        .where('userId', '==', userId)
         .get();
-
       const profiles = profileSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
       setDogProfiles(profiles);
       if (profiles.length > 0) {
-        setSelectedDog(profiles[0]); // Set the first dog as the selected initially
+        setSelectedDog(profiles[0]);
       }
     } catch (error) {
       console.error('Failed to load dog profiles:', error);
     }
   };
 
-  // Fetch schedules for the selected dog from Firestore
   const loadSchedules = async () => {
     if (selectedDog && userId) {
       try {
         const schedulesSnapshot = await db
           .collection('schedules')
           .where('dogId', '==', selectedDog.id)
-          .where('userId', '==', userId) // Filter by userId
+          .where('userId', '==', userId)
           .get();
-
-        const schedules = schedulesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
+  
+        const currentDateTime = new Date().getTime();
+  
+        const schedules = schedulesSnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            
+            // Destructure date and time
+            const [year, month, day] = data.date.split('-').map(Number);
+            const [hours, minutes] = data.time.split(':').map(Number);
+  
+            // Create a Date object for the schedule
+            const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
+  
+            // Return schedule with date comparison
+            return {
+              id: doc.id,
+              ...data,
+              isUpcoming: scheduleDateTime.getTime() >= currentDateTime,
+            };
+          })
+          .filter((schedule) => schedule.isUpcoming); // Only include future schedules
+  
         setUpcomingSchedules(schedules);
       } catch (error) {
         console.error('Error loading schedules:', error);
@@ -113,16 +111,14 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      loadProfiles(); // Fetch dog profiles on screen focus
+      loadProfiles();
     }, [userId])
   );
 
-  // Reload schedules every time the selected dog changes
   useEffect(() => {
     loadSchedules();
   }, [selectedDog]);
 
-  // Handle dog selection
   const handleSelectDog = (dog) => {
     setSelectedDog(dog);
     loadSchedules();
@@ -186,53 +182,57 @@ export default function ProfileScreen() {
     </SelectedDogSection>
   );
 
-  const renderScheduleItem = (schedule) => (
-    <NoteItemRow key={schedule.id}>
-      <IconCircle>
-        <IconPhospor.Syringe size={32} color="#41245C" />
-      </IconCircle>
+  // Map each type to its corresponding icon
+  const typeIcons = {
+    Vaccine: <IconPhospor.Syringe size={32} color="#41245C" />,
+    'Vet Appointment': <IconPhospor.Stethoscope size={32} color="#41245C" />,
+    Medication: <IconPhospor.Pill size={32} color="#41245C" />,
+    'Dog Groomer': <IconPhospor.Scissors size={32} color="#41245C" />,
+    Other: <IconPhospor.FileText size={32} color="#41245C" />,
+  };
 
-      <DescriptionContainer>
-        <DescriptionText>{schedule.description}</DescriptionText>
-        <SubtitleText>{formatDateTime(`${schedule.date} ${schedule.time}`)}</SubtitleText>
-      </DescriptionContainer>
+  const renderScheduleItem = (schedule) => {
+    const icon = typeIcons[schedule.type] || typeIcons.Other;
 
-      <DetailsButton
-        onPress={() =>
-          navigation.navigate('DetailsScreen', { scheduleId: schedule.id })
-        }
-      >
-        <DetailsButtonText>Details</DetailsButtonText>
-      </DetailsButton>
-    </NoteItemRow>
-  );
+    return (
+      <NoteItemRow key={schedule.id}>
+        <IconCircle>{icon}</IconCircle>
+        <DescriptionContainer>
+          <DescriptionText>{schedule.description}</DescriptionText>
+          <SubtitleText>{formatDateTime(`${schedule.date} ${schedule.time}`)}</SubtitleText>
+        </DescriptionContainer>
+
+        <DetailsButton
+          onPress={() =>
+            navigation.navigate('DetailsScreen', { scheduleId: schedule.id })
+          }
+        >
+          <DetailsButtonText>Details</DetailsButtonText>
+        </DetailsButton>
+      </NoteItemRow>
+    );
+  };
 
   return (
     <Container>
-      {/* Header */}
       <Header>
         <WelcomeHeader>Welcome, human!</WelcomeHeader>
       </Header>
 
-      {/* Horizontal List of Dog Profiles */}
       <ProfileList>
         <FlatList
           horizontal
           data={dogProfiles}
           renderItem={renderProfileItem}
           keyExtractor={(item) => item.id}
-          ListEmptyComponent={renderAddProfileButton} // Show add button if list is empty
-          ListFooterComponent={
-            dogProfiles.length > 0 ? renderAddProfileButton : null
-          } // Add button after the list
+          ListEmptyComponent={renderAddProfileButton}
+          ListFooterComponent={dogProfiles.length > 0 ? renderAddProfileButton : null}
           showsHorizontalScrollIndicator={false}
         />
       </ProfileList>
 
-      {/* Selected Dog Details */}
       {selectedDog && renderDogDetails(selectedDog)}
 
-      {/* Upcoming Notes */}
       {selectedDog && (
         <NotesSection showsVerticalScrollIndicator={false}>
           <NotesHeader>
@@ -245,9 +245,7 @@ export default function ProfileScreen() {
           {upcomingSchedules.length > 0 ? (
             upcomingSchedules.map(renderScheduleItem)
           ) : (
-            <NoAppointmentText>
-              No upcoming schedules for now.
-            </NoAppointmentText>
+            <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
           )}
         </NotesSection>
       )}
