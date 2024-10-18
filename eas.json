@@ -1,7 +1,6 @@
 {
   "cli": {
-    "version": ">= 12.5.1",
-    "appVersionSource": "remote"
+    "version": ">= 12.5.1"
   },
   "build": {
     "preview": {
@@ -14,7 +13,9 @@
       }
     },
     "production": {
-      "ios": {},
+      "ios": {
+        
+      },
       "android": {}
     }
   },

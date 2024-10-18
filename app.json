@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Pet's Life",
-    "slug": "Pets-life",
+    "slug": "PetManager",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.petmanager.cat",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "2"
     },
     "android": {
       "googleServicesFile": "./google-services.json",

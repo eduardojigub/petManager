@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'PetManager'
+rootProject.name = 'Pet\'s Life'
 
 dependencyResolutionManagement {
   versionCatalogs {
