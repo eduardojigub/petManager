@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -137,125 +140,143 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   };
 
   return (
-    <Container>
-      <Title>Select the type</Title>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Container>
+          <Title>Select the type</Title>
 
-      <TypeSelector>
-        {types.map((item) => (
-          <TypeOption
-            key={item.label}
-            onPress={() => setType(item.label)}
-            selected={type === item.label}
-          >
-            {item.icon}
-            <TypeText selected={type === item.label}>{item.label}</TypeText>
-          </TypeOption>
-        ))}
-      </TypeSelector>
+          <TypeSelector>
+            {types.map((item) => (
+              <TypeOption
+                key={item.label}
+                onPress={() => setType(item.label)}
+                selected={type === item.label}
+              >
+                {item.icon}
+                <TypeText selected={type === item.label}>{item.label}</TypeText>
+              </TypeOption>
+            ))}
+          </TypeSelector>
 
-      <Input
-        value={description}
-        onChangeText={setDescription}
-        placeholder="Write any details about the record, like prices, notes, or other relevant info you might need later"
-        multiline
-      />
+          <Input
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Write any details about the record, like prices, notes, or other relevant info you might need later"
+            multiline
+            returnKeyType="done" // This sets the return key type
+            blurOnSubmit={true} // Dismiss the keyboard on return
+            onSubmitEditing={() => Keyboard.dismiss()} // Close keyboard when done is pressed
+          />
 
-      {/* Date Picker Button */}
-      <DatePickerButton
-        onPress={() => {
-          if (Platform.OS === 'ios') {
-            setShowDateModal(true); // Show modal on iOS
-          } else {
-            setShowDateModal(true); // Open DateTimePicker directly on Android
-          }
-        }}
-      >
-        <DatePickerText>{formattedDate}</DatePickerText>
-      </DatePickerButton>
-
-      {/* Date Picker Modal for iOS only */}
-      {Platform.OS === 'ios' && (
-        <Modal
-          visible={showDateModal}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowDateModal(false)}
-        >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
+          {/* Date Picker Button */}
+          <DatePickerButton
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                setShowDateModal(true); // Show modal on iOS
+              } else {
+                setShowDateModal(true); // Open DateTimePicker directly on Android
+              }
             }}
           >
-            <View
-              style={{
-                backgroundColor: 'white',
-                padding: 20,
-                borderRadius: 10,
-                width: '90%',
-              }}
+            <DatePickerText>{formattedDate}</DatePickerText>
+          </DatePickerButton>
+
+          {/* Date Picker Modal for iOS only */}
+          {Platform.OS === 'ios' && (
+            <Modal
+              visible={showDateModal}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setShowDateModal(false)}
             >
-              <Text
-                style={{ fontSize: 18, textAlign: 'center', marginBottom: 10 }}
-              >
-                Select Date
-              </Text>
-
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display="default"
-                onChange={(event, selectedDate) => {
-                  if (selectedDate) setDate(selectedDate);
-                  setShowDateModal(false); // Close after selection
-                }}
-              />
-
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 20,
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
                 }}
               >
-                <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                  <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                  <Text style={{ color: '#7289DA', fontSize: 16 }}>
-                    Confirm
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    padding: 20,
+                    borderRadius: 10,
+                    width: '90%',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      textAlign: 'center',
+                      marginBottom: 10,
+                    }}
+                  >
+                    Select Date
                   </Text>
-                </TouchableOpacity>
+
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setDate(selectedDate);
+                      setShowDateModal(false); // Close after selection
+                    }}
+                  />
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: 20,
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                      <Text style={{ color: '#7289DA', fontSize: 16 }}>
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                      <Text style={{ color: '#7289DA', fontSize: 16 }}>
+                        Confirm
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
-        </Modal>
-      )}
+            </Modal>
+          )}
 
-      {/* Date Picker Direct for Android */}
-      {Platform.OS === 'android' && showDateModal && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            if (selectedDate) setDate(selectedDate);
-            setShowDateModal(false); // Close DateTimePicker after selection
-          }}
-        />
-      )}
+          {/* Date Picker Direct for Android */}
+          {Platform.OS === 'android' && showDateModal && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) setDate(selectedDate);
+                setShowDateModal(false); // Close DateTimePicker after selection
+              }}
+            />
+          )}
 
-      <CustomButton onPress={pickImage}>
-        <ButtonText>Select Image</ButtonText>
-      </CustomButton>
+          <CustomButton onPress={pickImage}>
+            <ButtonText>Select Image</ButtonText>
+          </CustomButton>
 
-      <CustomButton onPress={handleSave} disabled={uploading}>
-        <ButtonText>{uploading ? 'Uploading...' : 'Save Health Record'}</ButtonText>
-      </CustomButton>
+          <CustomButton onPress={handleSave} disabled={uploading}>
+            <ButtonText>
+              {uploading ? 'Uploading...' : 'Save Health Record'}
+            </ButtonText>
+          </CustomButton>
 
-      {image && <ImagePreview source={{ uri: image }} />}
-    </Container>
+          {image && <ImagePreview source={{ uri: image }} />}
+        </Container>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
