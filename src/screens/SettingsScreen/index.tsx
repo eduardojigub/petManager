@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Title, Button, ButtonText, ModalOverlay, ModalContainer, ModalText, CloseButton, CloseButtonText, ScrollContainer } from './styles';
-import { Alert, Modal } from 'react-native';
+import { Alert, Modal, Linking } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
@@ -25,6 +25,15 @@ export default function SettingsScreen() {
     setShowTermsModal(!showTermsModal);
   };
 
+  // Function to handle the account deletion link
+  const handleDeleteAccount = () => {
+    const url = 'https://jp7dc7wdnld.typeform.com/to/UukaGjeR';
+    Linking.openURL(url).catch((err) =>
+      Alert.alert('Error', 'Failed to open the link')
+    );
+  };
+  
+
   return (
     <Container>
       <Title>Settings</Title>
@@ -43,6 +52,11 @@ export default function SettingsScreen() {
 
       <Button onPress={handleLogout}>
         <ButtonText>Log Out</ButtonText>
+      </Button>
+
+      {/* New Button for Deleting Account */}
+      <Button onPress={handleDeleteAccount}>
+        <ButtonText>Delete my account</ButtonText>
       </Button>
 
       {/* About Modal */}
