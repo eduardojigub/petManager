@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
 import { db } from '../../firebase/Firestore';
@@ -59,7 +59,8 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const pickImage = async () => {
-    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       Alert.alert(
         'Permission needed',
@@ -154,7 +155,10 @@ export default function EditProfileScreen({ navigation, route }) {
             try {
               await db.collection('dogProfiles').doc(id).delete();
               setSelectedDog(null);
-              Alert.alert('Profile Deleted', 'The profile has been successfully deleted.');
+              Alert.alert(
+                'Profile Deleted',
+                'The profile has been successfully deleted.'
+              );
               navigation.navigate('Profile');
             } catch (error) {
               console.error('Failed to delete profile:', error);
@@ -173,80 +177,100 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollContainer>
-      <BannerImageBackground source={image ? { uri: image } : null}>
-        {!image && <NoImageText>No image selected</NoImageText>}
-      </BannerImageBackground>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollContainer>
+          <BannerImageBackground source={image ? { uri: image } : null}>
+            {!image && <NoImageText>No image selected</NoImageText>}
+          </BannerImageBackground>
 
-      <FormContainer>
-        <Container>
-          <Label>
-            {isNewProfile ? 'Add New Dog Profile' : "Edit Dog's Profile"}
-          </Label>
+          <FormContainer>
+            <Container>
+              <Label>
+                {isNewProfile ? 'Add New Dog Profile' : "Edit Dog's Profile"}
+              </Label>
 
-          <InputWithIcon>
-            <Icon.Dog size={24} color="#666" />
-            <IconInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter dog's name"
-              maxLength={20} // Enforces a maximum of 20 characters
-            />
-          </InputWithIcon>
+              <InputWithIcon>
+                <Icon.Dog size={24} color="#666" />
+                <IconInput
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Enter dog's name"
+                  maxLength={20} // Enforces a maximum of 20 characters
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                />
+              </InputWithIcon>
 
-          <InputWithIcon>
-            <Icon.PawPrint size={24} color="#666" />
-            <IconInput
-              value={breed}
-              onChangeText={setBreed}
-              placeholder="Enter breed"
-            />
-          </InputWithIcon>
+              <InputWithIcon>
+                <Icon.PawPrint size={24} color="#666" />
+                <IconInput
+                  value={breed}
+                  onChangeText={setBreed}
+                  placeholder="Enter breed"
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                />
+              </InputWithIcon>
 
-          <InputWithIcon>
-            <Icon.Cake size={24} color="#666" />
-            <IconInput
-              value={age}
-              onChangeText={(text) => handleInput(text, setAge)}
-              placeholder="Enter age(number only), Ex: 9"
-              keyboardType="numeric"
+              <InputWithIcon>
+                <Icon.Cake size={24} color="#666" />
+                <IconInput
+                  value={age}
+                  onChangeText={(text) => handleInput(text, setAge)}
+                  placeholder="Enter age(number only), Ex: 9"
+                  keyboardType="numeric"
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                />
+                <UnitText>years</UnitText>
+              </InputWithIcon>
 
-            />
-            <UnitText>years</UnitText>
-          </InputWithIcon>
+              <InputWithIcon>
+                <Icon.Scales size={24} color="#666" />
+                <IconInput
+                  value={weight}
+                  onChangeText={(text) => handleInput(text, setWeight)}
+                  placeholder="Enter weight(number only) (kg), Ex: 5"
+                  keyboardType="numeric"
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                />
+                <UnitText>kg</UnitText>
+              </InputWithIcon>
 
-          <InputWithIcon>
-            <Icon.Scales size={24} color="#666" />
-            <IconInput
-              value={weight}
-              onChangeText={(text) => handleInput(text, setWeight)}
-              placeholder="Enter weight(number only) (kg), Ex: 5"
-              keyboardType="numeric"
-            />
-             <UnitText>kg</UnitText>
-          </InputWithIcon>
+              <AddPhotoButton onPress={pickImage}>
+                <ButtonText>
+                  {image ? 'Change Photo' : 'Add a Photo'}
+                </ButtonText>
+              </AddPhotoButton>
 
-          <AddPhotoButton onPress={pickImage}>
-            <ButtonText>{image ? 'Change Photo' : 'Add a Photo'}</ButtonText>
-          </AddPhotoButton>
+              <SaveButton onPress={handleSave} disabled={uploading}>
+                <ButtonText>
+                  {uploading
+                    ? 'Uploading...'
+                    : isNewProfile
+                    ? 'Create Profile'
+                    : 'Save Changes'}
+                </ButtonText>
+              </SaveButton>
 
-          <SaveButton onPress={handleSave} disabled={uploading}>
-            <ButtonText>
-              {uploading
-                ? 'Uploading...'
-                : isNewProfile
-                ? 'Create Profile'
-                : 'Save Changes'}
-            </ButtonText>
-          </SaveButton>
-
-          {!isNewProfile && (
-            <DeleteButton onPress={handleDelete}>
-              <ButtonText>Delete Profile</ButtonText>
-            </DeleteButton>
-          )}
-        </Container>
-      </FormContainer>
-    </ScrollContainer>
+              {!isNewProfile && (
+                <DeleteButton onPress={handleDelete}>
+                  <ButtonText>Delete Profile</ButtonText>
+                </DeleteButton>
+              )}
+            </Container>
+          </FormContainer>
+        </ScrollContainer>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
