@@ -35,23 +35,6 @@ export const Label = styled.Text`
   margin-top: 8px;
 `;
 
-export const InputWithIcon = styled.View`
-  width: 100%;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  padding: 12px;
-  margin-bottom: 15px;
-`;
-
-export const IconInput = styled.TextInput`
-  flex: 1;
-  padding-left: 10px;
-  font-size: 16px;
-`;
-
 export const AddPhotoButton = styled.TouchableOpacity`
   background-color: #41245C;
   padding: 12px 20px;
@@ -91,3 +74,26 @@ export const DeleteButton = styled.TouchableOpacity`
   align-items: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;
+
+export const InputWithIcon = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 12px;
+  margin-bottom: 15px;
+`;
+
+export const IconInput = styled.TextInput`
+  flex: 1;
+  padding-left: 10px;
+  font-size: 16px;
+`;
+
+export const UnitText = styled.Text`
+  font-size: 16px;
+  color: #666;
+  padding-left: 10px;
+`; 

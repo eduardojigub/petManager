@@ -17,6 +17,7 @@ import {
   FormContainer,
   BannerImageBackground,
   InputWithIcon,
+  UnitText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import * as Icon from 'phosphor-react-native';
@@ -194,6 +195,7 @@ export default function EditProfileScreen({ navigation, route }) {
               placeholder="Enter age(number only), Ex: 9"
               keyboardType="numeric"
             />
+            <UnitText>years</UnitText>
           </InputWithIcon>
 
           <InputWithIcon>
@@ -204,6 +206,7 @@ export default function EditProfileScreen({ navigation, route }) {
               placeholder="Enter weight(number only) (kg), Ex: 5"
               keyboardType="numeric"
             />
+            <UnitText>(kg)</UnitText>
           </InputWithIcon>
 
           <AddPhotoButton onPress={pickImage}>
