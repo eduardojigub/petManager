@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
 import { db } from '../../firebase/Firestore';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
@@ -41,9 +42,24 @@ export default function EditProfileScreen({ navigation, route }) {
   const [image, setImage] = useState(initialImage || null);
   const [uploading, setUploading] = useState(false);
 
+  // Function to resize the image before uploading
+  const resizeImage = async (imageUri) => {
+    try {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        imageUri,
+        [{ resize: { width: 800 } }], // Resize to width of 800px, maintaining aspect ratio
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // Medium compression
+      );
+      return manipulatedImage.uri; // Return the resized image URI
+    } catch (error) {
+      console.error('Error resizing image:', error);
+      Alert.alert('Error', 'Failed to resize image.');
+      return null;
+    }
+  };
+
   const pickImage = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       Alert.alert(
         'Permission needed',
@@ -60,7 +76,8 @@ export default function EditProfileScreen({ navigation, route }) {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      const resizedUri = await resizeImage(result.assets[0].uri); // Resize image before setting it
+      setImage(resizedUri); // Set resized image
     } else {
       console.log('Image selection was canceled or no assets available');
     }
@@ -154,7 +171,6 @@ export default function EditProfileScreen({ navigation, route }) {
     const integerOnly = input.replace(/[^0-9]/g, ''); // Remove non-numeric characters
     setInput(integerOnly);
   };
-  
 
   return (
     <ScrollContainer>
@@ -194,6 +210,7 @@ export default function EditProfileScreen({ navigation, route }) {
               onChangeText={(text) => handleInput(text, setAge)}
               placeholder="Enter age(number only), Ex: 9"
               keyboardType="numeric"
+
             />
             <UnitText>years</UnitText>
           </InputWithIcon>
@@ -206,7 +223,7 @@ export default function EditProfileScreen({ navigation, route }) {
               placeholder="Enter weight(number only) (kg), Ex: 5"
               keyboardType="numeric"
             />
-            <UnitText>(kg)</UnitText>
+             <UnitText>kg</UnitText>
           </InputWithIcon>
 
           <AddPhotoButton onPress={pickImage}>
