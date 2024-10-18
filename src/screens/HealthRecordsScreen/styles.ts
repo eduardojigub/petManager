@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
+import FastImage from 'react-native-fast-image';
 
 export const Container = styled.View`
   flex: 1;
@@ -95,7 +96,7 @@ export const EmptyListContainer = styled.View`
   margin-top: 80px;
 `;
 
-export const EmptyListImage = styled.Image`
+export const EmptyListImage = styled(FastImage)`
   width: 300px;
   height: 300px;
   margin-bottom: 20px;

@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import FastImage from 'react-native-fast-image';
 
 export const Container = styled.View`
   flex: 1;
@@ -26,7 +27,7 @@ export const ProfileList = styled.View`
   margin-bottom: 20px;
 `;
 
-export const ProfileImage = styled.Image`
+export const ProfileImage = styled(FastImage)`
   width: 80px;
   height: 80px;
   border-radius: 40px;
@@ -84,7 +85,7 @@ export const DogDetails = styled.View`
   margin-bottom: 10px;
 `;
 
-export const DogImage = styled.Image`
+export const DogImage = styled(FastImage)`
   width: 120px;
   height: 120px;
   border-radius: 60px;

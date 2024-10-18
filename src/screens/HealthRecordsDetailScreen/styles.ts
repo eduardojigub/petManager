@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import FastImage from 'react-native-fast-image';
 
 export const Container = styled.View`
   flex: 1;
@@ -38,7 +39,7 @@ export const IconText = styled.Text`
   margin-left: 10px;
 `;
 
-export const DetailImage = styled.Image`
+export const DetailImage = styled(FastImage)`
   width: 100%;
   height: 200px;
   border-radius: 10px;
