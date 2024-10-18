@@ -14,10 +14,17 @@
       }
     },
     "production": {
-      "ios": {
-      },
-      "android": {
-      }
+      "ios": {},
+      "android": {}
+    }
+  },
+  "submit": {
+    "production": {
+        "ios": {
+          "appleId": "eduardobrunoit@gmail.com",
+          "ascAppId": "6737129802",
+          "appleTeamId": "BV4VDJR9GL"
+        }
     }
   }
 }
