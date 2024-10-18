@@ -15,7 +15,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.petmanager.cat",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "2"
+      "buildNumber": "3"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
