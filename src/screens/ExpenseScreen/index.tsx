@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, FlatList, Alert, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, FlatList, Alert } from 'react-native';
 import {
   Container,
   Title,
@@ -17,13 +17,20 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import * as Icon from 'phosphor-react-native'; // Icons for expense types
+import { PieChart } from 'react-native-chart-kit';
+import { Dimensions } from 'react-native'; // For responsive chart sizing
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
   const [expenses, setExpenses] = useState([]);
   const [total, setTotal] = useState(0);
+  const [expenseDistribution, setExpenseDistribution] = useState({});
+  const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
 
+
+  // Fetch expenses function
   // Fetch expenses function
   const fetchExpenses = async () => {
     if (!selectedDog) {
@@ -32,8 +39,11 @@ export default function ExpenseScreen() {
     }
 
     try {
-      const snapshot = await db.collection('expenses').where('dogId', '==', selectedDog.id).get();
-      const expensesData = snapshot.docs.map(doc => ({
+      const snapshot = await db
+        .collection('expenses')
+        .where('dogId', '==', selectedDog.id)
+        .get();
+      const expensesData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -41,8 +51,19 @@ export default function ExpenseScreen() {
       setExpenses(expensesData);
 
       // Calculate total expenses
-      const totalExpenses = expensesData.reduce((sum, expense) => sum + expense.amount, 0);
+      const totalExpenses = expensesData.reduce(
+        (sum, expense) => sum + expense.amount,
+        0
+      );
       setTotal(totalExpenses);
+
+      // Calculate expense distribution by type
+      const distribution = expensesData.reduce((acc, expense) => {
+        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+        return acc;
+      }, {});
+
+      setExpenseDistribution(distribution);
     } catch (error) {
       console.error('Error fetching expenses:', error);
     }
@@ -55,6 +76,17 @@ export default function ExpenseScreen() {
     }, [selectedDog])
   );
 
+      // Prepare data for PieChart
+      
+      const chartData = Object.keys(expenseDistribution).map((type, index) => {
+        return {
+          name: `${type}`,
+          amount: expenseDistribution[type],
+          color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5], // cycle through colors
+          legendFontColor: '#333',
+          legendFontSize: 15,
+        };
+      });
   // Function to render the correct icon based on expense type
   const getExpenseIcon = (type) => {
     switch (type) {
@@ -74,9 +106,28 @@ export default function ExpenseScreen() {
 
   const deleteExpense = async (expenseId) => {
     try {
+      // Find the expense amount before deletion to update the total and distribution
+      const expenseToDelete = expenses.find((expense) => expense.id === expenseId);
+  
+      // Delete the expense from Firestore
       await db.collection('expenses').doc(expenseId).delete();
-      setExpenses((prevExpenses) => prevExpenses.filter((expense) => expense.id !== expenseId));
-      setTotal((prevTotal) => prevTotal - expenses.find((expense) => expense.id === expenseId).amount);
+  
+      // Filter out the deleted expense from the state
+      const updatedExpenses = expenses.filter((expense) => expense.id !== expenseId);
+      setExpenses(updatedExpenses);
+  
+      // Update total by subtracting the deleted expense amount
+      setTotal((prevTotal) => prevTotal - expenseToDelete.amount);
+  
+      // Recalculate the expense distribution
+      const updatedDistribution = updatedExpenses.reduce((acc, expense) => {
+        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+        return acc;
+      }, {});
+  
+      setExpenseDistribution(updatedDistribution);
+  
+      // Display success alert
       Alert.alert('Success', 'Expense deleted successfully');
     } catch (error) {
       console.error('Error deleting expense:', error);
@@ -104,23 +155,25 @@ export default function ExpenseScreen() {
     });
 
     return (
-      <ExpenseItem onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}>
+      <ExpenseItem
+        onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}
+      >
         {/* Icon for each expense */}
         <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
-    
+
         {/* Title, date, and amount */}
         <View style={{ flex: 1 }}>
           <ExpenseItemText>{item.title}</ExpenseItemText>
           <ListItemDetailHint>
-           <ExpenseDateText>{formattedDate}</ExpenseDateText>
+            <ExpenseDateText>{formattedDate}</ExpenseDateText>
           </ListItemDetailHint>
         </View>
-    
+
         {/* Amount */}
         <ExpenseItemText style={{ fontWeight: 'bold' }}>
           ${item.amount.toFixed(2)}
         </ExpenseItemText>
-    
+
         {/* Delete button */}
         <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
           <Icon.TrashSimple size={20} color="#FF5C5C" />
@@ -133,16 +186,45 @@ export default function ExpenseScreen() {
     <Container>
       <Title>Expenses for {selectedDog?.name}</Title>
 
+      {/* PieChart for Expense Distribution */}
+      {expenses && expenses.length > 0 && (
+      <PieChart
+        data={chartData}
+        width={screenWidth - 40}
+        height={220}
+        chartConfig={{
+          backgroundColor: '#ffffff',
+          backgroundGradientFrom: '#ffffff',
+          backgroundGradientTo: '#ffffff',
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        }}
+        accessor="amount"
+        backgroundColor="transparent"
+        paddingLeft="15"
+      />
+      )}
+      {/* Divider above the FlatList */}
       <FlatList
         data={expenses}
         renderItem={renderExpenseItem}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={<ExpenseItemText>No expenses found.</ExpenseItemText>}
+        ListEmptyComponent={
+          <ExpenseItemText>No expenses found.</ExpenseItemText>
+        }
         showsVerticalScrollIndicator={false}
       />
-
+       <View><LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.1)']} // Start with transparent, fade to a slight dark color
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 10, // Adjust height of the gradient
+          }}
+        /></View>
       <TotalText>Total: ${total.toFixed(2)}</TotalText>
-
       <AddButton onPress={() => navigation.navigate('AddExpense')}>
         <ButtonText>Add Expense</ButtonText>
       </AddButton>
