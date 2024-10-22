@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, FlatList, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, FlatList, Alert, TouchableOpacity } from 'react-native';
 import {
   Container,
   Title,
@@ -10,6 +10,8 @@ import {
   ExpenseDateText,
   AddButton,
   TotalText,
+  ListItemDetailHint,
+  TrashIconContainer,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -67,46 +69,80 @@ export default function ExpenseScreen() {
     }
   };
 
-  const renderExpenseItem = ({ item }) => (
-    <ExpenseItem>
-      {/* Icon for each expense */}
-      <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
+  const deleteExpense = async (expenseId) => {
+    try {
+      await db.collection('expenses').doc(expenseId).delete();
+      setExpenses((prevExpenses) => prevExpenses.filter((expense) => expense.id !== expenseId));
+      setTotal((prevTotal) => prevTotal - expenses.find((expense) => expense.id === expenseId).amount);
+      Alert.alert('Success', 'Expense deleted successfully');
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      Alert.alert('Error', 'Unable to delete the expense.');
+    }
+  };
 
-      {/* Title and amount */}
-      <View>
-        <ExpenseItemText>{item.title}</ExpenseItemText>
-        <ExpenseDateText>{new Date(item.date).toLocaleDateString()}</ExpenseDateText>
-      </View>
+  const handleDeleteExpense = (expenseId) => {
+    Alert.alert(
+      'Delete Expense',
+      'Are you sure you want to delete this expense?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: () => deleteExpense(expenseId) },
+      ],
+      { cancelable: true }
+    );
+  };
 
-      <ExpenseItemText style={{ fontWeight: 'bold' }}>
-        ${item.amount.toFixed(2)}
-      </ExpenseItemText>
-    </ExpenseItem>
-  );
+  const renderExpenseItem = ({ item }) => {
+    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    return (
+      <ExpenseItem onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}>
+        {/* Icon for each expense */}
+        <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
+    
+        {/* Title, date, and amount */}
+        <View style={{ flex: 1 }}>
+          <ExpenseItemText>{item.title}</ExpenseItemText>
+          <ListItemDetailHint>
+           <ExpenseDateText>{formattedDate}</ExpenseDateText>
+          </ListItemDetailHint>
+        </View>
+    
+        {/* Amount */}
+        <ExpenseItemText style={{ fontWeight: 'bold' }}>
+          ${item.amount.toFixed(2)}
+        </ExpenseItemText>
+    
+        {/* Delete button */}
+        <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
+          <Icon.TrashSimple size={20} color="#FF5C5C" />
+        </TrashIconContainer>
+      </ExpenseItem>
+    );
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <Container>
-          <Title>Expenses for {selectedDog?.name}</Title>
+    <Container>
+      <Title>Expenses for {selectedDog?.name}</Title>
 
-          <FlatList
-            data={expenses}
-            renderItem={renderExpenseItem}
-            keyExtractor={(item) => item.id}
-            ListEmptyComponent={<ExpenseItemText>No expenses found.</ExpenseItemText>}
-          />
+      <FlatList
+        data={expenses}
+        renderItem={renderExpenseItem}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={<ExpenseItemText>No expenses found.</ExpenseItemText>}
+        showsVerticalScrollIndicator={false}
+      />
 
-          <TotalText>Total: ${total.toFixed(2)}</TotalText>
+      <TotalText>Total: ${total.toFixed(2)}</TotalText>
 
-          <AddButton onPress={() => navigation.navigate('AddExpense')}>
-            <ButtonText>Add Expense</ButtonText>
-          </AddButton>
-        </Container>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      <AddButton onPress={() => navigation.navigate('AddExpense')}>
+        <ButtonText>Add Expense</ButtonText>
+      </AddButton>
+    </Container>
   );
 }

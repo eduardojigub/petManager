@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 
-export const Container = styled.ScrollView`
+export const Container = styled.View`
   flex: 1;
   padding: 20px;
   background-color: #ffff;
@@ -14,15 +14,15 @@ export const Title = styled.Text`
   color: #41245C;
 `;
 
-export const ExpenseItem = styled.View`
+export const ExpenseItem = styled.TouchableOpacity`
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  width: 100%;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
 export const ExpenseItemText = styled.Text`
@@ -32,12 +32,21 @@ export const ExpenseItemText = styled.Text`
 
 export const ExpenseIconContainer = styled.View`
   margin-right: 10px;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ExpenseDateText = styled.Text`
-  font-size: 14px;
-  color: #888;
-  margin-top: 5px;
+  color: #A9A9A9;
+  font-size: 12px;
+`;
+
+export const ListItemDetailHint = styled.Text`
+  color: #7289DA;
+  font-size: 12px;
+  margin-top: 4px;
 `;
 
 export const TotalText = styled.Text`
@@ -63,3 +72,6 @@ export const ButtonText = styled.Text`
   font-size: 16px;
   font-weight: bold;
 `;
+
+export const TrashIconContainer = styled.TouchableOpacity`
+  padding: 10px`;
