@@ -95,7 +95,7 @@ export default function ExpenseScreen() {
     switch (type) {
       case 'Food':
         return <Icon.ForkKnife size={24} color="#7289DA" />;
-      case 'Vet':
+      case 'Medical':
         return <Icon.Stethoscope size={24} color="#7289DA" />;
       case 'Toys':
         return <Icon.PuzzlePiece size={24} color="#7289DA" />;
