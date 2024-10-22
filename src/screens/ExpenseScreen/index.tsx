@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, FlatList, Alert } from 'react-native';
 import {
   Container,
@@ -69,13 +69,12 @@ export default function ExpenseScreen() {
     }
   };
 
-  // Load expenses when the screen is focused
-  useFocusEffect(
-    React.useCallback(() => {
+  // useEffect to fetch expenses when selectedDog changes
+  useEffect(() => {
+    if (selectedDog) {
       fetchExpenses();
-    }, [selectedDog])
-  );
-
+    }
+  }, [selectedDog]); // Dependency is selectedDog, so fetch data when it changes
   // Prepare data for PieChart
 
   const chartData = Object.keys(expenseDistribution).map((type, index) => {

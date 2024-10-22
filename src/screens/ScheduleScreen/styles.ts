@@ -8,7 +8,7 @@ interface ListItemProps {
 
 export const Container = styled.View`
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   background-color: ${Platform.OS === 'ios' ? '#ffffff' : '#ededed '};
   align-items: center;
 `;
@@ -20,6 +20,7 @@ export const AddButton = styled.TouchableOpacity`
   margin-top: 20px;
   align-items: center;
   width: 100%;
+  margin-bottom: 10px;
 `;
 
 export const ButtonText = styled.Text`
