@@ -20,6 +20,9 @@ import * as Icon from 'phosphor-react-native'; // Icons for expense types
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native'; // For responsive chart sizing
 import { LinearGradient } from 'expo-linear-gradient';
+import { EmptyListContainer, EmptyListImage, EmptyListText } from '../HealthRecordsScreen/styles';
+import expensesRecordsImage from '../../assets/expenseScreen.png'
+
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
@@ -29,12 +32,9 @@ export default function ExpenseScreen() {
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
 
-
-  // Fetch expenses function
   // Fetch expenses function
   const fetchExpenses = async () => {
     if (!selectedDog) {
-      Alert.alert('No Dog Selected', 'Please select a dog to view expenses.');
       return;
     }
 
@@ -76,17 +76,17 @@ export default function ExpenseScreen() {
     }, [selectedDog])
   );
 
-      // Prepare data for PieChart
-      
-      const chartData = Object.keys(expenseDistribution).map((type, index) => {
-        return {
-          name: `${type}`,
-          amount: expenseDistribution[type],
-          color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5], // cycle through colors
-          legendFontColor: '#333',
-          legendFontSize: 15,
-        };
-      });
+  // Prepare data for PieChart
+
+  const chartData = Object.keys(expenseDistribution).map((type, index) => {
+    return {
+      name: `${type}`,
+      amount: expenseDistribution[type],
+      color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5], // cycle through colors
+      legendFontColor: '#333',
+      legendFontSize: 15,
+    };
+  });
   // Function to render the correct icon based on expense type
   const getExpenseIcon = (type) => {
     switch (type) {
@@ -107,26 +107,30 @@ export default function ExpenseScreen() {
   const deleteExpense = async (expenseId) => {
     try {
       // Find the expense amount before deletion to update the total and distribution
-      const expenseToDelete = expenses.find((expense) => expense.id === expenseId);
-  
+      const expenseToDelete = expenses.find(
+        (expense) => expense.id === expenseId
+      );
+
       // Delete the expense from Firestore
       await db.collection('expenses').doc(expenseId).delete();
-  
+
       // Filter out the deleted expense from the state
-      const updatedExpenses = expenses.filter((expense) => expense.id !== expenseId);
+      const updatedExpenses = expenses.filter(
+        (expense) => expense.id !== expenseId
+      );
       setExpenses(updatedExpenses);
-  
+
       // Update total by subtracting the deleted expense amount
       setTotal((prevTotal) => prevTotal - expenseToDelete.amount);
-  
+
       // Recalculate the expense distribution
       const updatedDistribution = updatedExpenses.reduce((acc, expense) => {
         acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
         return acc;
       }, {});
-  
+
       setExpenseDistribution(updatedDistribution);
-  
+
       // Display success alert
       Alert.alert('Success', 'Expense deleted successfully');
     } catch (error) {
@@ -182,39 +186,48 @@ export default function ExpenseScreen() {
     );
   };
 
+  const renderEmptyList = () => (
+    <EmptyListContainer>
+      <EmptyListImage source={expensesRecordsImage} />
+      <EmptyListText>
+        No expenses yet. Add your first pet and start adding records to keep track of your expenses.
+      </EmptyListText>
+    </EmptyListContainer>
+  );
+
   return (
     <Container>
       <Title>Expenses for {selectedDog?.name}</Title>
 
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
-      <PieChart
-        data={chartData}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={{
-          backgroundColor: '#ffffff',
-          backgroundGradientFrom: '#ffffff',
-          backgroundGradientTo: '#ffffff',
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-        }}
-        accessor="amount"
-        backgroundColor="transparent"
-        paddingLeft="15"
-      />
+        <PieChart
+          data={chartData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={{
+            backgroundColor: '#ffffff',
+            backgroundGradientFrom: '#ffffff',
+            backgroundGradientTo: '#ffffff',
+            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          }}
+          accessor="amount"
+          backgroundColor="transparent"
+          paddingLeft="15"
+        />
       )}
       {/* Divider above the FlatList */}
       <FlatList
         data={expenses}
         renderItem={renderExpenseItem}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={
-          <ExpenseItemText>No expenses found.</ExpenseItemText>
-        }
+        ListEmptyComponent={renderEmptyList}
         showsVerticalScrollIndicator={false}
       />
-       <View><LinearGradient
+      {expenses && expenses.length > 0 && (
+      <View>
+        <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.1)']} // Start with transparent, fade to a slight dark color
           style={{
             position: 'absolute',
@@ -223,11 +236,17 @@ export default function ExpenseScreen() {
             bottom: 0,
             height: 10, // Adjust height of the gradient
           }}
-        /></View>
+        />
+      </View>
+      )}
+      {selectedDog && (
+        <>
       <TotalText>Total: ${total.toFixed(2)}</TotalText>
       <AddButton onPress={() => navigation.navigate('AddExpense')}>
         <ButtonText>Add Expense</ButtonText>
       </AddButton>
+      </>
+      )}
     </Container>
   );
 }
