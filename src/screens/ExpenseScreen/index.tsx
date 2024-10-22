@@ -20,9 +20,12 @@ import * as Icon from 'phosphor-react-native'; // Icons for expense types
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native'; // For responsive chart sizing
 import { LinearGradient } from 'expo-linear-gradient';
-import { EmptyListContainer, EmptyListImage, EmptyListText } from '../HealthRecordsScreen/styles';
-import expensesRecordsImage from '../../assets/expenseScreen.png'
-
+import {
+  EmptyListContainer,
+  EmptyListImage,
+  EmptyListText,
+} from '../HealthRecordsScreen/styles';
+import expensesRecordsImage from '../../assets/expenseScreen.png';
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
@@ -33,50 +36,50 @@ export default function ExpenseScreen() {
   const navigation = useNavigation();
 
   // Fetch expenses function
-// Fetch expenses function
-const fetchExpenses = async () => {
-  if (!selectedDog) {
-    return;
-  }
+  // Fetch expenses function
+  const fetchExpenses = async () => {
+    if (!selectedDog) {
+      return;
+    }
 
-  try {
-    const snapshot = await db
-      .collection('expenses')
-      .where('dogId', '==', selectedDog.id)
-      .get();
-    
-    const expensesData = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const snapshot = await db
+        .collection('expenses')
+        .where('dogId', '==', selectedDog.id)
+        .get();
 
-    // Sort the expenses by date, newest to oldest
-    const sortedExpenses = expensesData.sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      return dateB - dateA; // Newest date first
-    });
+      const expensesData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-    setExpenses(sortedExpenses);
+      // Sort the expenses by date, newest to oldest
+      const sortedExpenses = expensesData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Newest date first
+      });
 
-    // Calculate total expenses
-    const totalExpenses = sortedExpenses.reduce(
-      (sum, expense) => sum + expense.amount,
-      0
-    );
-    setTotal(totalExpenses);
+      setExpenses(sortedExpenses);
 
-    // Calculate expense distribution by type
-    const distribution = sortedExpenses.reduce((acc, expense) => {
-      acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-      return acc;
-    }, {});
+      // Calculate total expenses
+      const totalExpenses = sortedExpenses.reduce(
+        (sum, expense) => sum + expense.amount,
+        0
+      );
+      setTotal(totalExpenses);
 
-    setExpenseDistribution(distribution);
-  } catch (error) {
-    console.error('Error fetching expenses:', error);
-  }
-};
+      // Calculate expense distribution by type
+      const distribution = sortedExpenses.reduce((acc, expense) => {
+        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+        return acc;
+      }, {});
+
+      setExpenseDistribution(distribution);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -202,7 +205,8 @@ const fetchExpenses = async () => {
     <EmptyListContainer>
       <EmptyListImage source={expensesRecordsImage} />
       <EmptyListText>
-        No expenses yet. Add your first pet and start adding records to keep track of your expenses.
+        No expenses yet. Add your first pet and start adding records to keep
+        track of your expenses.
       </EmptyListText>
     </EmptyListContainer>
   );
@@ -238,27 +242,31 @@ const fetchExpenses = async () => {
         showsVerticalScrollIndicator={false}
       />
       {expenses && expenses.length > 0 && (
-      <View>
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.1)']} // Start with transparent, fade to a slight dark color
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 10, // Adjust height of the gradient
-          }}
-        />
-      </View>
+        <View>
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.1)']} // Start with transparent, fade to a slight dark color
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 10, // Adjust height of the gradient
+            }}
+          />
+        </View>
       )}
-      {selectedDog && (
+      
         <>
-      <TotalText>Total: ${total.toFixed(2)}</TotalText>
-      <AddButton onPress={() => navigation.navigate('AddExpense')}>
-        <ButtonText>Add Expense</ButtonText>
-      </AddButton>
-      </>
-      )}
+          {selectedDog && expenses.length > 0 && (
+            <TotalText>Total: ${total.toFixed(2)}</TotalText>
+          )}
+
+          {selectedDog && (
+            <AddButton onPress={() => navigation.navigate('AddExpense')}>
+              <ButtonText>Add Expense</ButtonText>
+            </AddButton>
+          )}
+        </>
     </Container>
   );
 }
