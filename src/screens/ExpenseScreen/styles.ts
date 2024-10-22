@@ -1,10 +1,9 @@
 import styled from 'styled-components/native';
-import FastImage from 'react-native-fast-image';
 
 export const Container = styled.ScrollView`
   flex: 1;
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #ffff;
 `;
 
 export const Title = styled.Text`
