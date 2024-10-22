@@ -69,12 +69,16 @@ export default function ExpenseScreen() {
     }
   };
 
-  // useEffect to fetch expenses when selectedDog changes
-  useEffect(() => {
-    if (selectedDog) {
-      fetchExpenses();
-    }
-  }, [selectedDog]); // Dependency is selectedDog, so fetch data when it changes
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!selectedDog) {
+        setExpenses([]); // Clear schedules if no dog is selecte
+      } else {
+        fetchExpenses(); // Load schedules if a dog is selected
+      }
+    }, [selectedDog, navigation])
+  );
+
   // Prepare data for PieChart
 
   const chartData = Object.keys(expenseDistribution).map((type, index) => {
