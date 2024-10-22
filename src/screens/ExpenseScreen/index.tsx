@@ -15,7 +15,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import * as Icon from 'phosphor-react-native'; // Icons for expense types
 
 export default function ExpenseScreen() {
@@ -24,33 +24,36 @@ export default function ExpenseScreen() {
   const [total, setTotal] = useState(0);
   const navigation = useNavigation();
 
-  useEffect(() => {
+  // Fetch expenses function
+  const fetchExpenses = async () => {
     if (!selectedDog) {
       Alert.alert('No Dog Selected', 'Please select a dog to view expenses.');
       return;
     }
 
-    // Fetch expenses for the selected dog
-    const fetchExpenses = async () => {
-      try {
-        const snapshot = await db.collection('expenses').where('dogId', '==', selectedDog.id).get();
-        const expensesData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+    try {
+      const snapshot = await db.collection('expenses').where('dogId', '==', selectedDog.id).get();
+      const expensesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-        setExpenses(expensesData);
+      setExpenses(expensesData);
 
-        // Calculate total expenses
-        const totalExpenses = expensesData.reduce((sum, expense) => sum + expense.amount, 0);
-        setTotal(totalExpenses);
-      } catch (error) {
-        console.error('Error fetching expenses:', error);
-      }
-    };
+      // Calculate total expenses
+      const totalExpenses = expensesData.reduce((sum, expense) => sum + expense.amount, 0);
+      setTotal(totalExpenses);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
 
-    fetchExpenses();
-  }, [selectedDog]);
+  // Load expenses when the screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchExpenses();
+    }, [selectedDog])
+  );
 
   // Function to render the correct icon based on expense type
   const getExpenseIcon = (type) => {
