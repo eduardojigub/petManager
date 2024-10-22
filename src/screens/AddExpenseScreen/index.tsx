@@ -20,14 +20,23 @@ import {
   DatePickerButton,
   DatePickerText,
 } from './styles';
+
+import {
+  TypeSelector, // Import styled components for Type selection
+  TypeOption,
+  TypeText
+} from '../AddHealthRecord/styles'
+
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import * as Icon from 'phosphor-react-native'; // Assuming you are using phosphor-react-native for icons
 
 export default function AddExpenseScreen({ navigation, route }) {
   const [expenseTitle, setExpenseTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date());
-  const [showDateModal, setShowDateModal] = useState(false); // Modal state
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [type, setType] = useState(''); // State for expense type
   const { selectedDog } = useContext(DogProfileContext);
 
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -36,8 +45,16 @@ export default function AddExpenseScreen({ navigation, route }) {
     day: 'numeric',
   });
 
+  const expenseTypes = [
+    { label: 'Food', icon: <Icon.ForkKnife size={20} color="#7289DA" /> },
+    { label: 'Medical', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
+    { label: 'Grooming', icon: <Icon.Scissors size={20} color="#7289DA" /> },
+    { label: 'Toys', icon: <Icon.PuzzlePiece size={20} color="#7289DA" /> },
+    { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
+  ];
+
   const handleSave = async () => {
-    if (!expenseTitle || !amount || !date) {
+    if (!expenseTitle || !amount || !date || !type) {
       Alert.alert('Please fill out all fields');
       return;
     }
@@ -45,6 +62,7 @@ export default function AddExpenseScreen({ navigation, route }) {
     const newExpense = {
       title: expenseTitle,
       amount: parseFloat(amount),
+      type, // Save the selected type
       date: date.toISOString(), // Save the full ISO date string
       dogId: selectedDog.id,
     };
@@ -68,6 +86,20 @@ export default function AddExpenseScreen({ navigation, route }) {
         <Container>
           <Title>Add an Expense</Title>
 
+          {/* Expense Type Selection */}
+          <TypeSelector>
+            {expenseTypes.map((item) => (
+              <TypeOption
+                key={item.label}
+                onPress={() => setType(item.label)}
+                selected={type === item.label}
+              >
+                {item.icon}
+                <TypeText selected={type === item.label}>{item.label}</TypeText>
+              </TypeOption>
+            ))}
+          </TypeSelector>
+
           <Input
             value={expenseTitle}
             onChangeText={setExpenseTitle}
@@ -86,9 +118,7 @@ export default function AddExpenseScreen({ navigation, route }) {
           />
 
           {/* Date Picker Button */}
-          <DatePickerButton
-            onPress={() => setShowDateModal(true)}
-          >
+          <DatePickerButton onPress={() => setShowDateModal(true)}>
             <DatePickerText>{formattedDate}</DatePickerText>
           </DatePickerButton>
 
