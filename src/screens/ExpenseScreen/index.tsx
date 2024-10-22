@@ -33,41 +33,50 @@ export default function ExpenseScreen() {
   const navigation = useNavigation();
 
   // Fetch expenses function
-  const fetchExpenses = async () => {
-    if (!selectedDog) {
-      return;
-    }
+// Fetch expenses function
+const fetchExpenses = async () => {
+  if (!selectedDog) {
+    return;
+  }
 
-    try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
-      const expensesData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  try {
+    const snapshot = await db
+      .collection('expenses')
+      .where('dogId', '==', selectedDog.id)
+      .get();
+    
+    const expensesData = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      setExpenses(expensesData);
+    // Sort the expenses by date, newest to oldest
+    const sortedExpenses = expensesData.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB - dateA; // Newest date first
+    });
 
-      // Calculate total expenses
-      const totalExpenses = expensesData.reduce(
-        (sum, expense) => sum + expense.amount,
-        0
-      );
-      setTotal(totalExpenses);
+    setExpenses(sortedExpenses);
 
-      // Calculate expense distribution by type
-      const distribution = expensesData.reduce((acc, expense) => {
-        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-        return acc;
-      }, {});
+    // Calculate total expenses
+    const totalExpenses = sortedExpenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0
+    );
+    setTotal(totalExpenses);
 
-      setExpenseDistribution(distribution);
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-    }
-  };
+    // Calculate expense distribution by type
+    const distribution = sortedExpenses.reduce((acc, expense) => {
+      acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+      return acc;
+    }, {});
+
+    setExpenseDistribution(distribution);
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+  }
+};
 
   useFocusEffect(
     React.useCallback(() => {
