@@ -58,18 +58,17 @@ export const TotalText = styled.Text`
 `;
 
 export const AddButton = styled.TouchableOpacity`
-  background-color:  #41245C;
-  width: 100%;
-  height: 50px;
+  background-color: #41245C;
+  padding: 15px 20px;
   border-radius: 8px;
-  align-items: center;
-  justify-content: center;
   margin-top: 20px;
+  align-items: center;
+  width: 100%;
 `;
 
 export const ButtonText = styled.Text`
   color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
 `;
 

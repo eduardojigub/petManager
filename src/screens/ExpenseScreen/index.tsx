@@ -197,7 +197,7 @@ export default function ExpenseScreen() {
 
   return (
     <Container>
-      <Title>Expenses for {selectedDog?.name}</Title>
+      <Title>Expenses {selectedDog ? `for ${selectedDog.name}` : null}</Title>
 
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
