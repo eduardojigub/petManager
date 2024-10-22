@@ -24,8 +24,8 @@ import {
 import {
   TypeSelector, // Import styled components for Type selection
   TypeOption,
-  TypeText
-} from '../AddHealthRecord/styles'
+  TypeText,
+} from '../AddHealthRecord/styles';
 
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -44,6 +44,20 @@ export default function AddExpenseScreen({ navigation, route }) {
     month: 'long',
     day: 'numeric',
   });
+
+  // Enhanced function to handle and validate amount input
+  const handleAmountChange = (value) => {
+    // Only allow numbers and one decimal point
+    const cleaned = value.replace(/[^0-9.]/g, '');
+
+    // Ensure only one decimal point is present
+    if (cleaned.split('.').length > 2) {
+      return;
+    }
+
+    // Update the amount value
+    setAmount(cleaned);
+  };
 
   const expenseTypes = [
     { label: 'Food', icon: <Icon.ForkKnife size={20} color="#7289DA" /> },
@@ -110,8 +124,8 @@ export default function AddExpenseScreen({ navigation, route }) {
 
           <Input
             value={amount}
-            onChangeText={setAmount}
-            placeholder="Amount"
+            onChangeText={handleAmountChange} // Call the format function to format the input
+            placeholder="Amount ($): Example: 10.99"
             keyboardType="numeric"
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
