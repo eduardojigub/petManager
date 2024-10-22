@@ -111,7 +111,7 @@ export default function AddExpenseScreen({ navigation, route }) {
           <Input
             value={amount}
             onChangeText={setAmount}
-            placeholder="Amount in USD"
+            placeholder="Amount"
             keyboardType="numeric"
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
