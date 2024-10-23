@@ -9,11 +9,9 @@ export const Container = styled.View`
 export const Title = styled.Text`
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 20px;
-  justify-content: center;
-  align-items: center;
+  color: #41245c;
   text-align: center;
-  color: #41245C;
+  flex: 1;
 `;
 
 export const ExpenseItem = styled.TouchableOpacity`
@@ -41,26 +39,26 @@ export const ExpenseIconContainer = styled.View`
 `;
 
 export const ExpenseDateText = styled.Text`
-  color: #A9A9A9;
+  color: #a9a9a9;
   font-size: 12px;
 `;
 
 export const ListItemDetailHint = styled.Text`
-  color: #7289DA;
+  color: #7289da;
   font-size: 12px;
   margin-top: 4px;
 `;
 
 export const TotalText = styled.Text`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
   margin-top: 20px;
-  color: #41245C;
+  color: #41245c;
 `;
 
 export const AddButton = styled.TouchableOpacity`
-  background-color: #41245C;
+  background-color: #41245c;
   padding: 15px 20px;
   border-radius: 8px;
   margin-top: 20px;
@@ -76,4 +74,13 @@ export const ButtonText = styled.Text`
 `;
 
 export const TrashIconContainer = styled.TouchableOpacity`
-  padding: 10px`;
+  padding: 10px;
+`;
+
+export const MonthSelectorContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* Ensures buttons are on each side */
+  padding-horizontal: 20px;
+`;
+export const MonthButton = styled.TouchableOpacity``;

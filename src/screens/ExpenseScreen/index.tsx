@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, FlatList, Alert, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, FlatList, Alert } from 'react-native';
 import {
   Container,
   Title,
@@ -12,6 +12,8 @@ import {
   TotalText,
   ListItemDetailHint,
   TrashIconContainer,
+  MonthSelectorContainer,
+  MonthButton,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -55,42 +57,41 @@ export default function ExpenseScreen() {
   ];
 
   // Fetch expenses function
- 
-// Update fetchExpenses to filter after fetching
-const fetchExpenses = async () => {
-  if (!selectedDog) {
-    return;
-  }
 
-  try {
-    const snapshot = await db
-      .collection('expenses')
-      .where('dogId', '==', selectedDog.id)
-      .get();
+  // Update fetchExpenses to filter after fetching
+  const fetchExpenses = async () => {
+    if (!selectedDog) {
+      return;
+    }
 
-    const expensesData = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const snapshot = await db
+        .collection('expenses')
+        .where('dogId', '==', selectedDog.id)
+        .get();
 
-    // Sort the expenses by date, newest to oldest
-    const sortedExpenses = expensesData.sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      return dateB - dateA; // Newest date first
-    });
+      const expensesData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-    setAllExpenses(sortedExpenses); // Store the full list of expenses
+      // Sort the expenses by date, newest to oldest
+      const sortedExpenses = expensesData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Newest date first
+      });
 
-    // Filter by the currently selected month after fetching the expenses
-    const currentMonth = new Date().getMonth();
-    setSelectedMonthIndex(currentMonth);  // Ensure the correct month is selected
-    updateFilteredExpenses(sortedExpenses, currentMonth); // Filter for the current month
+      setAllExpenses(sortedExpenses); // Store the full list of expenses
 
-  } catch (error) {
-    console.error('Error fetching expenses:', error);
-  }
-};
+      // Filter by the currently selected month after fetching the expenses
+      const currentMonth = new Date().getMonth();
+      setSelectedMonthIndex(currentMonth); // Ensure the correct month is selected
+      updateFilteredExpenses(sortedExpenses, currentMonth); // Filter for the current month
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -131,77 +132,75 @@ const fetchExpenses = async () => {
   };
 
   // Filter expenses by the selected month
- // Filter expenses by the selected month
- const updateFilteredExpenses = (allExpenses, monthIndex) => {
-  const filteredExpenses = allExpenses.filter((expense) => {
-    const expenseDate = new Date(expense.date);
-    return expenseDate.getMonth() === monthIndex;
-  });
+  // Filter expenses by the selected month
+  const updateFilteredExpenses = (allExpenses, monthIndex) => {
+    const filteredExpenses = allExpenses.filter((expense) => {
+      const expenseDate = new Date(expense.date);
+      return expenseDate.getMonth() === monthIndex;
+    });
 
-  setExpenses(filteredExpenses);
+    setExpenses(filteredExpenses);
 
-  // Calculate total expenses
-  const totalExpenses = filteredExpenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  setTotal(totalExpenses);
-
-  // Calculate expense distribution by type
-  const distribution = filteredExpenses.reduce((acc, expense) => {
-    acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-    return acc;
-  }, {});
-
-  setExpenseDistribution(distribution);
-};
-
-
-const handleMonthChange = (direction) => {
-  let newMonthIndex = selectedMonthIndex;
-
-  if (direction === 'left') {
-    newMonthIndex = selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1;
-  } else {
-    newMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
-  }
-
-  setSelectedMonthIndex(newMonthIndex);
-  updateFilteredExpenses(allExpenses, newMonthIndex); // Filter from the full list
-};
-
- // Automatically navigate to the month of the added expense
- const handleAddExpenseNavigation = (expenseDate) => {
-  const expenseMonthIndex = new Date(expenseDate).getMonth();
-  setSelectedMonthIndex(expenseMonthIndex);
-  updateFilteredExpenses(allExpenses, expenseMonthIndex); // Filter for the added expense's month
-};
-
-const deleteExpense = async (expenseId) => {
-  try {
-    const expenseToDelete = allExpenses.find(
-      (expense) => expense.id === expenseId
+    // Calculate total expenses
+    const totalExpenses = filteredExpenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0
     );
+    setTotal(totalExpenses);
 
-    await db.collection('expenses').doc(expenseId).delete();
+    // Calculate expense distribution by type
+    const distribution = filteredExpenses.reduce((acc, expense) => {
+      acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+      return acc;
+    }, {});
 
-    // Update the full list of expenses by removing the deleted one
-    const updatedExpenses = allExpenses.filter(
-      (expense) => expense.id !== expenseId
-    );
-    setAllExpenses(updatedExpenses); // Update the full list of expenses
+    setExpenseDistribution(distribution);
+  };
 
-    // Automatically navigate to the month of the deleted expense
-    handleAddExpenseNavigation(expenseToDelete.date);
+  const handleMonthChange = (direction) => {
+    let newMonthIndex = selectedMonthIndex;
 
-    // Reapply the filter to the current month after the deletion
-    updateFilteredExpenses(updatedExpenses, selectedMonthIndex); // Refresh the filtered expenses
+    if (direction === 'left') {
+      newMonthIndex = selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1;
+    } else {
+      newMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
+    }
 
-  } catch (error) {
-    console.error('Error deleting expense:', error);
-    Alert.alert('Error', 'Unable to delete the expense.');
-  }
-};
+    setSelectedMonthIndex(newMonthIndex);
+    updateFilteredExpenses(allExpenses, newMonthIndex); // Filter from the full list
+  };
+
+  // Automatically navigate to the month of the added expense
+  const handleAddExpenseNavigation = (expenseDate) => {
+    const expenseMonthIndex = new Date(expenseDate).getMonth();
+    setSelectedMonthIndex(expenseMonthIndex);
+    updateFilteredExpenses(allExpenses, expenseMonthIndex); // Filter for the added expense's month
+  };
+
+  const deleteExpense = async (expenseId) => {
+    try {
+      const expenseToDelete = allExpenses.find(
+        (expense) => expense.id === expenseId
+      );
+
+      await db.collection('expenses').doc(expenseId).delete();
+
+      // Update the full list of expenses by removing the deleted one
+      const updatedExpenses = allExpenses.filter(
+        (expense) => expense.id !== expenseId
+      );
+      setAllExpenses(updatedExpenses); // Update the full list of expenses
+
+      // Automatically navigate to the month of the deleted expense
+      handleAddExpenseNavigation(expenseToDelete.date);
+
+      // Reapply the filter to the current month after the deletion
+      updateFilteredExpenses(updatedExpenses, selectedMonthIndex); // Refresh the filtered expenses
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      Alert.alert('Error', 'Unable to delete the expense.');
+    }
+  };
   const handleDeleteExpense = (expenseId) => {
     Alert.alert(
       'Delete Expense',
@@ -262,24 +261,17 @@ const deleteExpense = async (expenseId) => {
   return (
     <Container>
       {/* Month Selector */}
-      <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between', // Distribute items equally
-        paddingHorizontal: 20, // Optional, to give space on left and right
-      }}
-      >
-        <TouchableOpacity onPress={() => handleMonthChange('left')}>
+      <MonthSelectorContainer>
+        <MonthButton onPress={() => handleMonthChange('left')}>
           <Icon.CaretLeft size={24} color="#333" />
-        </TouchableOpacity>
-        <Title style={{ marginHorizontal: 20 }}>
-          {months[selectedMonthIndex]}
-        </Title>
-        <TouchableOpacity onPress={() => handleMonthChange('right')}>
+        </MonthButton>
+
+        <Title>{months[selectedMonthIndex]}</Title>
+
+        <MonthButton onPress={() => handleMonthChange('right')}>
           <Icon.CaretRight size={24} color="#333" />
-        </TouchableOpacity>
-      </View>
+        </MonthButton>
+      </MonthSelectorContainer>
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
         <PieChart
