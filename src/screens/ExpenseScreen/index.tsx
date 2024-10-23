@@ -44,7 +44,9 @@ export default function ExpenseScreen() {
   );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const screenWidth = Dimensions.get('window').width;
+  const [isManualMonthChange, setIsManualMonthChange] = useState(false); // To track manual month changes
   const navigation = useNavigation();
+  const [isExpenseAdded, setIsExpenseAdded] = useState(false); // New flag to handle added expense
   const route = useRoute();
 
   const months = [
@@ -65,70 +67,52 @@ export default function ExpenseScreen() {
   // Fetch expenses function
 
   // Update fetchExpenses to filter after fetching
-  const fetchExpenses = async () => {
-    if (!selectedDog) {
-      return;
-    }
+  // Fetch expenses function
+// Fetch expenses function
+const fetchExpenses = async (monthIndex, year) => {
+  if (!selectedDog) return;
 
-    try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
+  try {
+    const snapshot = await db
+      .collection('expenses')
+      .where('dogId', '==', selectedDog.id)
+      .get();
 
-      const expensesData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const expensesData = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      // Sort the expenses by date, newest to oldest
-      const sortedExpenses = expensesData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB - dateA; // Newest date first
-      });
+    const sortedExpenses = expensesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setAllExpenses(sortedExpenses);
 
-      // Set the full list of expenses to allExpenses state
-      setAllExpenses(sortedExpenses);
+    // Filter the list based on the selected month and year
+    updateFilteredExpenses(sortedExpenses, monthIndex, year);
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+  }
+};
 
-      // Filter the list for the selected month and year
-      updateFilteredExpenses(sortedExpenses, selectedMonthIndex, selectedYear);
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-    }
-  };
-
+ // UseFocusEffect to handle focus change and resetting month when navigating back
+  // UseFocusEffect to handle focus change and resetting month when navigating back
   useFocusEffect(
     React.useCallback(() => {
-      if (!selectedDog) {
-        setExpenses([]); // Clear expenses if no dog is selected
-      } else {
-        // Case 1: Handle the newly added expense passed via route
-        if (route.params?.addExpense) {
-          const addedExpense = route.params.addExpense;
-          
-          // Extract the month and year from the newly added expense's date
-          const expenseDate = new Date(addedExpense.date);
-          const expenseMonthIndex = expenseDate.getMonth(); // Get the month (0-11)
-          const expenseYear = expenseDate.getFullYear(); // Get the year
-    
-          // Update the state to navigate to the correct month and year of the added expense
-          setSelectedMonthIndex(expenseMonthIndex);
-          setSelectedYear(expenseYear);
-    
-          // After setting the new month/year, update the filtered expenses
-          updateFilteredExpenses(allExpenses, expenseMonthIndex, expenseYear);
-    
-          // Clear the route param to prevent repeated navigation
-          route.params.addExpense = null;
-        } else {
-          // Case 2: If there's no new expense, fetch expenses for the currently selected month/year
-          fetchExpenses();
-        }
+      // If the expense was added, don't reset to the current month
+      if (!isExpenseAdded && !isManualMonthChange) {
+        const currentDate = new Date();
+        setSelectedMonthIndex(currentDate.getMonth());
+        setSelectedYear(currentDate.getFullYear());
       }
-    }, [selectedDog, route.params, allExpenses])
-  );
 
+      // Fetch expenses for the current month and year
+      fetchExpenses(selectedMonthIndex, selectedYear);
+
+      return () => {
+        setIsManualMonthChange(false);
+        setIsExpenseAdded(false); // Reset the flag
+      };
+    }, [selectedDog, selectedMonthIndex, selectedYear, isExpenseAdded])
+  );
   // Prepare data for PieChart
 
   const chartData = Object.keys(expenseDistribution).map((type, index) => {
@@ -157,7 +141,7 @@ export default function ExpenseScreen() {
     }
   };
 
-  // Filter expenses by the selected month
+  // Handle filtering expenses based on the selected month and year
   const updateFilteredExpenses = (allExpenses, monthIndex, year) => {
     const filteredExpenses = allExpenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
@@ -169,14 +153,12 @@ export default function ExpenseScreen() {
 
     setExpenses(filteredExpenses);
 
-    // Calculate total expenses
     const totalExpenses = filteredExpenses.reduce(
       (sum, expense) => sum + expense.amount,
       0
     );
     setTotal(totalExpenses);
 
-    // Calculate expense distribution by type
     const distribution = filteredExpenses.reduce((acc, expense) => {
       acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
       return acc;
@@ -184,49 +166,43 @@ export default function ExpenseScreen() {
 
     setExpenseDistribution(distribution);
   };
+ // Handle month changes (left or right navigation)
 
+  // Handle month changes (left or right navigation)
   const handleMonthChange = (direction) => {
     let newMonthIndex = selectedMonthIndex;
     let newYear = selectedYear;
-  
+
     if (direction === 'left') {
-      // Going back a month
-      if (newMonthIndex === 0) {
-        newMonthIndex = 11; // Wrap to December
-        newYear--; // Go back a year
-      } else {
-        newMonthIndex--;
-      }
+      newMonthIndex = newMonthIndex === 0 ? 11 : newMonthIndex - 1;
+      newYear = newMonthIndex === 11 ? newYear - 1 : newYear;
     } else {
-      // Going forward a month
-      if (newMonthIndex === 11) {
-        newMonthIndex = 0; // Wrap to January
-        newYear++; // Go forward a year
-      } else {
-        newMonthIndex++;
-      }
+      newMonthIndex = newMonthIndex === 11 ? 0 : newMonthIndex + 1;
+      newYear = newMonthIndex === 0 ? newYear + 1 : newYear;
     }
-  
-    // Update the selected month and year state
+
     setSelectedMonthIndex(newMonthIndex);
     setSelectedYear(newYear);
-  
-    // Fetch and filter expenses for the newly selected month/year
-    updateFilteredExpenses(allExpenses, newMonthIndex, newYear);
+    setIsManualMonthChange(true);
+
+    // Fetch expenses for the new month and year
+    fetchExpenses(newMonthIndex, newYear);
   };
 
-  // Update selected month/year and re-fetch expenses
-  const handleAddExpenseNavigation = (expenseDate) => {
-    const expenseMonthIndex = new Date(expenseDate).getMonth();
-    const expenseYear = new Date(expenseDate).getFullYear();
-  
-    // Update the selected month and year state
-    setSelectedMonthIndex(expenseMonthIndex);
-    setSelectedYear(expenseYear);
-  
-    // Re-fetch expenses and apply the filter to show the new expense in the correct month and year
-    updateFilteredExpenses(allExpenses, expenseMonthIndex, expenseYear);
-  };
+
+ // Update selected month/year and re-fetch expenses when an expense is added
+ const handleAddExpenseNavigation = (expenseDate) => {
+  const expenseMonthIndex = new Date(expenseDate).getMonth();
+  const expenseYear = new Date(expenseDate).getFullYear();
+
+  // Navigate to the added expense's month and year
+  setSelectedMonthIndex(expenseMonthIndex);
+  setSelectedYear(expenseYear);
+  setIsExpenseAdded(true); // Set flag to prevent automatic reset
+
+  // Re-fetch expenses for the added expense's month/year
+  fetchExpenses(expenseMonthIndex, expenseYear);
+};
 
   const deleteExpense = async (expenseId) => {
     try {
