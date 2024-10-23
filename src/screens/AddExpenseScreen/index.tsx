@@ -83,7 +83,7 @@ export default function AddExpenseScreen({ navigation, route }) {
   
     try {
       await db.collection('expenses').add(newExpense);
-      
+  
       // Pass the new expense back to the previous screen
       if (route.params?.addExpense) route.params.addExpense(newExpense);
       
