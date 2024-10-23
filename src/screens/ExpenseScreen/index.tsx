@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, FlatList, Alert } from 'react-native';
+import { View, FlatList, Alert, TouchableOpacity } from 'react-native';
 import {
   Container,
   Title,
@@ -29,68 +29,79 @@ import expensesRecordsImage from '../../assets/expenseScreen.png';
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState([]); // For the filtered expenses
+  const [allExpenses, setAllExpenses] = useState([]); // For the full list of expenses
   const [total, setTotal] = useState(0);
   const [expenseDistribution, setExpenseDistribution] = useState({});
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(
+    new Date().getMonth()
+  );
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
 
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   // Fetch expenses function
-  // Fetch expenses function
-  const fetchExpenses = async () => {
-    if (!selectedDog) {
-      return;
-    }
+ 
+// Update fetchExpenses to filter after fetching
+const fetchExpenses = async () => {
+  if (!selectedDog) {
+    return;
+  }
 
-    try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
+  try {
+    const snapshot = await db
+      .collection('expenses')
+      .where('dogId', '==', selectedDog.id)
+      .get();
 
-      const expensesData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const expensesData = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      // Sort the expenses by date, newest to oldest
-      const sortedExpenses = expensesData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB - dateA; // Newest date first
-      });
+    // Sort the expenses by date, newest to oldest
+    const sortedExpenses = expensesData.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB - dateA; // Newest date first
+    });
 
-      setExpenses(sortedExpenses);
+    setAllExpenses(sortedExpenses); // Store the full list of expenses
 
-      // Calculate total expenses
-      const totalExpenses = sortedExpenses.reduce(
-        (sum, expense) => sum + expense.amount,
-        0
-      );
-      setTotal(totalExpenses);
+    // Filter by the currently selected month after fetching the expenses
+    const currentMonth = new Date().getMonth();
+    setSelectedMonthIndex(currentMonth);  // Ensure the correct month is selected
+    updateFilteredExpenses(sortedExpenses, currentMonth); // Filter for the current month
 
-      // Calculate expense distribution by type
-      const distribution = sortedExpenses.reduce((acc, expense) => {
-        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-        return acc;
-      }, {});
-
-      setExpenseDistribution(distribution);
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-    }
-  };
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+  }
+};
 
   useFocusEffect(
     React.useCallback(() => {
+      // Fetch expenses and filter after fetching
       if (!selectedDog) {
-        setExpenses([]); // Clear schedules if no dog is selecte
+        setExpenses([]); // Clear expenses if no dog is selected
       } else {
-        fetchExpenses(); // Load schedules if a dog is selected
+        fetchExpenses(); // Load expenses if a dog is selected
       }
     }, [selectedDog, navigation])
   );
-
   // Prepare data for PieChart
 
   const chartData = Object.keys(expenseDistribution).map((type, index) => {
@@ -119,41 +130,78 @@ export default function ExpenseScreen() {
     }
   };
 
-  const deleteExpense = async (expenseId) => {
-    try {
-      // Find the expense amount before deletion to update the total and distribution
-      const expenseToDelete = expenses.find(
-        (expense) => expense.id === expenseId
-      );
+  // Filter expenses by the selected month
+ // Filter expenses by the selected month
+ const updateFilteredExpenses = (allExpenses, monthIndex) => {
+  const filteredExpenses = allExpenses.filter((expense) => {
+    const expenseDate = new Date(expense.date);
+    return expenseDate.getMonth() === monthIndex;
+  });
 
-      // Delete the expense from Firestore
-      await db.collection('expenses').doc(expenseId).delete();
+  setExpenses(filteredExpenses);
 
-      // Filter out the deleted expense from the state
-      const updatedExpenses = expenses.filter(
-        (expense) => expense.id !== expenseId
-      );
-      setExpenses(updatedExpenses);
+  // Calculate total expenses
+  const totalExpenses = filteredExpenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+  setTotal(totalExpenses);
 
-      // Update total by subtracting the deleted expense amount
-      setTotal((prevTotal) => prevTotal - expenseToDelete.amount);
+  // Calculate expense distribution by type
+  const distribution = filteredExpenses.reduce((acc, expense) => {
+    acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
+    return acc;
+  }, {});
 
-      // Recalculate the expense distribution
-      const updatedDistribution = updatedExpenses.reduce((acc, expense) => {
-        acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-        return acc;
-      }, {});
+  setExpenseDistribution(distribution);
+};
 
-      setExpenseDistribution(updatedDistribution);
 
-      // Display success alert
-      Alert.alert('Success', 'Expense deleted successfully');
-    } catch (error) {
-      console.error('Error deleting expense:', error);
-      Alert.alert('Error', 'Unable to delete the expense.');
-    }
-  };
+const handleMonthChange = (direction) => {
+  let newMonthIndex = selectedMonthIndex;
 
+  if (direction === 'left') {
+    newMonthIndex = selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1;
+  } else {
+    newMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
+  }
+
+  setSelectedMonthIndex(newMonthIndex);
+  updateFilteredExpenses(allExpenses, newMonthIndex); // Filter from the full list
+};
+
+ // Automatically navigate to the month of the added expense
+ const handleAddExpenseNavigation = (expenseDate) => {
+  const expenseMonthIndex = new Date(expenseDate).getMonth();
+  setSelectedMonthIndex(expenseMonthIndex);
+  updateFilteredExpenses(allExpenses, expenseMonthIndex); // Filter for the added expense's month
+};
+
+const deleteExpense = async (expenseId) => {
+  try {
+    const expenseToDelete = allExpenses.find(
+      (expense) => expense.id === expenseId
+    );
+
+    await db.collection('expenses').doc(expenseId).delete();
+
+    // Update the full list of expenses by removing the deleted one
+    const updatedExpenses = allExpenses.filter(
+      (expense) => expense.id !== expenseId
+    );
+    setAllExpenses(updatedExpenses); // Update the full list of expenses
+
+    // Automatically navigate to the month of the deleted expense
+    handleAddExpenseNavigation(expenseToDelete.date);
+
+    // Reapply the filter to the current month after the deletion
+    updateFilteredExpenses(updatedExpenses, selectedMonthIndex); // Refresh the filtered expenses
+
+  } catch (error) {
+    console.error('Error deleting expense:', error);
+    Alert.alert('Error', 'Unable to delete the expense.');
+  }
+};
   const handleDeleteExpense = (expenseId) => {
     Alert.alert(
       'Delete Expense',
@@ -213,13 +261,31 @@ export default function ExpenseScreen() {
 
   return (
     <Container>
-
+      {/* Month Selector */}
+      <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between', // Distribute items equally
+        paddingHorizontal: 20, // Optional, to give space on left and right
+      }}
+      >
+        <TouchableOpacity onPress={() => handleMonthChange('left')}>
+          <Icon.CaretLeft size={24} color="#333" />
+        </TouchableOpacity>
+        <Title style={{ marginHorizontal: 20 }}>
+          {months[selectedMonthIndex]}
+        </Title>
+        <TouchableOpacity onPress={() => handleMonthChange('right')}>
+          <Icon.CaretRight size={24} color="#333" />
+        </TouchableOpacity>
+      </View>
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
         <PieChart
           data={chartData}
           width={screenWidth - 40}
-          height={220}
+          height={200}
           chartConfig={{
             backgroundColor: '#ffffff',
             backgroundGradientFrom: '#ffffff',
@@ -254,18 +320,18 @@ export default function ExpenseScreen() {
           />
         </View>
       )}
-      
-        <>
-          {selectedDog && expenses.length > 0 && (
-            <TotalText>Total: ${total.toFixed(2)}</TotalText>
-          )}
 
-          {selectedDog && (
-            <AddButton onPress={() => navigation.navigate('AddExpense')}>
-              <ButtonText>Add Expense</ButtonText>
-            </AddButton>
-          )}
-        </>
+      <>
+        {selectedDog && expenses.length > 0 && (
+          <TotalText>Total: ${total.toFixed(2)}</TotalText>
+        )}
+
+        {selectedDog && (
+          <AddButton onPress={() => navigation.navigate('AddExpense')}>
+            <ButtonText>Add Expense</ButtonText>
+          </AddButton>
+        )}
+      </>
     </Container>
   );
 }

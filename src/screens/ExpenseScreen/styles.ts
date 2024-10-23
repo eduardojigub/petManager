@@ -7,9 +7,11 @@ export const Container = styled.View`
 `;
 
 export const Title = styled.Text`
-  font-size: 24px;
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   color: #41245C;
 `;
