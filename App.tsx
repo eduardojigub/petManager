@@ -350,6 +350,18 @@ function AppTabs() {
           tabBarIcon: ({ color, size }) => (
             <Icon name="currency-usd" color={color} size={size} />
           ),
+          headerShown: true, // Make sure the header is shown
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Expenses',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
         }}
       />
       <Tab.Screen
