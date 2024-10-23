@@ -17,7 +17,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import * as Icon from 'phosphor-react-native'; // Icons for expense types
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native'; // For responsive chart sizing
@@ -38,8 +38,10 @@ export default function ExpenseScreen() {
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(
     new Date().getMonth()
   );
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
+  const route = useRoute();
 
   const months = [
     'January',
@@ -84,10 +86,8 @@ export default function ExpenseScreen() {
 
       setAllExpenses(sortedExpenses); // Store the full list of expenses
 
-      // Filter by the currently selected month after fetching the expenses
-      const currentMonth = new Date().getMonth();
-      setSelectedMonthIndex(currentMonth); // Ensure the correct month is selected
-      updateFilteredExpenses(sortedExpenses, currentMonth); // Filter for the current month
+      // Filter by the currently selected month and year after fetching the expenses
+      updateFilteredExpenses(sortedExpenses, selectedMonthIndex, selectedYear);
     } catch (error) {
       console.error('Error fetching expenses:', error);
     }
@@ -95,14 +95,23 @@ export default function ExpenseScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Fetch expenses and filter after fetching
       if (!selectedDog) {
         setExpenses([]); // Clear expenses if no dog is selected
       } else {
         fetchExpenses(); // Load expenses if a dog is selected
       }
-    }, [selectedDog, navigation])
+  
+      // Function to handle the newly added expense passed via route
+      if (route.params?.addExpense) {
+        const addedExpense = route.params.addExpense;
+        // Navigate to the month and year of the added expense
+        handleAddExpenseNavigation(addedExpense.date);
+        // Clear the route param to prevent repeated navigation
+        route.params.addExpense = null;
+      }
+    }, [selectedDog, navigation, route.params])
   );
+  
   // Prepare data for PieChart
 
   const chartData = Object.keys(expenseDistribution).map((type, index) => {
@@ -132,49 +141,72 @@ export default function ExpenseScreen() {
   };
 
   // Filter expenses by the selected month
-  // Filter expenses by the selected month
-  const updateFilteredExpenses = (allExpenses, monthIndex) => {
+  const updateFilteredExpenses = (allExpenses, monthIndex, year) => {
     const filteredExpenses = allExpenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
-      return expenseDate.getMonth() === monthIndex;
+      return (
+        expenseDate.getMonth() === monthIndex &&
+        expenseDate.getFullYear() === year
+      );
     });
-
+  
     setExpenses(filteredExpenses);
-
+  
     // Calculate total expenses
     const totalExpenses = filteredExpenses.reduce(
       (sum, expense) => sum + expense.amount,
       0
     );
     setTotal(totalExpenses);
-
+  
     // Calculate expense distribution by type
     const distribution = filteredExpenses.reduce((acc, expense) => {
       acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
       return acc;
     }, {});
-
+  
     setExpenseDistribution(distribution);
   };
 
   const handleMonthChange = (direction) => {
     let newMonthIndex = selectedMonthIndex;
+    let newYear = selectedYear;
 
     if (direction === 'left') {
-      newMonthIndex = selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1;
+      // Going back a month
+      if (newMonthIndex === 0) {
+        newMonthIndex = 11; // Wrap to December
+        newYear--; // Go back a year
+      } else {
+        newMonthIndex--;
+      }
     } else {
-      newMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
+      // Going forward a month
+      if (newMonthIndex === 11) {
+        newMonthIndex = 0; // Wrap to January
+        newYear++; // Go forward a year
+      } else {
+        newMonthIndex++;
+      }
     }
 
     setSelectedMonthIndex(newMonthIndex);
-    updateFilteredExpenses(allExpenses, newMonthIndex); // Filter from the full list
+    setSelectedYear(newYear);
+
+    updateFilteredExpenses(allExpenses, newMonthIndex, newYear); // Filter by month and year
   };
 
-  // Automatically navigate to the month of the added expense
+
   const handleAddExpenseNavigation = (expenseDate) => {
     const expenseMonthIndex = new Date(expenseDate).getMonth();
+    const expenseYear = new Date(expenseDate).getFullYear();
+  
+    // Update state to navigate to the expense's month and year
     setSelectedMonthIndex(expenseMonthIndex);
-    updateFilteredExpenses(allExpenses, expenseMonthIndex); // Filter for the added expense's month
+    setSelectedYear(expenseYear);
+  
+    // Filter expenses for the newly selected month and year
+    updateFilteredExpenses(allExpenses, expenseMonthIndex, expenseYear);
   };
 
   const deleteExpense = async (expenseId) => {
@@ -266,7 +298,7 @@ export default function ExpenseScreen() {
           <Icon.CaretLeft size={24} color="#333" />
         </MonthButton>
 
-        <Title>{months[selectedMonthIndex]}</Title>
+        <Title>{`${months[selectedMonthIndex]}, ${selectedYear}`}</Title>
 
         <MonthButton onPress={() => handleMonthChange('right')}>
           <Icon.CaretRight size={24} color="#333" />

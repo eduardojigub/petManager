@@ -72,7 +72,7 @@ export default function AddExpenseScreen({ navigation, route }) {
       Alert.alert('Please fill out all fields');
       return;
     }
-
+  
     const newExpense = {
       title: expenseTitle,
       amount: parseFloat(amount),
@@ -80,10 +80,13 @@ export default function AddExpenseScreen({ navigation, route }) {
       date: date.toISOString(), // Save the full ISO date string
       dogId: selectedDog.id,
     };
-
+  
     try {
       await db.collection('expenses').add(newExpense);
+      
+      // Pass the new expense back to the previous screen
       if (route.params?.addExpense) route.params.addExpense(newExpense);
+      
       navigation.goBack();
     } catch (error) {
       console.error('Error saving expense', error);
