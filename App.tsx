@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   SafeAreaView,
@@ -22,7 +22,7 @@ import ExpenseScreen from './src/screens/ExpenseScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
-import { DogProfileProvider } from './src/context/DogProfileContext';
+import { DogProfileContext, DogProfileProvider } from './src/context/DogProfileContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import InitialScreen from './src/screens/LoginScreen/InitialScreen';
@@ -99,6 +99,7 @@ function ProfileStack() {
 
 // Stack Navigator for Health Records and Details
 function HealthStack() {
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -111,7 +112,9 @@ function HealthStack() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Health Records',
+          headerTitle: selectedDog
+          ? `Health Records for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Health Records', // Just "Health Records" if no selectedDog
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
@@ -160,6 +163,8 @@ function HealthStack() {
 
 // Stack Navigator for Schedule and Add Schedule
 function ScheduleStack() {
+
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -172,7 +177,9 @@ function ScheduleStack() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Schedule',
+          headerTitle: selectedDog
+          ? `Schedule for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Schedule',  // Just "Schedule" if no selectedDog
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
@@ -303,6 +310,7 @@ function SettingsStack() {
 
 // Bottom Tab Navigator for the main application
 function AppTabs() {
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Tab.Navigator
       initialRouteName="ProfileTab"
@@ -357,7 +365,9 @@ function AppTabs() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Expenses',
+          headerTitle: selectedDog
+          ? `Expenses for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Expenses',  // Just "Expenses" if no selectedDog
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',

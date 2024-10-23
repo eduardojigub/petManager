@@ -288,6 +288,7 @@ const fetchExpenses = async (monthIndex, year) => {
   return (
     <Container>
       {/* Month Selector */}
+      {selectedDog && 
       <MonthSelectorContainer>
         <MonthButton onPress={() => handleMonthChange('left')}>
           <Icon.CaretLeft size={24} color="#333" />
@@ -299,6 +300,7 @@ const fetchExpenses = async (monthIndex, year) => {
           <Icon.CaretRight size={24} color="#333" />
         </MonthButton>
       </MonthSelectorContainer>
+      }
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
         <PieChart
