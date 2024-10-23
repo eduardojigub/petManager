@@ -82,11 +82,14 @@ export default function AddExpenseScreen({ navigation, route }) {
     };
   
     try {
-      await db.collection('expenses').add(newExpense);
+      const docRef = await db.collection('expenses').add(newExpense);
+  
+      // Add the new expense with its generated ID
+      const addedExpense = { ...newExpense, id: docRef.id };
   
       // Pass the new expense back to the previous screen
-      if (route.params?.addExpense) route.params.addExpense(newExpense);
-      
+      if (route.params?.addExpense) route.params.addExpense(addedExpense);
+  
       navigation.goBack();
     } catch (error) {
       console.error('Error saving expense', error);
