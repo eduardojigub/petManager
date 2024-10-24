@@ -114,7 +114,7 @@ android {
         applicationId 'com.petmanager.cat'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 103
         versionName "1.0.3"
     }
     signingConfigs {
