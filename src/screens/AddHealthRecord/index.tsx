@@ -224,7 +224,6 @@ export default function AddHealthRecordScreen({ navigation, route }) {
                     display="default"
                     onChange={(event, selectedDate) => {
                       if (selectedDate) setDate(selectedDate);
-                      setShowDateModal(false); // Close after selection
                     }}
                   />
 

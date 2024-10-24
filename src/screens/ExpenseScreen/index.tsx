@@ -247,6 +247,12 @@ const fetchExpenses = async (monthIndex, year) => {
       day: 'numeric',
     });
 
+        // Use Intl.NumberFormat to format the amount with commas
+    const formattedAmount = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+  }).format(item.amount);
+
     return (
       <ExpenseItem
         onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}
@@ -264,7 +270,7 @@ const fetchExpenses = async (monthIndex, year) => {
 
         {/* Amount */}
         <ExpenseItemText style={{ fontWeight: 'bold' }}>
-          ${item.amount.toFixed(2)}
+        {formattedAmount}
         </ExpenseItemText>
 
         {/* Delete button */}

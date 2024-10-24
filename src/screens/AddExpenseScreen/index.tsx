@@ -45,19 +45,40 @@ export default function AddExpenseScreen({ navigation, route }) {
     day: 'numeric',
   });
 
-  // Enhanced function to handle and validate amount input
   const handleAmountChange = (value) => {
-    // Only allow numbers and one decimal point
-    const cleaned = value.replace(/[^0-9.]/g, '');
-
-    // Ensure only one decimal point is present
-    if (cleaned.split('.').length > 2) {
+    // Remove non-numeric characters except for the period (.)
+    let cleaned = value.replace(/[^0-9.]/g, '');
+  
+    // Split the value into integer and decimal parts
+    const [integerPart, decimalPart] = cleaned.split('.');
+  
+    // If user types only a decimal without an integer, do not block them
+    if (integerPart === '' && cleaned === '.') {
+      setAmount('0.');
       return;
     }
-
-    // Update the amount value
-    setAmount(cleaned);
+  
+    // Ensure only one decimal point is allowed
+    if (cleaned.split('.').length > 2) {
+      return; // Prevent further input if more than one decimal point is detected
+    }
+  
+    // If there's a decimal part, limit it to 2 digits
+    const limitedDecimalPart = decimalPart ? decimalPart.substring(0, 2) : '';
+  
+    // Format the integer part with commas (but skip formatting while typing the decimal part)
+    const formattedIntegerPart = integerPart
+      ? integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',') // Add commas for every 3 digits
+      : '';
+  
+    // Update the state, ensuring the decimal part is not formatted while typing
+    if (decimalPart !== undefined) {
+      setAmount(`${formattedIntegerPart}.${limitedDecimalPart}`);
+    } else {
+      setAmount(formattedIntegerPart);
+    }
   };
+  
 
   const expenseTypes = [
     { label: 'Food', icon: <Icon.ForkKnife size={20} color="#7289DA" /> },
@@ -67,36 +88,39 @@ export default function AddExpenseScreen({ navigation, route }) {
     { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
   ];
 
-  const handleSave = async () => {
-    if (!expenseTitle || !amount || !date || !type) {
-      Alert.alert('Please fill out all fields');
-      return;
-    }
-  
-    const newExpense = {
-      title: expenseTitle,
-      amount: parseFloat(amount),
-      type, // Save the selected type
-      date: date.toISOString(), // Save the full ISO date string
-      dogId: selectedDog.id,
-    };
-  
-    try {
-      const docRef = await db.collection('expenses').add(newExpense);
-  
-      // Add the new expense with its generated ID
-      const addedExpense = { ...newExpense, id: docRef.id };
-  
-      // Pass the new expense back to the previous screen
-      if (route.params?.addExpense) route.params.addExpense(addedExpense);
-  
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error saving expense', error);
-      Alert.alert('Error', 'Unable to save the expense.');
-    }
+// Updated handleSave function to remove commas before saving
+const handleSave = async () => {
+  if (!expenseTitle || !amount || !date || !type) {
+    Alert.alert('Please fill out all fields');
+    return;
+  }
+
+  // Remove commas from the amount before saving it as a float
+  const cleanedAmount = amount.replace(/,/g, '');
+
+  const newExpense = {
+    title: expenseTitle,
+    amount: parseFloat(cleanedAmount), // Parse the cleaned amount as a float
+    type, // Save the selected type
+    date: date.toISOString(), // Save the full ISO date string
+    dogId: selectedDog.id,
   };
 
+  try {
+    const docRef = await db.collection('expenses').add(newExpense);
+
+    // Add the new expense with its generated ID
+    const addedExpense = { ...newExpense, id: docRef.id };
+
+    // Pass the new expense back to the previous screen
+    if (route.params?.addExpense) route.params.addExpense(addedExpense);
+
+    navigation.goBack();
+  } catch (error) {
+    console.error('Error saving expense', error);
+    Alert.alert('Error', 'Unable to save the expense.');
+  }
+};
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -182,7 +206,6 @@ export default function AddExpenseScreen({ navigation, route }) {
                     display="default"
                     onChange={(event, selectedDate) => {
                       if (selectedDate) setDate(selectedDate);
-                      setShowDateModal(false); // Close after selection
                     }}
                   />
 
