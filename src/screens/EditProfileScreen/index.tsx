@@ -20,7 +20,7 @@ import {
   InputWithIcon,
   UnitText,
 } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext';
+import { PetContext } from '../../context/PetContext';
 import * as Icon from 'phosphor-react-native';
 
 export default function EditProfileScreen({ navigation, route }) {
@@ -31,9 +31,10 @@ export default function EditProfileScreen({ navigation, route }) {
     age: initialAge,
     weight: initialWeight,
     image: initialImage,
-  } = route.params || {};
+  } = route.params.selectedPet || {};
   const isNewProfile = !id;
-  const { setSelectedDog } = useContext(DogProfileContext);
+  
+  const { setSelectedDog } = useContext(PetContext);
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');

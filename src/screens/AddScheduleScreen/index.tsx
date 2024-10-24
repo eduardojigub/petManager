@@ -26,13 +26,13 @@ import {
   TypeOption,
   TypeOptionText,
 } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext';
+import { PetContext } from '../../context/PetContext';
 import { db } from '../../firebase/Firestore';
 import auth from '@react-native-firebase/auth';
 
 export default function AddScheduleScreen({ route, navigation }) {
   const { schedule, isEditMode = false } = route.params || {};
-  const { selectedDog } = useContext(DogProfileContext);
+  const { selectedDog } = useContext(PetContext);
 
   const convertTo24HourFormat = (timeString) => {
     const [time, modifier] = timeString.split(' ');

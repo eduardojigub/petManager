@@ -17,7 +17,7 @@ import {
   EmptyListImage,
   DisabledAddButton,
 } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext';
+import { PetContext } from '../../context/PetContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
@@ -25,7 +25,7 @@ import dogThingsImage from '../../assets/dogThings.png';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
-  const { selectedDog } = useContext(DogProfileContext);
+  const { selectedDog } = useContext(PetContext);
 
   const loadSchedules = async () => {
     if (!selectedDog) {
