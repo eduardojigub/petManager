@@ -63,8 +63,6 @@ export default function ProfileScreen() {
   const userId = auth().currentUser?.uid;
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
 const {petProfiles} = usePetProfiles();
-const { selectedPet, setSelectedPet } = usePetContext();
-
 
   // Ref to track the current loadId
   const loadIdRef = useRef(0);
