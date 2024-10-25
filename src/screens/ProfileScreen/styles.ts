@@ -9,7 +9,7 @@ export const Container = styled.View`
 `;
 
 
-export const HeaderSection = styled.View`
+export const Header = styled.View`
   width: 100%;
   margin-bottom: 15px;
 `;
@@ -22,7 +22,7 @@ export const WelcomeHeader = styled.Text`
   margin-left: 10px; // Optional: Add a slight margin for consistent padding
 `;
 
-export const ProfileListSection = styled.View`
+export const ProfileList = styled.View`
   height: 120px;
   margin-bottom: 20px;
 `;
