@@ -22,7 +22,7 @@ import ExpenseScreen from './src/screens/ExpenseScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
-import { DogProfileContext, DogProfileProvider } from './src/context/DogProfileContext';
+import { PetProvider } from './src/context/PetContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import InitialScreen from './src/screens/LoginScreen/InitialScreen';
@@ -455,10 +455,10 @@ export default function App() {
   }
 
   return (
-    <DogProfileProvider>
-      <NavigationContainer>
-        <SafeAreaView style={styles.safeArea}>
-          <Stack.Navigator>
+    <PetProvider>
+    <NavigationContainer>
+      <SafeAreaView style={styles.safeArea}>
+      <Stack.Navigator>
             {user ? (
               <>
                 <Stack.Screen
@@ -519,9 +519,9 @@ export default function App() {
               />
             )}
           </Stack.Navigator>
-        </SafeAreaView>
-      </NavigationContainer>
-    </DogProfileProvider>
+      </SafeAreaView>
+    </NavigationContainer>
+    </PetProvider>
   );
 }
 

@@ -20,7 +20,7 @@ import {
   EmptyListText,
   DisabledAddButton,
 } from './styles';
-import { DogProfileContext } from '../../context/DogProfileContext';
+import { PetContext } from '../../context/PetContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png'
@@ -32,7 +32,7 @@ export default function HealthRecordsScreen({ navigation }) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
-  const { selectedDog } = useContext(DogProfileContext);
+  const { selectedDog } = useContext(PetContext);
 
   useEffect(() => {
     const loadRecords = async () => {
