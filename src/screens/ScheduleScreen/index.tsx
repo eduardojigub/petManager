@@ -138,9 +138,9 @@ export default function ScheduleScreen({ navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
+      {/* <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
         Schedules {selectedDog ? `for ${selectedDog.name}` : null}
-      </Text>
+      </Text> */}
       <FlatList
         data={schedules}
         renderItem={renderSchedule}
