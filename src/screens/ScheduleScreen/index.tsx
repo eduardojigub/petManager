@@ -17,7 +17,7 @@ import {
   EmptyListImage,
   DisabledAddButton,
 } from './styles';
-import { PetContext } from '../../context/PetContext';
+import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
@@ -25,7 +25,7 @@ import dogThingsImage from '../../assets/dogThings.png';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
-  const { selectedDog } = useContext(PetContext);
+  const { selectedDog } = useContext(DogProfileContext);
 
   const loadSchedules = async () => {
     if (!selectedDog) {
@@ -138,9 +138,9 @@ export default function ScheduleScreen({ navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
+      {/* <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
         Schedules {selectedDog ? `for ${selectedDog.name}` : null}
-      </Text>
+      </Text> */}
       <FlatList
         data={schedules}
         renderItem={renderSchedule}

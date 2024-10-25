@@ -25,7 +25,7 @@ import {
   DatePickerButton, // New styled component for date picker button
   DatePickerText, // Text styling for date display
 } from './styles';
-import { PetContext } from '../../context/PetContext';
+import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import storage from '@react-native-firebase/storage';
 import * as Icon from 'phosphor-react-native';
@@ -37,7 +37,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const { selectedDog } = useContext(PetContext);
+  const { selectedDog } = useContext(DogProfileContext);
 
   const types = [
     { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
@@ -224,7 +224,6 @@ export default function AddHealthRecordScreen({ navigation, route }) {
                     display="default"
                     onChange={(event, selectedDate) => {
                       if (selectedDate) setDate(selectedDate);
-                      setShowDateModal(false); // Close after selection
                     }}
                   />
 

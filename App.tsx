@@ -1,6 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaView, StyleSheet, ActivityIndicator, Alert, View, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -11,16 +18,25 @@ import AddHealthRecordScreen from './src/screens/AddHealthRecord';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import ExpenseScreen from './src/screens/ExpenseScreen';
+import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
-import { PetProvider } from './src/context/PetContext';
+import { DogProfileContext, DogProfileProvider } from './src/context/DogProfileContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import InitialScreen from './src/screens/LoginScreen/InitialScreen';
 import SignInScreen from './src/screens/LoginScreen/SignIn';
 import SignUpScreen from './src/screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from './src/screens/LoginScreen/ForgotPassword';
-import { useFonts, Poppins_400Regular,Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold  } from '@expo-google-fonts/poppins';
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+} from '@expo-google-fonts/poppins';
 import ManageNotificationsScreen from './src/screens/ManageNotificationScreen';
 
 // Keep the splash screen visible while we fetch resources
@@ -54,9 +70,9 @@ function ProfileStack() {
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ 
-          title: 'Profile', 
-          headerShown: false 
+        options={{
+          title: 'Profile',
+          headerShown: false,
         }}
       />
       <Stack.Screen
@@ -83,6 +99,7 @@ function ProfileStack() {
 
 // Stack Navigator for Health Records and Details
 function HealthStack() {
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -95,7 +112,9 @@ function HealthStack() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Health Records',
+          headerTitle: selectedDog
+          ? `Health Records for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Health Records', // Just "Health Records" if no selectedDog
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
@@ -144,6 +163,8 @@ function HealthStack() {
 
 // Stack Navigator for Schedule and Add Schedule
 function ScheduleStack() {
+
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -156,12 +177,14 @@ function ScheduleStack() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Schedule',
+          headerTitle: selectedDog
+          ? `Schedule for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Schedule',  // Just "Schedule" if no selectedDog
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
-          }}
-        }
+          },
+        }}
       />
       <Stack.Screen
         name="AddSchedule"
@@ -173,7 +196,9 @@ function ScheduleStack() {
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: route.params?.isEditMode ? 'Edit Schedule' : 'Add Schedule',
+          headerTitle: route.params?.isEditMode
+            ? 'Edit Schedule'
+            : 'Add Schedule',
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
@@ -189,8 +214,15 @@ function ScheduleStack() {
 function AuthStack() {
   return (
     <Stack.Navigator initialRouteName="Initial">
-      <Stack.Screen name="Initial" component={InitialScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignIn" component={SignInScreen}  options={{
+      <Stack.Screen
+        name="Initial"
+        component={InitialScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SignIn"
+        component={SignInScreen}
+        options={{
           headerStyle: {
             backgroundColor: '#fff',
             elevation: 0,
@@ -203,9 +235,10 @@ function AuthStack() {
             fontWeight: 'normal',
           },
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
-        }}  />
-      <Stack.Screen 
-        name="SignUp" 
+        }}
+      />
+      <Stack.Screen
+        name="SignUp"
         component={SignUpScreen}
         options={{
           headerStyle: {
@@ -220,9 +253,12 @@ function AuthStack() {
             fontWeight: 'normal',
           },
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
-        }} 
+        }}
       />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{
+      <Stack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+        options={{
           headerStyle: {
             backgroundColor: '#fff',
             elevation: 0,
@@ -235,7 +271,8 @@ function AuthStack() {
             fontWeight: 'normal',
           },
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
-        }}  />
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -273,6 +310,7 @@ function SettingsStack() {
 
 // Bottom Tab Navigator for the main application
 function AppTabs() {
+  const { selectedDog } = useContext(DogProfileContext); // Access selectedDog from context
   return (
     <Tab.Navigator
       initialRouteName="ProfileTab"
@@ -312,9 +350,33 @@ function AppTabs() {
           ),
         }}
       />
-       <Tab.Screen 
-        name="Settings" 
-        component={SettingsStack} 
+      <Tab.Screen
+        name="Expenses"
+        component={ExpenseScreen}
+        options={{
+          tabBarLabel: 'Expenses',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="currency-usd" color={color} size={size} />
+          ),
+          headerShown: true, // Make sure the header is shown
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: selectedDog
+          ? `Expenses for ${selectedDog.name}` // Show "for {selectedDog.name}" if selectedDog exists
+          : 'Expenses',  // Just "Expenses" if no selectedDog
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsStack}
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => (
@@ -330,31 +392,34 @@ export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
-   // Load fonts
-   const [fontsLoaded] = useFonts({
+  // Load fonts
+  const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_600SemiBold,
     Poppins_700Bold,
-    Poppins_800ExtraBold
+    Poppins_800ExtraBold,
   });
 
   const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
     setUser(user);
     if (initializing) setInitializing(false);
-  }
+  };
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber;
   }, []);
-  // Solicita permissão para notificações ao iniciar o app  
+  // Solicita permissão para notificações ao iniciar o app
   useEffect(() => {
     const askNotificationPermission = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert('Atenção', 'Você precisa habilitar as permissões de notificações para receber lembretes.');
+        Alert.alert(
+          'Atenção',
+          'Você precisa habilitar as permissões de notificações para receber lembretes.'
+        );
         return;
       }
     };
@@ -373,13 +438,12 @@ export default function App() {
     });
   }, []);
 
-    // Hide splash screen once initializing is false
-    useEffect(() => {
-      if (!initializing && fontsLoaded) {
-        SplashScreen.hideAsync();
-      }
-    }, [initializing, fontsLoaded]);
-  
+  // Hide splash screen once initializing is false
+  useEffect(() => {
+    if (!initializing && fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [initializing, fontsLoaded]);
 
   // Exibe uma tela de carregamento enquanto verifica o status de login
   if (initializing || !fontsLoaded) {
@@ -391,14 +455,18 @@ export default function App() {
   }
 
   return (
-    <PetProvider>
-    <NavigationContainer>
-      <SafeAreaView style={styles.safeArea}>
-      <Stack.Navigator>
+    <DogProfileProvider>
+      <NavigationContainer>
+        <SafeAreaView style={styles.safeArea}>
+          <Stack.Navigator>
             {user ? (
               <>
-                <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
-                
+                <Stack.Screen
+                  name="AppTabs"
+                  component={AppTabs}
+                  options={{ headerShown: false }}
+                />
+
                 {/* Add AddSchedule here as a separate screen */}
                 <Stack.Screen
                   name="AddSchedule"
@@ -410,22 +478,50 @@ export default function App() {
                       shadowOpacity: 0,
                       borderBottomWidth: 0,
                     },
-                    headerTitle: route.params?.isEditMode ? 'Edit Schedule' : 'Add Schedule',
+                    headerTitle: route.params?.isEditMode
+                      ? 'Edit Schedule'
+                      : 'Add Schedule',
                     headerTitleStyle: {
                       fontFamily: 'Poppins_400Regular',
                       fontWeight: 'normal',
                     },
-                    headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+                    headerLeft: ({ onPress }) => (
+                      <CustomBackButton onPress={onPress} />
+                    ),
                   })}
+                />
+                <Stack.Screen
+                  name="AddExpense"
+                  component={AddExpenseScreen}
+                  options={{
+                    headerStyle: {
+                      backgroundColor: '#fff',
+                      elevation: 0,
+                      shadowOpacity: 0,
+                      borderBottomWidth: 0,
+                    },
+                    headerTitle: 'Add Expense',
+                    headerTitleStyle: {
+                      fontFamily: 'Poppins_400Regular',
+                      fontWeight: 'normal',
+                    },
+                    headerLeft: ({ onPress }) => (
+                      <CustomBackButton onPress={onPress} />
+                    ),
+                  }}
                 />
               </>
             ) : (
-              <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
+              <Stack.Screen
+                name="AuthStack"
+                component={AuthStack}
+                options={{ headerShown: false }}
+              />
             )}
           </Stack.Navigator>
-      </SafeAreaView>
-    </NavigationContainer>
-    </PetProvider>
+        </SafeAreaView>
+      </NavigationContainer>
+    </DogProfileProvider>
   );
 }
 
