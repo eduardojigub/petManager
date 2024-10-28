@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { FlatList, Alert, Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import {
@@ -24,6 +24,7 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png'
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
@@ -34,41 +35,41 @@ export default function HealthRecordsScreen({ navigation }) {
   const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
   const { selectedDog } = useContext(DogProfileContext);
 
-  useEffect(() => {
-    const loadRecords = async () => {
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadRecords = async () => {
+        if (!selectedDog) {
+          setHealthRecords([]);
+          setFilteredRecords([]);
+          return;
+        }
+  
+        try {
+          const recordsSnapshot = await db
+            .collection('healthRecords')
+            .where('dogId', '==', selectedDog.id)
+            .get();
+  
+          const records = recordsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+  
+          records.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+          setHealthRecords(records);
+        } catch (error) {
+          console.error('Error loading health records', error);
+        }
+      };
+  
+      loadRecords();
+  
       if (!selectedDog) {
-        setHealthRecords([]);
-        setFilteredRecords([]);
-        return;
+        navigation.navigate('Profile');
       }
-
-      try {
-        const recordsSnapshot = await db
-          .collection('healthRecords')
-          .where('dogId', '==', selectedDog.id)
-          .get();
-          
-        const records = recordsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Sort records from newest to oldest
-        records.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        setHealthRecords(records);
-      } catch (error) {
-        console.error('Error loading health records', error);
-      }
-    };
-
-    loadRecords();
-
-    // Navigate back to Profile screen if no dog is selected
-    if (!selectedDog) {
-      navigation.navigate('Profile');
-    }
-  }, [selectedDog]);
+    }, [selectedDog])
+  );
 
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
@@ -148,11 +149,15 @@ export default function HealthRecordsScreen({ navigation }) {
       day: 'numeric',
     });
 
+     // Determine what text to show based on the type
+  const displayText = item.type === 'Medication' || item.type === 'Vaccine' ? item.extraInfo : item.type;
+
+
     return (
       <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
         <ListItemContent>
-          <ListItemText>{item.type}</ListItemText>
+        <ListItemText>{displayText || item.type}</ListItemText>
           <ListItemDetailHint>
             Tap to view details <DetailDateText>• {formattedDate}</DetailDateText>
           </ListItemDetailHint>
