@@ -46,7 +46,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       icon: <Icon.Stethoscope size={20} color="#7289DA" />,
     },
     { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
-    { label: 'Dog Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
+    { label: 'Pet Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
     { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
   ];
 
