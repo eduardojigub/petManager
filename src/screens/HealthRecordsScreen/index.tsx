@@ -134,7 +134,7 @@ export default function HealthRecordsScreen({ navigation }) {
         return <Icon.Stethoscope size={20} color="#7289DA" />;
       case 'Medication':
         return <Icon.Pill size={20} color="#7289DA" />;
-      case 'Dog Groomer':
+      case 'Pet Groomer':
         return <Icon.Scissors size={20} color="#7289DA" />;
       default:
         return <Icon.FileText size={20} color="#7289DA" />;
