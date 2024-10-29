@@ -3,11 +3,16 @@ import { Container, Title, Button, ButtonText, ModalOverlay, ModalContainer, Mod
 import { Alert, Modal, Linking } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
+
+
+const appVersion = Constants.manifest?.version || 'Version not available';
 
 export default function SettingsScreen() {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigation = useNavigation();
+
 
   const handleLogout = () => {
     auth()
@@ -69,7 +74,7 @@ export default function SettingsScreen() {
         <ModalOverlay>
           <ModalContainer>
             <Title>About the App</Title>
-            <ModalText>Version: 0.0.1</ModalText>
+            <ModalText>Version: {appVersion}</ModalText>
             <ModalText>Developed by C.A.T</ModalText>
             <CloseButton onPress={toggleAboutModal}>
               <CloseButtonText>Close</CloseButtonText>

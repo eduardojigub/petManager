@@ -190,7 +190,7 @@ export default function EditProfileScreen({ navigation, route }) {
           <FormContainer>
             <Container>
               <Label>
-                {isNewProfile ? 'Add New Dog Profile' : "Edit Dog's Profile"}
+                {isNewProfile ? 'Add New Pet Profile' : "Edit Pet's Profile"}
               </Label>
 
               <InputWithIcon>
@@ -198,7 +198,7 @@ export default function EditProfileScreen({ navigation, route }) {
                 <IconInput
                   value={name}
                   onChangeText={setName}
-                  placeholder="Enter dog's name"
+                  placeholder="Enter pet name"
                   maxLength={20} // Enforces a maximum of 20 characters
                   returnKeyType="done"
                   blurOnSubmit={true}

@@ -22,8 +22,8 @@ import {
   TypeSelector,
   TypeOption,
   TypeText,
-  DatePickerButton, // New styled component for date picker button
-  DatePickerText, // Text styling for date display
+  DatePickerButton,
+  DatePickerText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -39,7 +39,9 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   const [date, setDate] = useState( new Date());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [image, setImage] = useState(record?.image || null);
+
   const [uploading, setUploading] = useState(false);
+  const [extraInfo, setExtraInfo] = useState(''); // State for conditional input
   const { selectedDog } = useContext(DogProfileContext);
   
 
@@ -50,7 +52,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       icon: <Icon.Stethoscope size={20} color="#7289DA" />,
     },
     { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
-    { label: 'Dog Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
+    { label: 'Pet Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
     { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
   ];
 
@@ -85,22 +87,21 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     }
   };
 
-  // Function to upload image to Firebase Storage
   const uploadImageToStorage = async (imageUri) => {
     const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
     const uploadUri =
       Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
-    const storageRef = storage().ref(`healthRecords/${filename}`); // Reference to Firebase Storage path
+    const storageRef = storage().ref(`healthRecords/${filename}`);
 
-    setUploading(true); // Show uploading state
+    setUploading(true);
 
     try {
-      await storageRef.putFile(uploadUri); // Upload the file to Firebase Storage
-      const downloadURL = await storageRef.getDownloadURL(); // Get the download URL
-      setUploading(false); // Hide uploading state
-      return downloadURL; // Return the URL to store in Firestore
+      await storageRef.putFile(uploadUri);
+      const downloadURL = await storageRef.getDownloadURL();
+      setUploading(false);
+      return downloadURL;
     } catch (error) {
-      setUploading(false); // Hide uploading state
+      setUploading(false);
       console.error('Error uploading image:', error);
       Alert.alert('Error', 'Failed to upload image.');
       return null;
@@ -128,9 +129,10 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     const newRecord = {
       type,
       description,
-      date: date.toISOString(), // Save the full ISO date string
+      date: date.toISOString(),
       image: imageUrl,
       dogId: selectedDog.id,
+      extraInfo, // Save additional input value
     };
 
     try {
@@ -173,111 +175,138 @@ export default function AddHealthRecordScreen({ navigation, route }) {
             ))}
           </TypeSelector>
 
-          <Input
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Write any details about the record, like prices, notes, or other relevant info you might need later"
-            multiline
-            returnKeyType="done" // This sets the return key type
-            blurOnSubmit={true} // Dismiss the keyboard on return
-            onSubmitEditing={() => Keyboard.dismiss()} // Close keyboard when done is pressed
-          />
+          {/* Show placeholder if no type is selected */}
+          {!type && (
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+              <Icon.Question size={40} color="#7289DA" />
+              <Text style={{ color: '#7289DA', fontSize: 16, marginTop: 10 }}>
+                Please select a type to continue
+              </Text>
+            </View>
+          )}
 
-          {/* Date Picker Button */}
-          <DatePickerButton
-            onPress={() => {
-              if (Platform.OS === 'ios') {
-                setShowDateModal(true); // Show modal on iOS
-              } else {
-                setShowDateModal(true); // Open DateTimePicker directly on Android
-              }
-            }}
-          >
-            <DatePickerText>{formattedDate}</DatePickerText>
-          </DatePickerButton>
+          {/* Conditionally show inputs after a type is selected */}
+          {type && (
+            <>
+             {type === 'Medication' && (
+                <Input
+                  value={extraInfo}
+                  onChangeText={setExtraInfo}
+                  placeholder="Name of medication"
+                />
+              )}
+              {type === 'Vaccine' && (
+                <Input
+                  value={extraInfo}
+                  onChangeText={setExtraInfo}
+                  placeholder="Name of vaccine"
+                />
+              )}
+              <Input
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Write any details about the record, like prices, notes, or other relevant info you might need later"
+                multiline
+                returnKeyType="done"
+                blurOnSubmit={true}
+                onSubmitEditing={() => Keyboard.dismiss()}
+              />
 
-          {/* Date Picker Modal for iOS only */}
-          {Platform.OS === 'ios' && (
-            <Modal
-              visible={showDateModal}
-              transparent={true}
-              animationType="slide"
-              onRequestClose={() => setShowDateModal(false)}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 'rgba(0,0,0,0.5)',
+              {/* Date Picker Button */}
+              <DatePickerButton
+                onPress={() => {
+                  if (Platform.OS === 'ios') {
+                    setShowDateModal(true); // Show modal on iOS
+                  } else {
+                    setShowDateModal(true); // Open DateTimePicker directly on Android
+                  }
                 }}
               >
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    padding: 20,
-                    borderRadius: 10,
-                    width: '90%',
-                  }}
+                <DatePickerText>{formattedDate}</DatePickerText>
+              </DatePickerButton>
+
+              {Platform.OS === 'ios' && (
+                <Modal
+                  visible={showDateModal}
+                  transparent={true}
+                  animationType="slide"
+                  onRequestClose={() => setShowDateModal(false)}
                 >
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      textAlign: 'center',
-                      marginBottom: 10,
-                    }}
-                  >
-                    Select Date
-                  </Text>
-
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      if (selectedDate) setDate(selectedDate);
-                    }}
-                  />
-
                   <View
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginTop: 20,
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: 'rgba(0,0,0,0.5)',
                     }}
                   >
-                    <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                      <Text style={{ color: '#7289DA', fontSize: 16 }}>
-                        Cancel
+                    <View
+                      style={{
+                        backgroundColor: 'white',
+                        padding: 20,
+                        borderRadius: 10,
+                        width: '90%',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          textAlign: 'center',
+                          marginBottom: 10,
+                        }}
+                      >
+                        Select Date
                       </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                      <Text style={{ color: '#7289DA', fontSize: 16 }}>
-                        Confirm
-                      </Text>
-                    </TouchableOpacity>
+                      <DateTimePicker
+                        value={date}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                          if (selectedDate) setDate(selectedDate);
+                        }}
+                      />
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginTop: 20,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setShowDateModal(false)}
+                        >
+                          <Text style={{ color: '#7289DA', fontSize: 16 }}>
+                            Cancel
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => setShowDateModal(false)}
+                        >
+                          <Text style={{ color: '#7289DA', fontSize: 16 }}>
+                            Confirm
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            </Modal>
-          )}
+                </Modal>
+              )}
 
-          {/* Date Picker Direct for Android */}
-          {Platform.OS === 'android' && showDateModal && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                if (selectedDate) setDate(selectedDate);
-                setShowDateModal(false); // Close DateTimePicker after selection
-              }}
-            />
-          )}
+              {Platform.OS === 'android' && showDateModal && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) setDate(selectedDate);
+                    setShowDateModal(false);
+                  }}
+                />
+              )}
 
-          <CustomButton onPress={pickImage}>
-            <ButtonText>Select Image</ButtonText>
-          </CustomButton>
+              <CustomButton onPress={pickImage}>
+                <ButtonText>Select Image</ButtonText>
+              </CustomButton>
 
           <CustomButton onPress={handleSave} disabled={uploading}>
             <ButtonText>
@@ -285,7 +314,9 @@ export default function AddHealthRecordScreen({ navigation, route }) {
             </ButtonText>
           </CustomButton>
 
-          {image && <ImagePreview source={{ uri: image }} />}
+              {image && <ImagePreview source={{ uri: image }} />}
+            </>
+          )}
         </Container>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
