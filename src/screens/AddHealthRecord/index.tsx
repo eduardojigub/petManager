@@ -137,11 +137,14 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     
       if(route.params?.isEditMode){
       
-        await db.collection('healthRecords').doc(record.id).update(newRecord);
-      }
+       await db.collection('healthRecords').doc(record.id).update(newRecord);
+       navigation.navigate('HealthRecords');
+      }else{
       await db.collection('healthRecords').add(newRecord);
       if (route.params?.addRecord) route.params.addRecord(newRecord);
       navigation.goBack();
+      }
+      
     } catch (error) {
       console.error('Error saving health record', error);
       Alert.alert('Error', 'Unable to save the health record.');

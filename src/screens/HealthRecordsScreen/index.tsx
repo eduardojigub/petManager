@@ -70,7 +70,7 @@ export default function HealthRecordsScreen({ navigation }) {
     if (!selectedDog) {
       navigation.navigate('Profile');
     }
-  }, [selectedDog]);
+  }, [selectedDog, healthRecords]);
 
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
@@ -154,7 +154,6 @@ export default function HealthRecordsScreen({ navigation }) {
     return (
       
       <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
-        { console.log(filteredRecords)}
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
         <ListItemContent>
           <ListItemText>{item.type}</ListItemText>
