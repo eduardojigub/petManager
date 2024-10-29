@@ -33,6 +33,7 @@ export default function HealthRecordsScreen({ navigation }) {
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
   const { selectedDog } = useContext(DogProfileContext);
+  
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -52,6 +53,7 @@ export default function HealthRecordsScreen({ navigation }) {
           id: doc.id,
           ...doc.data(),
         }));
+
 
         // Sort records from newest to oldest
         records.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -117,6 +119,7 @@ export default function HealthRecordsScreen({ navigation }) {
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     setFilteredRecords(filtered);
+   
     setIsFilterApplied(true); // Activate filter
     setShowDateModal(false); // Close modal after filter
   };
@@ -149,7 +152,9 @@ export default function HealthRecordsScreen({ navigation }) {
     });
 
     return (
+      
       <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
+        { console.log(filteredRecords)}
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
         <ListItemContent>
           <ListItemText>{item.type}</ListItemText>

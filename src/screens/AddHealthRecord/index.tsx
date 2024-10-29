@@ -31,13 +31,17 @@ import storage from '@react-native-firebase/storage';
 import * as Icon from 'phosphor-react-native';
 
 export default function AddHealthRecordScreen({ navigation, route }) {
-  const [type, setType] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date());
+// selected record from edit mode
+  const { record } = route.params
+
+  const [type, setType] = useState(record?.type || '');
+  const [description, setDescription] = useState(record?.description || '');
+  const [date, setDate] = useState( new Date());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(record?.image || null);
   const [uploading, setUploading] = useState(false);
   const { selectedDog } = useContext(DogProfileContext);
+  
 
   const types = [
     { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
@@ -130,6 +134,11 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     };
 
     try {
+    
+      if(route.params?.isEditMode){
+      
+        await db.collection('healthRecords').doc(record.id).update(newRecord);
+      }
       await db.collection('healthRecords').add(newRecord);
       if (route.params?.addRecord) route.params.addRecord(newRecord);
       navigation.goBack();
@@ -269,7 +278,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
           <CustomButton onPress={handleSave} disabled={uploading}>
             <ButtonText>
-              {uploading ? 'Uploading...' : 'Save Health Record'}
+              {uploading ? 'Uploading...' : (route.params?.isEditMode ? 'Update Health Record':'Save Health Record' ) }
             </ButtonText>
           </CustomButton>
 
