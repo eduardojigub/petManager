@@ -246,7 +246,7 @@ export default function ProfileScreen() {
     Vaccine: <IconPhospor.Syringe size={32} color="#41245C" />,
     'Vet Appointment': <IconPhospor.Stethoscope size={32} color="#41245C" />,
     Medication: <IconPhospor.Pill size={32} color="#41245C" />,
-    'Dog Groomer': <IconPhospor.Scissors size={32} color="#41245C" />,
+    'Pet Groomer': <IconPhospor.Scissors size={32} color="#41245C" />,
     Other: <IconPhospor.FileText size={32} color="#41245C" />,
   };
 
@@ -292,7 +292,7 @@ export default function ProfileScreen() {
   const renderNoDogs = () => (
     <NoDogsContainer>
       <IconPhospor.PawPrint size={64} color="#41245C" weight="thin" />
-      <NoDogsText>No dog profiles added. Start by creating one!</NoDogsText>
+      <NoDogsText>No pet profiles added. Start by creating one!</NoDogsText>
       <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
         <AddProfileCircle>
           <Icon name="plus" size={40} color="#41245C" />

@@ -230,7 +230,7 @@ export default function AddScheduleScreen({ route, navigation }) {
                 icon: <Icon.Pill size={20} color="#7289DA" />,
               },
               {
-                label: 'Dog Groomer',
+                label: 'Pet Groomer',
                 icon: <Icon.Scissors size={20} color="#7289DA" />,
               },
               {
