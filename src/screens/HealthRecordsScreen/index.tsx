@@ -160,7 +160,7 @@ export default function HealthRecordsScreen({ navigation }) {
         <ListItemContent>
         <ListItemText>{displayText || item.type}</ListItemText>
           <ListItemDetailHint>
-            Tap to view details <DetailDateText>• {formattedDate}</DetailDateText>
+            Tap to view or edit details <DetailDateText>• {formattedDate}</DetailDateText>
           </ListItemDetailHint>
         </ListItemContent>
         <TrashIconContainer onPress={() => confirmDelete(item.id)}>

@@ -22,6 +22,7 @@ import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
 import dogThingsImage from '../../assets/dogThings.png';
+import { ListItemDetailHint } from '../HealthRecordsScreen/styles';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
@@ -45,7 +46,9 @@ export default function ScheduleScreen({ navigation }) {
       const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
 
       const now = new Date();
-      const isPastSchedule = scheduleDateTime < now && scheduleDateTime.toDateString() !== now.toDateString();
+      const isPastSchedule =
+        scheduleDateTime < now &&
+        scheduleDateTime.toDateString() !== now.toDateString();
 
       return { id: doc.id, ...data, isPast: isPastSchedule };
     });
@@ -66,7 +69,9 @@ export default function ScheduleScreen({ navigation }) {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
       await db.collection('schedules').doc(scheduleId).delete();
-      setSchedules((prevSchedules) => prevSchedules.filter((schedule) => schedule.id !== scheduleId));
+      setSchedules((prevSchedules) =>
+        prevSchedules.filter((schedule) => schedule.id !== scheduleId)
+      );
       Alert.alert('Success', 'Schedule and notification deleted successfully');
     } catch (error) {
       console.error('Error deleting schedule', error);
@@ -80,7 +85,10 @@ export default function ScheduleScreen({ navigation }) {
       'Are you sure you want to delete this schedule?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', onPress: () => deleteSchedule(scheduleId, notificationId) },
+        {
+          text: 'Delete',
+          onPress: () => deleteSchedule(scheduleId, notificationId),
+        },
       ],
       { cancelable: true }
     );
@@ -106,22 +114,42 @@ export default function ScheduleScreen({ navigation }) {
     <ListItem isPast={item.isPast}>
       <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
       <TouchableOpacity
-        onPress={() => navigation.navigate('AddSchedule', { schedule: item, isEditMode: true })}
+        onPress={() =>
+          navigation.navigate('AddSchedule', {
+            schedule: item,
+            isEditMode: true,
+          })
+        }
         style={{ flex: 1 }}
       >
         <ListItemContent>
-          <ListItemText isPast={item.isPast} numberOfLines={1} ellipsizeMode="tail">
+          <ListItemText
+            isPast={item.isPast}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {item.description}
           </ListItemText>
           <IconRow>
-            <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
+            <Icon.Calendar
+              size={20}
+              color="#41245C"
+              style={{ marginRight: 5 }}
+            />
             <DetailDateText>{item.date}</DetailDateText>
-            <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
+            <Icon.Clock
+              size={20}
+              color="#41245C"
+              style={{ marginLeft: 10, marginRight: 5 }}
+            />
             <DetailDateText>{item.time}</DetailDateText>
           </IconRow>
+          <ListItemDetailHint>Tap to edit details</ListItemDetailHint>
         </ListItemContent>
       </TouchableOpacity>
-      <TrashIconContainer onPress={() => handleDelete(item.id, item.notificationId)}>
+      <TrashIconContainer
+        onPress={() => handleDelete(item.id, item.notificationId)}
+      >
         <Icon.TrashSimple size={20} color="#e74c3c" />
       </TrashIconContainer>
     </ListItem>
@@ -131,7 +159,8 @@ export default function ScheduleScreen({ navigation }) {
     <EmptyListContainer>
       <EmptyListImage source={dogThingsImage} />
       <EmptyListText>
-        No schedules yet. Add your first pet and start adding to keep track of your pet's appointments.
+        No schedules yet. Add your first pet and start adding to keep track of
+        your pet's appointments.
       </EmptyListText>
     </EmptyListContainer>
   );

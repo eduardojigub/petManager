@@ -110,30 +110,33 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    if (!type || !description || !date) {
-      Alert.alert('Please fill out all fields');
+    // Validation: Check required fields based on type
+    if (
+      !type ||
+      (!description && type !== 'Medication' && type !== 'Vaccine') || // description is optional for Medication and Vaccine
+      (!extraInfo && (type === 'Medication' || type === 'Vaccine')) || // extraInfo is mandatory for Medication and Vaccine
+      !date
+    ) {
+      Alert.alert('Please fill out all required fields');
       return;
     }
-
+  
     let imageUrl = image;
     if (image && image.startsWith('file://')) {
       imageUrl = await uploadImageToStorage(image);
       if (!imageUrl) {
-        Alert.alert(
-          'Error',
-          'Image upload failed. Cannot save the health record.'
-        );
+        Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
         return;
       }
     }
-
+  
     const newRecord = {
       type,
-      description,
+      description, // It will be empty if the type is Medication or Vaccine and left blank by the user
       date: date.toISOString(),
       image: imageUrl,
       dogId: selectedDog.id,
-      extraInfo, // Save additional input value
+      extraInfo,
     };
 
     try {
