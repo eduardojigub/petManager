@@ -43,28 +43,28 @@ export default function HealthRecordsScreen({ navigation }) {
           setFilteredRecords([]);
           return;
         }
-  
+
         try {
           const recordsSnapshot = await db
             .collection('healthRecords')
             .where('dogId', '==', selectedDog.id)
             .get();
-  
+
           const records = recordsSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
           }));
-  
+
           records.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
           setHealthRecords(records);
         } catch (error) {
           console.error('Error loading health records', error);
         }
       };
-  
+
       loadRecords();
-  
+
       if (!selectedDog) {
         navigation.navigate('Profile');
       }
@@ -93,7 +93,7 @@ export default function HealthRecordsScreen({ navigation }) {
       { cancelable: true }
     );
   };
-  
+
   const deleteHealthRecord = async (id) => {
     try {
       await db.collection('healthRecords').doc(id).delete();
@@ -106,18 +106,18 @@ export default function HealthRecordsScreen({ navigation }) {
   };
 
   const filterRecords = () => {
-
     const filtered = healthRecords.filter(record => {
       const recordDate = new Date(record.date);
-  
+
       // Compare record date with selected month and year
       return recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear;
     });
-  
+
     // Sort filtered records by date in descending order
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
+
     setFilteredRecords(filtered);
+
     setIsFilterApplied(true); // Activate filter
     setShowDateModal(false); // Close modal after filter
   };
@@ -154,12 +154,13 @@ export default function HealthRecordsScreen({ navigation }) {
 
 
     return (
+      
       <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
         <ListItemContent>
         <ListItemText>{displayText || item.type}</ListItemText>
           <ListItemDetailHint>
-            Tap to view details <DetailDateText>• {formattedDate}</DetailDateText>
+            Tap to view or edit details <DetailDateText>• {formattedDate}</DetailDateText>
           </ListItemDetailHint>
         </ListItemContent>
         <TrashIconContainer onPress={() => confirmDelete(item.id)}>
