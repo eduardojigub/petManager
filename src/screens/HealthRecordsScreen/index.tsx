@@ -34,6 +34,7 @@ export default function HealthRecordsScreen({ navigation }) {
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
   const { selectedDog } = useContext(DogProfileContext);
+  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -68,8 +69,35 @@ export default function HealthRecordsScreen({ navigation }) {
       if (!selectedDog) {
         navigation.navigate('Profile');
       }
-    }, [selectedDog])
-  );
+
+      try {
+        const recordsSnapshot = await db
+          .collection('healthRecords')
+          .where('dogId', '==', selectedDog.id)
+          .get();
+          
+        const records = recordsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+
+        // Sort records from newest to oldest
+        records.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        setHealthRecords(records);
+      } catch (error) {
+        console.error('Error loading health records', error);
+      }
+    };
+
+    loadRecords();
+
+    // Navigate back to Profile screen if no dog is selected
+    if (!selectedDog) {
+      navigation.navigate('Profile');
+    }
+  }, [selectedDog, healthRecords]);
 
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
@@ -118,6 +146,7 @@ export default function HealthRecordsScreen({ navigation }) {
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     setFilteredRecords(filtered);
+   
     setIsFilterApplied(true); // Activate filter
     setShowDateModal(false); // Close modal after filter
   };
@@ -154,6 +183,7 @@ export default function HealthRecordsScreen({ navigation }) {
 
 
     return (
+      
       <ListItem onPress={() => navigation.navigate('HealthRecordDetails', { record: item })}>
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
         <ListItemContent>
