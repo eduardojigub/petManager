@@ -5,11 +5,16 @@ import * as Icon from 'phosphor-react-native';
 
 export default function HealthRecordDetailsScreen({ route, navigation }) {
   const { record } = route.params; // Receive the health record passed via navigation
+ 
+
 
   return (
     <Container>
-      <Text style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}>
-        {record.type} Details
+      <Text 
+      style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}
+      numberOfLines={1}
+      ellipsizeMode='tail'>
+        {record?.extraInfo || record?.type }
       </Text>
 
       <Section>
@@ -41,7 +46,9 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
           <DetailText>No image available</DetailText>
         </Section>
       )}
-
+      <StyledButton onPress={() => navigation.navigate('AddHealthRecord',{ isEditMode: true, record })}>
+        <ButtonText>Edit Health Record</ButtonText>
+      </StyledButton>
       <StyledButton onPress={() => navigation.goBack()}>
         <ButtonText>Go Back</ButtonText>
       </StyledButton>

@@ -142,20 +142,21 @@ function HealthStack() {
       <Stack.Screen
         name="AddHealthRecord"
         component={AddHealthRecordScreen}
-        options={{
+        
+        options={({route}) => ({
           headerStyle: {
             backgroundColor: '#fff',
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
           },
-          headerTitle: 'Add Health Record',
+          headerTitle: route.params?.isEditMode ? 'Edit Health Record' : 'Add Health Record',
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
           },
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
-        }}
+        })}
       />
     </Stack.Navigator>
   );
