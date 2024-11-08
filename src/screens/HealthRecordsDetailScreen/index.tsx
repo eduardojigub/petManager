@@ -10,8 +10,11 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
 
   return (
     <Container>
-      <Text style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}>
-        {record.type} Details
+      <Text 
+      style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}
+      numberOfLines={1}
+      ellipsizeMode='tail'>
+        {record?.extraInfo || record?.type }
       </Text>
 
       <Section>
