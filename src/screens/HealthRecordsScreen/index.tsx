@@ -34,7 +34,6 @@ export default function HealthRecordsScreen({ navigation }) {
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [isFilterApplied, setIsFilterApplied] = useState(false); // Filter state
   const { selectedDog } = useContext(DogProfileContext);
-  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -44,60 +43,33 @@ export default function HealthRecordsScreen({ navigation }) {
           setFilteredRecords([]);
           return;
         }
-  
+
         try {
           const recordsSnapshot = await db
             .collection('healthRecords')
             .where('dogId', '==', selectedDog.id)
             .get();
-  
+
           const records = recordsSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
           }));
-  
+
           records.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
           setHealthRecords(records);
         } catch (error) {
           console.error('Error loading health records', error);
         }
       };
-  
+
       loadRecords();
-  
+
       if (!selectedDog) {
         navigation.navigate('Profile');
       }
-
-      try {
-        const recordsSnapshot = await db
-          .collection('healthRecords')
-          .where('dogId', '==', selectedDog.id)
-          .get();
-          
-        const records = recordsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-
-        // Sort records from newest to oldest
-        records.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        setHealthRecords(records);
-      } catch (error) {
-        console.error('Error loading health records', error);
-      }
-    };
-
-    loadRecords();
-
-    // Navigate back to Profile screen if no dog is selected
-    if (!selectedDog) {
-      navigation.navigate('Profile');
-    }
-  }, [selectedDog, healthRecords]);
+    }, [selectedDog])
+  );
 
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
@@ -121,7 +93,7 @@ export default function HealthRecordsScreen({ navigation }) {
       { cancelable: true }
     );
   };
-  
+
   const deleteHealthRecord = async (id) => {
     try {
       await db.collection('healthRecords').doc(id).delete();
@@ -134,19 +106,18 @@ export default function HealthRecordsScreen({ navigation }) {
   };
 
   const filterRecords = () => {
-
     const filtered = healthRecords.filter(record => {
       const recordDate = new Date(record.date);
-  
+
       // Compare record date with selected month and year
       return recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear;
     });
-  
+
     // Sort filtered records by date in descending order
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
+
     setFilteredRecords(filtered);
-   
+
     setIsFilterApplied(true); // Activate filter
     setShowDateModal(false); // Close modal after filter
   };

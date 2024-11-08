@@ -34,13 +34,15 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 // selected record from edit mode
   const { record } = route.params
 
+
+
   const [type, setType] = useState(record?.type || '');
   const [description, setDescription] = useState(record?.description || '');
   const [date, setDate] = useState( new Date());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [image, setImage] = useState(record?.image || null);
   const [uploading, setUploading] = useState(false);
-  const [extraInfo, setExtraInfo] = useState(''); // State for conditional input
+  const [extraInfo, setExtraInfo] = useState(record?.extraInfo || ''); // State for conditional input
   const { selectedDog } = useContext(DogProfileContext);
   
 
@@ -303,21 +305,19 @@ export default function AddHealthRecordScreen({ navigation, route }) {
                 />
               )}
 
-              <CustomButton onPress={pickImage}>
-                <ButtonText>Select Image</ButtonText>
-              </CustomButton>
+<CustomButton onPress={pickImage}>
+            <ButtonText>Select Image</ButtonText>
+          </CustomButton>
 
-              <CustomButton onPress={handleSave} disabled={uploading}>
-                <ButtonText>
-                  {uploading ? 'Uploading...' : 'Save Health Record'}
-                </ButtonText>
-              </CustomButton>
+          <CustomButton onPress={handleSave} disabled={uploading}>
+            <ButtonText>
+              {uploading ? 'Uploading...' : (route.params?.isEditMode ? 'Update Health Record':'Save Health Record' ) }
+            </ButtonText>
+          </CustomButton>
 
-              {image && <ImagePreview source={{ uri: image }} />}
+          {image && <ImagePreview source={{ uri: image }} />}
             </>
           )}
-<<<<<<< HEAD
-=======
 
           {/* Date Picker Direct for Android */}
           {Platform.OS === 'android' && showDateModal && (
@@ -332,18 +332,8 @@ export default function AddHealthRecordScreen({ navigation, route }) {
             />
           )}
 
-          <CustomButton onPress={pickImage}>
-            <ButtonText>Select Image</ButtonText>
-          </CustomButton>
+         
 
-          <CustomButton onPress={handleSave} disabled={uploading}>
-            <ButtonText>
-              {uploading ? 'Uploading...' : (route.params?.isEditMode ? 'Update Health Record':'Save Health Record' ) }
-            </ButtonText>
-          </CustomButton>
-
-          {image && <ImagePreview source={{ uri: image }} />}
->>>>>>> featAddHealthRecordEditMode
         </Container>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
