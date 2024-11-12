@@ -243,7 +243,7 @@ const fetchExpenses = async (monthIndex, year) => {
   };
 
   const renderExpenseItem = ({ item }) => {
-    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
+    const formattedDate = new Date(item.date).toLocaleDateString( Localization.locale || 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
