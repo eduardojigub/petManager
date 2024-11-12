@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { View, FlatList, Alert } from 'react-native';
+import * as Localization from 'expo-localization';
 import {
   Container,
   Title,
@@ -247,11 +248,15 @@ const fetchExpenses = async (monthIndex, year) => {
       day: 'numeric',
     });
 
+    console.log( Localization.currency)
+
         // Use Intl.NumberFormat to format the amount with commas
-    const formattedAmount = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-  }).format(item.amount);
+        const formattedAmount = item.amount.toLocaleString(Localization.locale, {
+          style: 'currency',
+          currency: Localization.currency,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+      });
 
     return (
       <ExpenseItem
