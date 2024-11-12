@@ -31,20 +31,17 @@ import storage from '@react-native-firebase/storage';
 import * as Icon from 'phosphor-react-native';
 
 export default function AddHealthRecordScreen({ navigation, route }) {
-// selected record from edit mode
-  const { record } = route.params
-
-
+  // selected record from edit mode
+  const { record } = route.params;
 
   const [type, setType] = useState(record?.type || '');
   const [description, setDescription] = useState(record?.description || '');
-  const [date, setDate] = useState( new Date());
+  const [date, setDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [image, setImage] = useState(record?.image || null);
   const [uploading, setUploading] = useState(false);
   const [extraInfo, setExtraInfo] = useState(record?.extraInfo || ''); // State for conditional input
   const { selectedDog } = useContext(DogProfileContext);
-  
 
   const types = [
     { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
@@ -120,16 +117,19 @@ export default function AddHealthRecordScreen({ navigation, route }) {
       Alert.alert('Please fill out all required fields');
       return;
     }
-  
+
     let imageUrl = image;
     if (image && image.startsWith('file://')) {
       imageUrl = await uploadImageToStorage(image);
       if (!imageUrl) {
-        Alert.alert('Error', 'Image upload failed. Cannot save the health record.');
+        Alert.alert(
+          'Error',
+          'Image upload failed. Cannot save the health record.'
+        );
         return;
       }
     }
-  
+
     const newRecord = {
       type,
       description, // It will be empty if the type is Medication or Vaccine and left blank by the user
@@ -140,17 +140,15 @@ export default function AddHealthRecordScreen({ navigation, route }) {
     };
 
     try {
-    
-      if(route.params?.isEditMode){
-      
-       await db.collection('healthRecords').doc(record.id).update(newRecord);
-       navigation.navigate('HealthRecords');
-      }else{
-      await db.collection('healthRecords').add(newRecord);
-      if (route.params?.addRecord) route.params.addRecord(newRecord);
-      navigation.goBack();
+      if (route.params?.isEditMode) {
+        await db.collection('healthRecords').doc(record.id).update(newRecord);
+        if (route.params?.onGoBack) route.params.onGoBack(); // Reset filter state on return
+        navigation.navigate('HealthRecords');
+      } else {
+        await db.collection('healthRecords').add(newRecord);
+        if (route.params?.addRecord) route.params.addRecord(newRecord);
+        navigation.goBack();
       }
-      
     } catch (error) {
       console.error('Error saving health record', error);
       Alert.alert('Error', 'Unable to save the health record.');
@@ -192,7 +190,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
           {/* Conditionally show inputs after a type is selected */}
           {type && (
             <>
-             {type === 'Medication' && (
+              {type === 'Medication' && (
                 <Input
                   value={extraInfo}
                   onChangeText={setExtraInfo}
@@ -308,17 +306,21 @@ export default function AddHealthRecordScreen({ navigation, route }) {
                 />
               )}
 
-<CustomButton onPress={pickImage}>
-            <ButtonText>Select Image</ButtonText>
-          </CustomButton>
+              <CustomButton onPress={pickImage}>
+                <ButtonText>Select Image</ButtonText>
+              </CustomButton>
 
-          <CustomButton onPress={handleSave} disabled={uploading}>
-            <ButtonText>
-              {uploading ? 'Uploading...' : (route.params?.isEditMode ? 'Update Health Record':'Save Health Record' ) }
-            </ButtonText>
-          </CustomButton>
+              <CustomButton onPress={handleSave} disabled={uploading}>
+                <ButtonText>
+                  {uploading
+                    ? 'Uploading...'
+                    : route.params?.isEditMode
+                    ? 'Update Health Record'
+                    : 'Save Health Record'}
+                </ButtonText>
+              </CustomButton>
 
-          {image && <ImagePreview source={{ uri: image }} />}
+              {image && <ImagePreview source={{ uri: image }} />}
             </>
           )}
 
@@ -334,9 +336,6 @@ export default function AddHealthRecordScreen({ navigation, route }) {
               }}
             />
           )}
-
-         
-
         </Container>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

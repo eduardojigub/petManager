@@ -11,7 +11,6 @@ import {
   ListItemDetailHint,
   TrashIconContainer,
   ListItemContent,
-  FilterButton,
   ModalContainer,
   ModalTitle,
   DetailDateText,
@@ -31,7 +30,7 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { X } from 'phosphor-react-native';
 
@@ -46,9 +45,20 @@ export default function HealthRecordsScreen({ navigation }) {
 
   const { selectedDog } = useContext(DogProfileContext);
 
+  const route = useRoute(); // Access the route parameter
+
   const hasActiveFilters = () => {
     return selectedType || selectedMonth !== null || selectedYear !== null;
   };
+
+  const resetFiltersOnFocus = () => {
+    setIsFilterApplied(false);
+    setFilteredRecords([]); // Clear any applied filters
+    setSelectedType(null);
+    setSelectedMonth(null);
+    setSelectedYear(null);
+  };
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -58,36 +68,35 @@ export default function HealthRecordsScreen({ navigation }) {
           setFilteredRecords([]);
           return;
         }
-
+  
         try {
           const recordsSnapshot = await db
             .collection('healthRecords')
             .where('dogId', '==', selectedDog.id)
             .get();
-
+  
           const records = recordsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
-
+  
           records.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+  
           setHealthRecords(records);
-          // Reapply filter if it’s currently active
-          if (isFilterApplied) {
-            applyFilter(records);
+          if (route.params?.onGoBack) {
+            route.params.onGoBack();
+            navigation.setParams({ onGoBack: undefined }); // Clear callback
           }
         } catch (error) {
           console.error('Error loading health records', error);
         }
       };
-
+  
       loadRecords();
-
-      if (!selectedDog) {
-        navigation.navigate('Profile');
-      }
-    }, [selectedDog])
+      
+      // Reset filters explicitly on refocus
+      resetFiltersOnFocus();
+    }, [selectedDog, route.params?.onGoBack])
   );
 
   const currentMonth = new Date().getMonth(); // Get the current month (0-based, 0 = January, 11 = December)
@@ -238,7 +247,7 @@ export default function HealthRecordsScreen({ navigation }) {
     return (
       <ListItem
         onPress={() =>
-          navigation.navigate('HealthRecordDetails', { record: item })
+          navigation.navigate('HealthRecordDetails', { record: item, setIsFilterApplied })
         }
       >
         <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>

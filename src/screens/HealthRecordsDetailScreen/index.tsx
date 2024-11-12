@@ -1,20 +1,34 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Container, Section, DetailText, IconRow, IconText, DetailImage, StyledButton, ButtonText } from "./styles";
+import {
+  Container,
+  Section,
+  DetailText,
+  IconRow,
+  IconText,
+  DetailImage,
+  StyledButton,
+  ButtonText,
+} from './styles';
 import * as Icon from 'phosphor-react-native';
 
 export default function HealthRecordDetailsScreen({ route, navigation }) {
-  const { record } = route.params; // Receive the health record passed via navigation
- 
+  const { record, setIsFilterApplied } = route.params; // Receive the health record passed via navigation
 
 
   return (
     <Container>
-      <Text 
-      style={{ fontSize: 26, fontWeight: 'bold', color: "#41245C", marginBottom: 20 }}
-      numberOfLines={1}
-      ellipsizeMode='tail'>
-        {record?.extraInfo || record?.type }
+      <Text
+        style={{
+          fontSize: 26,
+          fontWeight: 'bold',
+          color: '#41245C',
+          marginBottom: 20,
+        }}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
+        {record?.extraInfo || record?.type}
       </Text>
 
       <Section>
@@ -30,7 +44,13 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
           <Icon.Calendar size={24} color="#41245C" />
           <IconText>Date:</IconText>
         </IconRow>
-        <DetailText>{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</DetailText>
+        <DetailText>
+          {new Date(record.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </DetailText>
       </Section>
 
       {record.image ? (
@@ -46,7 +66,15 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
           <DetailText>No image available</DetailText>
         </Section>
       )}
-      <StyledButton onPress={() => navigation.navigate('AddHealthRecord',{ isEditMode: true, record })}>
+      <StyledButton
+        onPress={() =>
+          navigation.navigate('AddHealthRecord', {
+            isEditMode: true,
+            record,
+            onGoBack: () => setIsFilterApplied(false), // Reset filter state on return
+          })
+        }
+      >
         <ButtonText>Edit Health Record</ButtonText>
       </StyledButton>
       <StyledButton onPress={() => navigation.goBack()}>
