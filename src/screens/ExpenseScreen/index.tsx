@@ -350,7 +350,13 @@ const fetchExpenses = async (monthIndex, year) => {
 
       <>
         {selectedDog && expenses.length > 0 && (
-          <TotalText>Total: ${total.toFixed(2)}</TotalText>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' , paddingHorizontal: 30}}>
+          <ExpenseDateText style={{fontSize: 16, paddingTop: 20}}>Year: ${
+          allExpenses.filter((expense) => expense.date.includes(selectedYear)). // Filter expenses for the selected year
+          reduce((total, expense)=> total + expense.amount, 0) // Calculate the total amount
+          } </ExpenseDateText>
+       <TotalText>Month: ${total.toFixed(2)}</TotalText>
+      </View>
         )}
 
         {selectedDog && (
