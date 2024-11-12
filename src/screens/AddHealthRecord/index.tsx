@@ -36,7 +36,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
   const [type, setType] = useState(record?.type || '');
   const [description, setDescription] = useState(record?.description || '');
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(record?.date ? new Date(record.date) : new Date());
   const [showDateModal, setShowDateModal] = useState(false); // Modal state
   const [image, setImage] = useState(record?.image || null);
   const [uploading, setUploading] = useState(false);
