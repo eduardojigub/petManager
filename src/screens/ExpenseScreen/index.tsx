@@ -50,6 +50,7 @@ export default function ExpenseScreen() {
   const [isExpenseAdded, setIsExpenseAdded] = useState(false); // New flag to handle added expense
   const route = useRoute();
 
+
   const months = [
     'January',
     'February',
@@ -251,9 +252,9 @@ const fetchExpenses = async (monthIndex, year) => {
     console.log( Localization.currency)
 
         // Use Intl.NumberFormat to format the amount with commas
-        const formattedAmount = item.amount.toLocaleString(Localization.locale, {
+        const formattedAmount = item.amount.toLocaleString(Localization.locale || 'en-US', {
           style: 'currency',
-          currency: Localization.currency,
+          currency: Localization.currency || 'USD',
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
       });
