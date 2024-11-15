@@ -255,7 +255,7 @@ const fetchExpenses = async (monthIndex, year) => {
 
     return (
       <ExpenseItem
-        onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}
+        onPress={() => navigation.navigate('AddExpense', { expense: item })}
       >
         {/* Icon for each expense */}
         <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>

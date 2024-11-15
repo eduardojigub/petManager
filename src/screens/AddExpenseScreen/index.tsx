@@ -32,12 +32,17 @@ import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native'; // Assuming you are using phosphor-react-native for icons
 
 export default function AddExpenseScreen({ navigation, route }) {
-  const [expenseTitle, setExpenseTitle] = useState('');
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(new Date());
+// if there is a preexisting expense:
+const { expense } = route.params || {};
+
+  const [expenseTitle, setExpenseTitle] = useState(expense?.title || '');
+  const [amount, setAmount] = useState(expense?.amount ? String(expense.amount) : '');
+  const [date, setDate] = useState( expense?.date ? new Date(expense.date) : new Date());
   const [showDateModal, setShowDateModal] = useState(false);
-  const [type, setType] = useState(''); // State for expense type
+  const [type, setType] = useState( expense?.type || ''); // State for expense type
   const { selectedDog } = useContext(DogProfileContext);
+
+  
 
   const formattedDate = date.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -107,14 +112,15 @@ const handleSave = async () => {
   };
 
   try {
-    const docRef = await db.collection('expenses').add(newExpense);
-
-    // Add the new expense with its generated ID
-    const addedExpense = { ...newExpense, id: docRef.id };
-
-    // Pass the new expense back to the previous screen
-    if (route.params?.addExpense) route.params.addExpense(addedExpense);
-
+    if (expense) {
+      // Update the existing expense
+      await db.collection('expenses').doc(expense.id).update(newExpense);
+    } else {
+      // Edit the existing expense or add a new one if it doesn't exist
+      const docRef = await db.collection('expenses').add(newExpense);
+      const addedExpense = { ...newExpense, id: docRef.id };
+      if (route.params?.addExpense) route.params.addExpense(addedExpense);
+    }
     navigation.goBack();
   } catch (error) {
     console.error('Error saving expense', error);
@@ -128,7 +134,7 @@ const handleSave = async () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
-          <Title>Add an Expense</Title>
+          <Title>{expense ? 'Edit Expense' : 'Add Expense'}</Title>
 
           {/* Expense Type Selection */}
           <TypeSelector>
@@ -246,7 +252,7 @@ const handleSave = async () => {
           )}
 
           <CustomButton onPress={handleSave}>
-            <ButtonText>Save Expense</ButtonText>
+            <ButtonText>{expense ? 'Update Expense' : 'Save Expense'}</ButtonText>
           </CustomButton>
         </Container>
       </TouchableWithoutFeedback>
