@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { Container, Title, Button, ButtonText, ModalOverlay, ModalContainer, ModalText, CloseButton, CloseButtonText, ScrollContainer } from './styles';
+import {
+  Container,
+  Title,
+  Button,
+  ButtonText,
+  ModalOverlay,
+  ModalContainer,
+  ModalText,
+  CloseButton,
+  CloseButtonText,
+  ScrollContainer,
+} from './styles';
 import { Alert, Modal, Linking } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
-
 
 const appVersion = Constants.manifest?.version || 'Version not available';
 
@@ -12,7 +22,6 @@ export default function SettingsScreen() {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigation = useNavigation();
-
 
   const handleLogout = () => {
     auth()
@@ -37,7 +46,6 @@ export default function SettingsScreen() {
       Alert.alert('Error', 'Failed to open the link')
     );
   };
-  
 
   return (
     <Container>
@@ -55,13 +63,16 @@ export default function SettingsScreen() {
         <ButtonText>About the App</ButtonText>
       </Button>
 
-      <Button onPress={handleLogout}>
-        <ButtonText>Log Out</ButtonText>
-      </Button>
-
       {/* New Button for Deleting Account */}
       <Button onPress={handleDeleteAccount}>
         <ButtonText>Delete my account</ButtonText>
+      </Button>
+      <Button onPress={() => navigation.navigate('AccountSettings')}>
+        <ButtonText>Update Password</ButtonText>
+      </Button>
+
+      <Button onPress={handleLogout}>
+        <ButtonText>Log Out</ButtonText>
       </Button>
 
       {/* About Modal */}
@@ -95,19 +106,26 @@ export default function SettingsScreen() {
             <Title>Terms of Use & Privacy Policy</Title>
             <ScrollContainer>
               <ModalText>
-                Welcome to our application. By using this app, you agree to the following terms and conditions. We reserve the right to update these terms at any time. 
+                Welcome to our application. By using this app, you agree to the
+                following terms and conditions. We reserve the right to update
+                these terms at any time.
               </ModalText>
               <ModalText>
-                1. **Data Collection**: We collect data to improve user experience. We respect your privacy and ensure your data is secure.
+                1. **Data Collection**: We collect data to improve user
+                experience. We respect your privacy and ensure your data is
+                secure.
               </ModalText>
               <ModalText>
-                2. **Usage**: You agree not to misuse our services, including unlawful or unauthorized activities.
+                2. **Usage**: You agree not to misuse our services, including
+                unlawful or unauthorized activities.
               </ModalText>
               <ModalText>
-                3. **Disclaimer**: We are not liable for any losses or damages arising from your use of this app.
+                3. **Disclaimer**: We are not liable for any losses or damages
+                arising from your use of this app.
               </ModalText>
               <ModalText>
-                For more details, please contact support@catapp.com. Thank you for choosing us.
+                For more details, please contact support@catapp.com. Thank you
+                for choosing us.
               </ModalText>
             </ScrollContainer>
             <CloseButton onPress={toggleTermsModal}>

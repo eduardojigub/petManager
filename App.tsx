@@ -20,6 +20,7 @@ import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ExpenseScreen from './src/screens/ExpenseScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
+import ManageAccountScreen from './src/screens/ManageAccountScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileContext, DogProfileProvider } from './src/context/DogProfileContext';
@@ -297,6 +298,21 @@ function SettingsStack() {
             borderBottomWidth: 0,
           },
           headerTitle: 'Manage notifications',
+          headerTitleStyle: {
+            fontFamily: 'Poppins_400Regular',
+            fontWeight: 'normal',
+          },
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
+      />
+      <Stack.Screen name="AccountSettings" component={ManageAccountScreen}  options={{
+          headerStyle: {
+            backgroundColor: '#fff',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitle: 'Update Password',
           headerTitleStyle: {
             fontFamily: 'Poppins_400Regular',
             fontWeight: 'normal',
