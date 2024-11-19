@@ -68,32 +68,34 @@ export default function ExpenseScreen() {
 
   // Update fetchExpenses to filter after fetching
   // Fetch expenses function
-// Fetch expenses function
-const fetchExpenses = async (monthIndex, year) => {
-  if (!selectedDog) return;
+  // Fetch expenses function
+  const fetchExpenses = async (monthIndex, year) => {
+    if (!selectedDog) return;
 
-  try {
-    const snapshot = await db
-      .collection('expenses')
-      .where('dogId', '==', selectedDog.id)
-      .get();
+    try {
+      const snapshot = await db
+        .collection('expenses')
+        .where('dogId', '==', selectedDog.id)
+        .get();
 
-    const expensesData = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      const expensesData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-    const sortedExpenses = expensesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-    setAllExpenses(sortedExpenses);
+      const sortedExpenses = expensesData.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+      setAllExpenses(sortedExpenses);
 
-    // Filter the list based on the selected month and year
-    updateFilteredExpenses(sortedExpenses, monthIndex, year);
-  } catch (error) {
-    console.error('Error fetching expenses:', error);
-  }
-};
+      // Filter the list based on the selected month and year
+      updateFilteredExpenses(sortedExpenses, monthIndex, year);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
 
- // UseFocusEffect to handle focus change and resetting month when navigating back
+  // UseFocusEffect to handle focus change and resetting month when navigating back
   // UseFocusEffect to handle focus change and resetting month when navigating back
   useFocusEffect(
     React.useCallback(() => {
@@ -166,7 +168,7 @@ const fetchExpenses = async (monthIndex, year) => {
 
     setExpenseDistribution(distribution);
   };
- // Handle month changes (left or right navigation)
+  // Handle month changes (left or right navigation)
 
   // Handle month changes (left or right navigation)
   const handleMonthChange = (direction) => {
@@ -189,20 +191,19 @@ const fetchExpenses = async (monthIndex, year) => {
     fetchExpenses(newMonthIndex, newYear);
   };
 
+  // Update selected month/year and re-fetch expenses when an expense is added
+  const handleAddExpenseNavigation = (expenseDate) => {
+    const expenseMonthIndex = new Date(expenseDate).getMonth();
+    const expenseYear = new Date(expenseDate).getFullYear();
 
- // Update selected month/year and re-fetch expenses when an expense is added
- const handleAddExpenseNavigation = (expenseDate) => {
-  const expenseMonthIndex = new Date(expenseDate).getMonth();
-  const expenseYear = new Date(expenseDate).getFullYear();
+    // Navigate to the added expense's month and year
+    setSelectedMonthIndex(expenseMonthIndex);
+    setSelectedYear(expenseYear);
+    setIsExpenseAdded(true); // Set flag to prevent automatic reset
 
-  // Navigate to the added expense's month and year
-  setSelectedMonthIndex(expenseMonthIndex);
-  setSelectedYear(expenseYear);
-  setIsExpenseAdded(true); // Set flag to prevent automatic reset
-
-  // Re-fetch expenses for the added expense's month/year
-  fetchExpenses(expenseMonthIndex, expenseYear);
-};
+    // Re-fetch expenses for the added expense's month/year
+    fetchExpenses(expenseMonthIndex, expenseYear);
+  };
 
   const deleteExpense = async (expenseId) => {
     try {
@@ -247,15 +248,15 @@ const fetchExpenses = async (monthIndex, year) => {
       day: 'numeric',
     });
 
-        // Use Intl.NumberFormat to format the amount with commas
+    // Use Intl.NumberFormat to format the amount with commas
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-  }).format(item.amount);
+    }).format(item.amount);
 
     return (
       <ExpenseItem
-        onPress={() => navigation.navigate('ExpenseDetails', { expense: item })}
+         onPress={() => navigation.navigate('AddExpense', { expense: item })}
       >
         {/* Icon for each expense */}
         <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
@@ -270,7 +271,7 @@ const fetchExpenses = async (monthIndex, year) => {
 
         {/* Amount */}
         <ExpenseItemText style={{ fontWeight: 'bold' }}>
-        {formattedAmount}
+          {formattedAmount}
         </ExpenseItemText>
 
         {/* Delete button */}
@@ -294,19 +295,19 @@ const fetchExpenses = async (monthIndex, year) => {
   return (
     <Container>
       {/* Month Selector */}
-      {selectedDog && 
-      <MonthSelectorContainer>
-        <MonthButton onPress={() => handleMonthChange('left')}>
-          <Icon.CaretLeft size={24} color="#333" />
-        </MonthButton>
+      {selectedDog && (
+        <MonthSelectorContainer>
+          <MonthButton onPress={() => handleMonthChange('left')}>
+            <Icon.CaretLeft size={24} color="#333" />
+          </MonthButton>
 
-        <Title>{`${months[selectedMonthIndex]}, ${selectedYear}`}</Title>
+          <Title>{`${months[selectedMonthIndex]}, ${selectedYear}`}</Title>
 
-        <MonthButton onPress={() => handleMonthChange('right')}>
-          <Icon.CaretRight size={24} color="#333" />
-        </MonthButton>
-      </MonthSelectorContainer>
-      }
+          <MonthButton onPress={() => handleMonthChange('right')}>
+            <Icon.CaretRight size={24} color="#333" />
+          </MonthButton>
+        </MonthSelectorContainer>
+      )}
       {/* PieChart for Expense Distribution */}
       {expenses && expenses.length > 0 && (
         <PieChart
@@ -350,23 +351,39 @@ const fetchExpenses = async (monthIndex, year) => {
 
       <>
         {selectedDog && expenses.length > 0 && (
-          <TotalText>Total: ${total.toFixed(2)}</TotalText>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingHorizontal: 30,
+            }}
+          >
+            <ExpenseDateText style={{ fontSize: 16, paddingTop: 20 }}>
+              Year: $
+              {allExpenses
+                .filter((expense) => expense.date.includes(selectedYear)) // Filter expenses for the selected year
+                .reduce((total, expense) => total + expense.amount, 0) // Calculate the total amount
+                .toFixed(2)}{' '}
+              {/* Format the total to 2 decimal places */}
+            </ExpenseDateText>
+            <TotalText>Month: ${total.toFixed(2)}</TotalText>
+          </View>
         )}
 
         {selectedDog && (
           <AddButton
-          onPress={() =>
-            navigation.navigate('AddExpense', {
-              addExpense: (newExpense) => {
-                handleAddExpenseNavigation(newExpense.date);
-                // Immediately refetch expenses after adding a new one
-                fetchExpenses(); // or alternatively call updateFilteredExpenses with the correct month/year
-              },
-            })
-          }
-        >
-          <ButtonText>Add Expense</ButtonText>
-        </AddButton>
+            onPress={() =>
+              navigation.navigate('AddExpense', {
+                addExpense: (newExpense) => {
+                  handleAddExpenseNavigation(newExpense.date);
+                  // Immediately refetch expenses after adding a new one
+                  fetchExpenses(); // or alternatively call updateFilteredExpenses with the correct month/year
+                },
+              })
+            }
+          >
+            <ButtonText>Add Expense</ButtonText>
+          </AddButton>
         )}
       </>
     </Container>

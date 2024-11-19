@@ -494,14 +494,14 @@ export default function App() {
                 <Stack.Screen
                   name="AddExpense"
                   component={AddExpenseScreen}
-                  options={{
+                  options={({ route }) => ({
                     headerStyle: {
                       backgroundColor: '#fff',
                       elevation: 0,
                       shadowOpacity: 0,
                       borderBottomWidth: 0,
                     },
-                    headerTitle: 'Add Expense',
+                    headerTitle: route.params?.expense ? 'Edit Expense' :  'Add Expense',
                     headerTitleStyle: {
                       fontFamily: 'Poppins_400Regular',
                       fontWeight: 'normal',
@@ -509,7 +509,7 @@ export default function App() {
                     headerLeft: ({ onPress }) => (
                       <CustomBackButton onPress={onPress} />
                     ),
-                  }}
+                  })}
                 />
               </>
             ) : (
