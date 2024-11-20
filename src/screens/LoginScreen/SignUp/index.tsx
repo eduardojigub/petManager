@@ -37,7 +37,9 @@ import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // New state
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for confirm password
   const [agree, setAgree] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
@@ -52,12 +54,16 @@ export default function SignUpScreen() {
   };
 
   const handleSignUp = async () => {
-    if (!email.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
       showAlert('Error', 'All fields are required.');
       return;
     }
     if (password.length < 6) {
       showAlert('Error', 'Password must be at least 6 characters long.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      showAlert('Error', 'Passwords must match.');
       return;
     }
     if (!agree) {
@@ -113,6 +119,26 @@ export default function SignUpScreen() {
             <TogglePasswordIcon onPress={() => setShowPassword(!showPassword)}>
               <Icon
                 name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color="#7C7C7C"
+              />
+            </TogglePasswordIcon>
+          </InputContainer>
+
+          <InputContainer>
+            <Label>Confirm Password</Label>
+            <Input
+              placeholder="Confirm your password"
+              secureTextEntry={!showConfirmPassword}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholderTextColor="#7C7C7C"
+            />
+            <TogglePasswordIcon
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <Icon
+                name={showConfirmPassword ? 'eye-off' : 'eye'}
                 size={20}
                 color="#7C7C7C"
               />
