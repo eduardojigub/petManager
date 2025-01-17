@@ -248,7 +248,7 @@ export default function EditProfileScreen({ navigation, route }) {
                   value={weight}
                   onChangeText={(text) => handleInput(text, setWeight)}
                   placeholder="Enter weight (kg), Ex: 5kg"
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad" // Allows decimal input
                   returnKeyType="done"
                   blurOnSubmit={true}
                   onSubmitEditing={() => Keyboard.dismiss()}
