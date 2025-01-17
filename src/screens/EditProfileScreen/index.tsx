@@ -1,5 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
 import { db } from '../../firebase/Firestore';
@@ -172,10 +178,14 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const handleInput = (input, setInput) => {
-    const integerOnly = input.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-    setInput(integerOnly);
-  };
+    // Allow numbers and a single decimal point
+    const formattedInput = input.replace(/[^0-9.]/g, ''); // Remove non-numeric and extra characters
+    const validDecimal = formattedInput.split('.').length <= 2; // Ensure only one decimal point exists
 
+    if (validDecimal) {
+      setInput(formattedInput);
+    }
+  };
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -223,8 +233,8 @@ export default function EditProfileScreen({ navigation, route }) {
                 <IconInput
                   value={age}
                   onChangeText={(text) => handleInput(text, setAge)}
-                  placeholder="Enter age(number only), Ex: 9"
-                  keyboardType="numeric"
+                  placeholder="Enter age (e.g., 0.5 for 6 months, 1.6 for 1 year 6 months)"
+                  keyboardType="decimal-pad" // Allows decimal input
                   returnKeyType="done"
                   blurOnSubmit={true}
                   onSubmitEditing={() => Keyboard.dismiss()}
@@ -237,7 +247,7 @@ export default function EditProfileScreen({ navigation, route }) {
                 <IconInput
                   value={weight}
                   onChangeText={(text) => handleInput(text, setWeight)}
-                  placeholder="Enter weight(number only) (kg), Ex: 5"
+                  placeholder="Enter weight (kg), Ex: 5kg"
                   keyboardType="numeric"
                   returnKeyType="done"
                   blurOnSubmit={true}
