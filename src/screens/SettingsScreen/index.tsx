@@ -55,14 +55,6 @@ export default function SettingsScreen() {
         <ButtonText>Manage Notifications</ButtonText>
       </Button>
 
-      <Button onPress={toggleTermsModal}>
-        <ButtonText>Terms of Use and Privacy</ButtonText>
-      </Button>
-
-      <Button onPress={toggleAboutModal}>
-        <ButtonText>About the App</ButtonText>
-      </Button>
-
       {/* New Button for Deleting Account */}
       <Button onPress={handleDeleteAccount}>
         <ButtonText>Delete my account</ButtonText>
@@ -71,9 +63,19 @@ export default function SettingsScreen() {
         <ButtonText>Update Password</ButtonText>
       </Button>
 
+      <Button onPress={toggleTermsModal}>
+        <ButtonText>Terms of Use and Privacy</ButtonText>
+      </Button> 
+
+      <Button onPress={toggleAboutModal}>
+        <ButtonText>About the App</ButtonText>
+      </Button>
+
       <Button onPress={handleLogout}>
         <ButtonText>Log Out</ButtonText>
       </Button>
+
+
 
       {/* About Modal */}
       <Modal
