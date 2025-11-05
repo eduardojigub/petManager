@@ -11,6 +11,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		22595BE6443B4BBD921F78C8 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1954AE7D14DE18C04B098 /* noop-file.swift */; };
+		3131E2FFFD0E13B437CD706F /* Pods_PetManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CB3CE467A1FB133CBE581B /* Pods_PetManager.framework */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		53C0E534BE8F832EA8EA2D46 /* Pods_PetManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B70EBE01445149F069B4F1 /* Pods_PetManager.framework */; };
 		8BE3517DC40044B0838598FC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8926E5602184BEEB78AF5DD /* GoogleService-Info.plist */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		0AE627BC3E3F416AA5600377 /* PetManager-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "PetManager-Bridging-Header.h"; path = "PetManager/PetManager-Bridging-Header.h"; sourceTree = "<group>"; };
+		0FA71501F120C2A2B8F1D515 /* Pods-PetManager.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PetManager.release.xcconfig"; path = "Target Support Files/Pods-PetManager/Pods-PetManager.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* PetsLife.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetsLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = PetManager/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = PetManager/AppDelegate.mm; sourceTree = "<group>"; };
