@@ -29,6 +29,7 @@ import {
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import { auth } from '../../firebase/auth';
+import { addDoc, updateDoc, collection, doc } from '@react-native-firebase/firestore';
 
 export default function AddScheduleScreen({ route, navigation }) {
   const { schedule, isEditMode = false } = route.params || {};
@@ -178,10 +179,10 @@ export default function AddScheduleScreen({ route, navigation }) {
       };
 
       if (isEditMode && schedule) {
-        await db.collection('schedules').doc(schedule.id).update(scheduleData);
+        await updateDoc(doc(db, 'schedules', schedule.id), scheduleData);
         Alert.alert('Success', 'Schedule updated successfully!');
       } else {
-        await db.collection('schedules').add(scheduleData);
+        await addDoc(collection(db, 'schedules'), scheduleData);
         Alert.alert(
           'Success',
           'Schedule saved successfully and notification scheduled!'

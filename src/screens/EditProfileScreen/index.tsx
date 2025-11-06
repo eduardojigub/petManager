@@ -11,6 +11,7 @@ import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManip
 import { db } from '../../firebase/Firestore';
 import storage from '@react-native-firebase/storage';
 import { auth } from '../../firebase/auth';
+import { addDoc, updateDoc, deleteDoc, collection, doc } from '@react-native-firebase/firestore';
 import {
   Container,
   Label,
@@ -133,9 +134,9 @@ export default function EditProfileScreen({ navigation, route }) {
 
     try {
       if (isNewProfile) {
-        await db.collection('dogProfiles').add(profile);
+        await addDoc(collection(db, 'dogProfiles'), profile);
       } else {
-        await db.collection('dogProfiles').doc(id).update(profile);
+        await updateDoc(doc(db, 'dogProfiles', id), profile);
       }
 
       navigation.navigate('Profile');
@@ -159,7 +160,7 @@ export default function EditProfileScreen({ navigation, route }) {
           text: 'OK',
           onPress: async () => {
             try {
-              await db.collection('dogProfiles').doc(id).delete();
+              await deleteDoc(doc(db, 'dogProfiles', id));
               setSelectedDog(null);
               Alert.alert(
                 'Profile Deleted',

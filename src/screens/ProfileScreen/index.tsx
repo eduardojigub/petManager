@@ -49,6 +49,7 @@ import { auth } from '../../firebase/auth';
 import * as IconPhospor from 'phosphor-react-native';
 import { formatDateTime } from '../../utils/dateFormarter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDocs, query, collection, where } from '@react-native-firebase/firestore';
 
 
 export default function ProfileScreen() {
@@ -69,10 +70,7 @@ export default function ProfileScreen() {
   const loadProfiles = async () => {
     if (!userId) return;
     try {
-      const profileSnapshot = await db
-        .collection('dogProfiles')
-        .where('userId', '==', userId)
-        .get();
+      const profileSnapshot = await getDocs(query(collection(db, 'dogProfiles'), where('userId', '==', userId)));
       const profiles = profileSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -98,11 +96,7 @@ export default function ProfileScreen() {
       const currentLoadId = ++loadIdRef.current;
       setIsLoadingSchedules(true); // Start loading indicator
       try {
-        const schedulesSnapshot = await db
-          .collection('schedules')
-          .where('dogId', '==', selectedDog.id)
-          .where('userId', '==', userId)
-          .get();
+        const schedulesSnapshot = await getDocs(query(collection(db, 'schedules'), where('dogId', '==', selectedDog.id), where('userId', '==', userId)));
 
         const now = new Date(); // Current date and time
         const today = new Date(
