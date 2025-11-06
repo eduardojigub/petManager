@@ -3040,9 +3040,9 @@ PODS:
   - RNCCheckbox (0.5.20):
     - BEMCheckBox (~> 1.4)
     - React-Core
-  - RNCPicker (2.11.4):
+  - RNCPicker (2.9.0):
     - React-Core
-  - RNDateTimePicker (8.5.0):
+  - RNDateTimePicker (8.2.0):
     - React-Core
   - RNFastImage (8.6.3):
     - React-Core
@@ -3063,7 +3063,7 @@ PODS:
     - Firebase/Storage (= 11.11.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.29.1):
+  - RNGestureHandler (2.20.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3106,7 +3106,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.14.0):
+  - RNSVG (15.8.0):
     - React-Core
   - RNVectorIcons (10.3.0):
     - DoubleConversion
@@ -3578,16 +3578,16 @@ SPEC CHECKSUMS:
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCCheckbox: 471ebdc33884c084f362615c1ef3507496cc07f1
-  RNCPicker: 0ce5d66262fe7f79e95664bae9447b0d7ed857da
-  RNDateTimePicker: b5afe456eedb040a6c8099c5e5d17b3af4ef94af
+  RNCPicker: f963e01f78e546a93b98aa201501713dbda14e94
+  RNDateTimePicker: 40ffda97d071a98a10fdca4fa97e3977102ccd14
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: b67ded6e4b0a6c0fee5e4f8e75e3a31567949a08
   RNFBAuth: 6aabe6440ba66c82b3c87fc8ebf70d921e5156dd
   RNFBFirestore: e7d4a2ce01acb435daaeece54a36e28252a681ee
   RNFBStorage: 7e75d62c4620a73acdd160c565b051436a2947fe
-  RNGestureHandler: 36e20b7505974ef7b07e50a4b1d7fce43cd94993
+  RNGestureHandler: 82c5ab302616348584b7563e06753b288a03fa7e
   RNScreens: 39d31613db654b41925342a10f50252780b839be
-  RNSVG: 4a10e7852d9693d8c7477553547d049049cb7ace
+  RNSVG: 8b1a777d54096b8c2a0fd38fc9d5a454332bbb4d
   RNVectorIcons: 1bf07bd8e9aa6f7f16c953c4979839e0aa9c34b9
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
