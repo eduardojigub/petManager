@@ -9,7 +9,7 @@ import {
   ButtonText,
   ErrorText,
 } from './styles';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../firebase/auth';
 import { Alert } from 'react-native';
 
 export default function AccountSettingsScreen({ navigation }) {
@@ -33,7 +33,7 @@ export default function AccountSettingsScreen({ navigation }) {
     }
 
     try {
-      const user = auth().currentUser;
+      const user = auth.currentUser;
 
       // Reauthenticate user
       const credential = auth.EmailAuthProvider.credential(

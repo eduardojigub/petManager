@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../../firebase/auth';
 import {
   Container,
   HeaderWrapper,
@@ -47,7 +47,7 @@ export default function SignInScreen() {
     }
 
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      await auth.signInWithEmailAndPassword(email, password);
       navigation.reset({
         index: 0,
         routes: [{ name: 'AppTabs' }],

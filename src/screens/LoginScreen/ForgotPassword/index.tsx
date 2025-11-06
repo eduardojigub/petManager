@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../../firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import {
   Container,
@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
     }
 
     try {
-      await auth().sendPasswordResetEmail(email);
+      await auth.sendPasswordResetEmail(email);
       setAlertTitle('Success');
       setAlertMessage('Password reset email has been sent.');
       setAlertVisible(true);

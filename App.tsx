@@ -24,7 +24,8 @@ import ManageAccountScreen from './src/screens/ManageAccountScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Notifications from 'expo-notifications';
 import { DogProfileContext, DogProfileProvider } from './src/context/DogProfileContext';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import {auth} from './src/firebase/auth';
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import InitialScreen from './src/screens/LoginScreen/InitialScreen';
 import SignInScreen from './src/screens/LoginScreen/SignIn';
@@ -424,7 +425,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
     return subscriber;
   }, []);
   // Solicita permissão para notificações ao iniciar o app

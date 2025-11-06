@@ -12,7 +12,7 @@ import {
   ScrollContainer,
 } from './styles';
 import { Alert, Modal, Linking } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 
@@ -24,7 +24,7 @@ export default function SettingsScreen() {
   const navigation = useNavigation();
 
   const handleLogout = () => {
-    auth()
+    auth
       .signOut()
       .catch((error) => {
         Alert.alert('Logout Error', error.message);

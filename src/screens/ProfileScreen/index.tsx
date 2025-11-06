@@ -45,7 +45,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../firebase/auth';
 import * as IconPhospor from 'phosphor-react-native';
 import { formatDateTime } from '../../utils/dateFormarter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -56,7 +56,7 @@ export default function ProfileScreen() {
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
   const [upcomingSchedules, setUpcomingSchedules] = useState([]);
   const navigation = useNavigation();
-  const userId = auth().currentUser?.uid;
+  const userId = auth.currentUser?.uid;
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
 
   // Ref to track the current loadId

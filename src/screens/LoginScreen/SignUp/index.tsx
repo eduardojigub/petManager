@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../../firebase/auth';
 import {
   Container,
   HeaderWrapper,
@@ -72,7 +72,7 @@ export default function SignUpScreen() {
     }
 
     try {
-      await auth().createUserWithEmailAndPassword(email, password);
+      await auth.createUserWithEmailAndPassword(email, password);
       navigation.navigate('Initial'); // Redirect back to initial screen after signing up
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {

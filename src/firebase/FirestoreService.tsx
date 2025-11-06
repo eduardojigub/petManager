@@ -1,9 +1,9 @@
-import auth from '@react-native-firebase/auth';
+import { auth } from '../firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 const db = firestore();
 
-const getUserId = () => auth().currentUser?.uid;
+const getUserId = () => auth.currentUser?.uid;
 
 // Add a document with the current user's ID
 export const addDocument = async (collection, data) => {

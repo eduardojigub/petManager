@@ -28,7 +28,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../firebase/auth';
 
 export default function AddScheduleScreen({ route, navigation }) {
   const { schedule, isEditMode = false } = route.params || {};
@@ -96,7 +96,7 @@ export default function AddScheduleScreen({ route, navigation }) {
       return;
     }
 
-    const userId = auth().currentUser?.uid;
+    const userId = auth.currentUser?.uid;
     if (!userId) {
       Alert.alert(
         'Error',

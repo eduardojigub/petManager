@@ -10,7 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
 import { db } from '../../firebase/Firestore';
 import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
+import { auth } from '../../firebase/auth';
 import {
   Container,
   Label,
@@ -112,7 +112,7 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    const userId = auth().currentUser?.uid;
+    const userId = auth.currentUser?.uid;
 
     if (!userId || !name || !breed || !age || !weight) {
       Alert.alert('Error', 'All fields are required!');
