@@ -32,6 +32,7 @@ import {
   EmptyListText,
 } from '../HealthRecordsScreen/styles';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
+import { getDocs, query, collection, where, deleteDoc, doc } from '@react-native-firebase/firestore';
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
@@ -73,10 +74,8 @@ export default function ExpenseScreen() {
     if (!selectedDog) return;
 
     try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
+      const q = query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id));
+      const snapshot = await getDocs(q);
 
       const expensesData = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -211,7 +210,7 @@ export default function ExpenseScreen() {
         (expense) => expense.id === expenseId
       );
 
-      await db.collection('expenses').doc(expenseId).delete();
+      await deleteDoc(doc(db, 'expenses', expenseId));
 
       // Update the full list of expenses by removing the deleted one
       const updatedExpenses = allExpenses.filter(

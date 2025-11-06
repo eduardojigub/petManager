@@ -33,6 +33,7 @@ import healthRecordsImage from '../../assets/healthRecords.png';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { X } from 'phosphor-react-native';
+import { getDocs, query, collection, where, deleteDoc, doc } from '@react-native-firebase/firestore';
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
@@ -70,10 +71,8 @@ export default function HealthRecordsScreen({ navigation }) {
         }
   
         try {
-          const recordsSnapshot = await db
-            .collection('healthRecords')
-            .where('dogId', '==', selectedDog.id)
-            .get();
+          const q = query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id));
+          const recordsSnapshot = await getDocs(q);
   
           const records = recordsSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -173,7 +172,7 @@ export default function HealthRecordsScreen({ navigation }) {
 
   const deleteHealthRecord = async (id) => {
     try {
-      await db.collection('healthRecords').doc(id).delete();
+      await deleteDoc(doc(db, 'healthRecords', id));
       const updatedRecords = healthRecords.filter((record) => record.id !== id);
       setHealthRecords(updatedRecords);
 

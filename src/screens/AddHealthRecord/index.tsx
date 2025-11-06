@@ -29,6 +29,7 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import storage from '@react-native-firebase/storage';
 import * as Icon from 'phosphor-react-native';
+import { addDoc, updateDoc, collection, doc } from '@react-native-firebase/firestore';
 
 export default function AddHealthRecordScreen({ navigation, route }) {
   // selected record from edit mode
@@ -141,11 +142,11 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
     try {
       if (route.params?.isEditMode) {
-        await db.collection('healthRecords').doc(record.id).update(newRecord);
+        await updateDoc(doc(db, 'healthRecords', record.id), newRecord);
         if (route.params?.onGoBack) route.params.onGoBack(); // Reset filter state on return
         navigation.navigate('HealthRecords');
       } else {
-        await db.collection('healthRecords').add(newRecord);
+        await addDoc(collection(db, 'healthRecords'), newRecord);
         if (route.params?.addRecord) route.params.addRecord(newRecord);
         navigation.goBack();
       }
