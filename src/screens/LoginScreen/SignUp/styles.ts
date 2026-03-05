@@ -11,26 +11,26 @@ export {
 
 export const Label = styled.Text`
   font-size: 16px;
-  color: #000;
+  color: #41245C;
   margin-bottom: 8px;
 `;
 
 export const CustomButton = styled.TouchableOpacity`
-  background-color: #fff;
+  background-color: #41245C;
   margin-top: 20px;
   border-radius: 20px;
   height: 50px;
   width: 250px;
   justify-content: center;
   align-items: center;
-  border: 2px solid #41245C;
   align-self: center;
 `;
 
 export const ButtonText = styled.Text`
-  color: #41245C;
+  color: #fff;
   font-size: 16px;
   text-align: center;
+  font-family: 'Poppins_400Regular';
 `;
 
 export const TogglePasswordIcon = styled.TouchableOpacity`
@@ -48,7 +48,7 @@ export const CheckboxContainer = styled.View`
 
 export const CheckboxLabel = styled.Text`
   color: #7C7C7C;
-  font-size: 14px;
+  font-size: 16px;
   margin-left: 5px;
 `;
 
@@ -65,6 +65,7 @@ export const SignInText = styled.Text`
 export const SignInLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
+  font-weight: bold;
   text-decoration-line: underline;
 `;
 

@@ -24,4 +24,5 @@ export const ButtonText = styled.Text`
   color: #fff;
   font-size: 16px;
   text-align: center;
+  font-family: 'Poppins_400Regular';
 `;

@@ -8,6 +8,7 @@ import {
   HeaderTitle,
   HeaderSubtitle,
   InputContainer,
+  Label,
   Input,
   CustomButton,
   ButtonText,
@@ -58,6 +59,7 @@ export default function SignInScreen() {
       </HeaderWrapper>
 
       <InputContainer>
+        <Label>Email</Label>
         <Input
           placeholder="Enter your email"
           value={email}
@@ -69,6 +71,7 @@ export default function SignInScreen() {
       </InputContainer>
 
       <InputContainer>
+        <Label>Password</Label>
         <Input
           placeholder="Enter your password"
           secureTextEntry={!showPassword} // Control visibility based on `showPassword`

@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 export {
-  LoginContainer as Container,
   HeaderWrapper,
   HeaderTitle,
   HeaderSubtitle,
@@ -8,9 +7,22 @@ export {
   LoginInput as Input,
 } from '../sharedStyles';
 
+export const Container = styled.View`
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+  justify-content: center;
+`;
+
+export const Label = styled.Text`
+  font-size: 16px;
+  color: #41245C;
+  margin-bottom: 8px;
+`;
+
 export const CustomButton = styled.TouchableOpacity`
   background-color: #41245C;
-  margin-top: 50px;
+  margin-top: 20px;
   border-radius: 20px;
   height: 50px;
   width: 250px;
@@ -24,6 +36,7 @@ export const ButtonText = styled.Text`
   color: #fff;
   font-size: 16px;
   text-align: center;
+  font-family: 'Poppins_400Regular';
 `;
 
 export const TogglePasswordIcon = styled.TouchableOpacity`
@@ -58,6 +71,7 @@ export const SignUpText = styled.Text`
 export const SignUpLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
+  font-weight: bold;
   text-decoration-line: underline;
 `;
 
