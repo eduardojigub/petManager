@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
-  ActivityIndicator,
   Alert,
   Animated,
   StyleSheet,
@@ -24,7 +23,7 @@ import AuthStack from './src/navigation/AuthStack';
 import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
-import { SafeArea, LoadingContainer } from './src/navigation/styles';
+import { SafeArea } from './src/navigation/styles';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
