@@ -78,5 +78,5 @@ export const SignUpLink = styled.Text`
 export const TogglePasswordIconSignIn = styled.TouchableOpacity`
   position: absolute;
   right: 15px;
-  top: 12px;
+  top: 36px;
 `;

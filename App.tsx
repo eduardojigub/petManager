@@ -53,13 +53,13 @@ export default function App() {
     Poppins_800ExtraBold,
   });
 
-  const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
+  const handleAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
     setUser(user);
     if (initializing) setInitializing(false);
   };
 
   useEffect(() => {
-    const subscriber = onAuthStateChanged(getAuth(), onAuthStateChanged);
+    const subscriber = onAuthStateChanged(getAuth(), handleAuthStateChanged);
     return subscriber;
   }, []);
 

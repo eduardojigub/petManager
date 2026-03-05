@@ -23,11 +23,13 @@ export default function SettingsScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigation = useNavigation();
 
-  const handleLogout = () => {
-    signOut(getAuth())
-      .catch((error) => {
-        Alert.alert('Logout Error', error.message);
-      });
+  const handleLogout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+    } catch (error) {
+      console.warn('Sign out error:', error.message);
+    }
   };
 
   const toggleAboutModal = () => {
