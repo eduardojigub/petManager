@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
+  Animated,
+  StyleSheet,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
@@ -44,6 +46,8 @@ const headerTitleStyle = {
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
+  const [appReady, setAppReady] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -86,18 +90,22 @@ export default function App() {
     });
   }, []);
 
-  useEffect(() => {
-    if (!initializing && fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [initializing, fontsLoaded]);
+  const isReady = !initializing && fontsLoaded;
 
-  if (initializing || !fontsLoaded) {
-    return (
-      <LoadingContainer>
-        <ActivityIndicator size="large" color="#7289DA" />
-      </LoadingContainer>
-    );
+  const onOverlayLayout = useCallback(() => {
+    if (isReady) {
+      SplashScreen.hideAsync().then(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }).start(() => setAppReady(true));
+      });
+    }
+  }, [isReady]);
+
+  if (!isReady) {
+    return null;
   }
 
   return (
@@ -151,6 +159,15 @@ export default function App() {
           </Stack.Navigator>
         </SafeArea>
       </NavigationContainer>
+      {!appReady && (
+        <Animated.View
+          onLayout={onOverlayLayout}
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: '#59468E', opacity: fadeAnim },
+          ]}
+        />
+      )}
     </DogProfileProvider>
   );
 }
