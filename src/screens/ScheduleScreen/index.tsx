@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { FlatList, TouchableOpacity, Alert, Text } from 'react-native';
+import { FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Container,
@@ -12,9 +12,6 @@ import {
   ButtonText,
   DetailDateText,
   TypeIcon,
-  EmptyListContainer,
-  EmptyListText,
-  EmptyListImage,
   DisabledAddButton,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
@@ -23,6 +20,7 @@ import * as Icon from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
 import dogThingsImage from '../../assets/dogThings.png';
 import { ListItemDetailHint } from '../HealthRecordsScreen/styles';
+import EmptyStateList from '../../components/EmptyStateList';
 
 export default function ScheduleScreen({ navigation }) {
   const [schedules, setSchedules] = useState([]);
@@ -30,7 +28,7 @@ export default function ScheduleScreen({ navigation }) {
 
   const loadSchedules = async () => {
     if (!selectedDog) {
-      setSchedules([]); // Clear schedules if no dog is selected
+      setSchedules([]);
       return;
     }
 
@@ -58,9 +56,9 @@ export default function ScheduleScreen({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       if (!selectedDog) {
-        setSchedules([]); // Clear schedules if no dog is selecte
+        setSchedules([]);
       } else {
-        loadSchedules(); // Load schedules if a dog is selected
+        loadSchedules();
       }
     }, [selectedDog, navigation])
   );
@@ -94,7 +92,6 @@ export default function ScheduleScreen({ navigation }) {
     );
   };
 
-  // Map each type to an icon
   const getTypeIcon = (type) => {
     switch (type) {
       case 'Vaccine':
@@ -131,17 +128,9 @@ export default function ScheduleScreen({ navigation }) {
             {item.description}
           </ListItemText>
           <IconRow>
-            <Icon.Calendar
-              size={20}
-              color="#41245C"
-              style={{ marginRight: 5 }}
-            />
+            <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
             <DetailDateText>{item.date}</DetailDateText>
-            <Icon.Clock
-              size={20}
-              color="#41245C"
-              style={{ marginLeft: 10, marginRight: 5 }}
-            />
+            <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
             <DetailDateText>{item.time}</DetailDateText>
           </IconRow>
           <ListItemDetailHint>Tap to edit details</ListItemDetailHint>
@@ -155,26 +144,18 @@ export default function ScheduleScreen({ navigation }) {
     </ListItem>
   );
 
-  const renderEmptyList = () => (
-    <EmptyListContainer>
-      <EmptyListImage source={dogThingsImage} />
-      <EmptyListText>
-        No schedules yet. Add your first pet and start adding to keep track of
-        your pet's appointments.
-      </EmptyListText>
-    </EmptyListContainer>
-  );
-
   return (
     <Container>
-      {/* <Text style={{ fontSize: 24, color: '#41245C', marginBottom: 20 }}>
-        Schedules {selectedDog ? `for ${selectedDog.name}` : null}
-      </Text> */}
       <FlatList
         data={schedules}
         renderItem={renderSchedule}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={renderEmptyList}
+        ListEmptyComponent={
+          <EmptyStateList
+            image={dogThingsImage}
+            text="No schedules yet. Add your first pet and start adding to keep track of your pet's appointments."
+          />
+        }
         showsVerticalScrollIndicator={false}
       />
       {selectedDog ? (

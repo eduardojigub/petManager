@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { FlatList, Alert, Modal } from 'react-native';
+import { FlatList, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Container,
@@ -11,19 +11,9 @@ import {
   ListItemDetailHint,
   TrashIconContainer,
   ListItemContent,
-  ModalContainer,
-  ModalTitle,
   DetailDateText,
-  EmptyListContainer,
-  EmptyListImage,
-  EmptyListText,
   DisabledAddButton,
-  CloseButton,
-  ModalHeader,
-  DropdownContainer,
   FloatingFilterButton,
-  DropdownLabel,
-  DropdownStyle,
   FloatingClearFilterButton,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
@@ -31,34 +21,27 @@ import { db } from '../../firebase/Firestore';
 import * as Icon from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { Dropdown } from 'react-native-element-dropdown';
-import { X } from 'phosphor-react-native';
+import EmptyStateList from '../../components/EmptyStateList';
+import FilterModal from '../../components/FilterModal';
+
+const FILTER_TYPE_OPTIONS = [
+  { label: 'All Types', value: null },
+  { label: 'Vaccine', value: 'Vaccine' },
+  { label: 'Vet Appointment', value: 'Vet Appointment' },
+  { label: 'Medication', value: 'Medication' },
+  { label: 'Pet Groomer', value: 'Pet Groomer' },
+  { label: 'Other', value: 'Other' },
+];
 
 export default function HealthRecordsScreen({ navigation }) {
   const [healthRecords, setHealthRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
-  const [selectedType, setSelectedType] = useState(''); // New state for type filter
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [showDateModal, setShowDateModal] = useState(false);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({ type: null, month: null, year: null });
 
   const { selectedDog } = useContext(DogProfileContext);
-
-  const route = useRoute(); // Access the route parameter
-
-  const hasActiveFilters = () => {
-    return selectedType || selectedMonth !== null || selectedYear !== null;
-  };
-
-  const resetFiltersOnFocus = () => {
-    setIsFilterApplied(false);
-    setFilteredRecords([]); // Clear any applied filters
-    setSelectedType(null);
-    setSelectedMonth(null);
-    setSelectedYear(null);
-  };
-
+  const route = useRoute();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -68,85 +51,64 @@ export default function HealthRecordsScreen({ navigation }) {
           setFilteredRecords([]);
           return;
         }
-  
+
         try {
           const recordsSnapshot = await db
             .collection('healthRecords')
             .where('dogId', '==', selectedDog.id)
             .get();
-  
+
           const records = recordsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
-  
+
           records.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
           setHealthRecords(records);
+
           if (route.params?.onGoBack) {
             route.params.onGoBack();
-            navigation.setParams({ onGoBack: undefined }); // Clear callback
+            navigation.setParams({ onGoBack: undefined });
           }
         } catch (error) {
           console.error('Error loading health records', error);
         }
       };
-  
+
       loadRecords();
-      
-      // Reset filters explicitly on refocus
-      resetFiltersOnFocus();
+      setIsFilterApplied(false);
+      setFilteredRecords([]);
+      setActiveFilters({ type: null, month: null, year: null });
     }, [selectedDog, route.params?.onGoBack])
   );
 
-  const currentMonth = new Date().getMonth(); // Get the current month (0-based, 0 = January, 11 = December)
-
-  const months = Array.from({ length: 12 }, (_, index) => ({
-    label:
-      index === currentMonth
-        ? `${new Date(2023, index).toLocaleString('default', {
-            month: 'long',
-          })} (Current Month)`
-        : new Date(2023, index).toLocaleString('default', { month: 'long' }),
-    value: index,
-  }));
-
-  // Filter function
-  const applyFilter = () => {
-    const filtered = healthRecords.filter((record) => {
-      const recordDate = new Date(record.date); // Date object of the record
-
-      // Check each filter and only apply if there’s a selected value
-      const typeMatches = selectedType ? record.type === selectedType : true;
-      const monthMatches =
-        selectedMonth !== null ? recordDate.getMonth() === selectedMonth : true;
-      const yearMatches =
-        selectedYear !== null
-          ? recordDate.getFullYear() === selectedYear
-          : true;
-
-      return typeMatches && monthMatches && yearMatches;
-    });
-
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    setFilteredRecords(filtered);
-    setIsFilterApplied(true);
-    setShowDateModal(false);
-  };
-
-  // Modify `filterRecords` to just call `applyFilter` without resetting filters
-  const filterRecords = () => {
-    applyFilter();
+  const applyFilterToRecords = (records, filters) => {
+    return records
+      .filter((record) => {
+        const recordDate = new Date(record.date);
+        const typeMatches = filters.type ? record.type === filters.type : true;
+        const monthMatches = filters.month !== null ? recordDate.getMonth() === filters.month : true;
+        const yearMatches = filters.year !== null ? recordDate.getFullYear() === filters.year : true;
+        return typeMatches && monthMatches && yearMatches;
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      // Only reapply filter if it’s active
       if (isFilterApplied) {
-        applyFilter();
+        setFilteredRecords(applyFilterToRecords(healthRecords, activeFilters));
       }
     }, [isFilterApplied, healthRecords])
   );
+
+  const handleApplyFilter = (filters) => {
+    setActiveFilters(filters);
+    const filtered = applyFilterToRecords(healthRecords, filters);
+    setFilteredRecords(filtered);
+    setIsFilterApplied(true);
+    setShowFilterModal(false);
+  };
 
   const addHealthRecord = (newRecord) => {
     setHealthRecords([...healthRecords, newRecord]);
@@ -157,15 +119,8 @@ export default function HealthRecordsScreen({ navigation }) {
       'Delete Health Record',
       'Are you sure you want to delete this health record?',
       [
-        {
-          text: 'Cancel',
-        style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteHealthRecord(id),
-        },
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => deleteHealthRecord(id) },
       ],
       { cancelable: true }
     );
@@ -178,31 +133,9 @@ export default function HealthRecordsScreen({ navigation }) {
       setHealthRecords(updatedRecords);
 
       if (isFilterApplied) {
-        // Reapply the filter on updated records if a filter is applied
-        const filtered = updatedRecords.filter((record) => {
-          const recordDate = new Date(record.date);
-          const typeMatches = selectedType
-            ? record.type === selectedType
-            : true;
-          const monthMatches =
-            selectedMonth !== null
-              ? recordDate.getMonth() === selectedMonth
-              : true;
-          const yearMatches =
-            selectedYear !== null
-              ? recordDate.getFullYear() === selectedYear
-              : true;
-
-          return typeMatches && monthMatches && yearMatches;
-        });
-
+        const filtered = applyFilterToRecords(updatedRecords, activeFilters);
         setFilteredRecords(filtered);
-
-        // Reset `isFilterApplied` if the filtered list is empty or matches the original records
-        if (
-          filtered.length === 0 ||
-          filtered.length === updatedRecords.length
-        ) {
+        if (filtered.length === 0 || filtered.length === updatedRecords.length) {
           setIsFilterApplied(false);
         }
       } else {
@@ -238,7 +171,6 @@ export default function HealthRecordsScreen({ navigation }) {
       day: 'numeric',
     });
 
-    // Determine what text to show based on the type
     const displayText =
       item.type === 'Medication' || item.type === 'Vaccine'
         ? item.extraInfo
@@ -265,143 +197,38 @@ export default function HealthRecordsScreen({ navigation }) {
     );
   };
 
-  // Clear filter function to reset all selected filter values
-  const clearFilters = () => {
-    setSelectedType(null);
-    setSelectedMonth(null);
-    setSelectedYear(null);
-  };
-
-  // Modify renderFilterModal to reset filters on close
-  const renderFilterModal = () => (
-    <Modal
-      visible={showDateModal}
-      animationType="fade"
-      transparent={true}
-      onRequestClose={() => {
-        clearFilters(); // Reset filters when modal closes
-        setShowDateModal(false);
-      }}
-    >
-      <Container
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }}
-      >
-        <ModalContainer>
-          <ModalHeader>
-            <ModalTitle>Filter Health Records</ModalTitle>
-            <CloseButton
-              onPress={() => {
-                clearFilters(); // Reset filters on pressing close
-                setShowDateModal(false);
-              }}
-            >
-              <X size={32} />
-            </CloseButton>
-          </ModalHeader>
-
-          {/* Type Filter */}
-          <DropdownContainer>
-            <DropdownLabel>Filter by Type</DropdownLabel>
-            <DropdownStyle>
-              <Dropdown
-                data={[
-                  { label: 'All Types', value: null },
-                  { label: 'Vaccine', value: 'Vaccine' },
-                  { label: 'Vet Appointment', value: 'Vet Appointment' },
-                  { label: 'Medication', value: 'Medication' },
-                  { label: 'Pet Groomer', value: 'Pet Groomer' },
-                  { label: 'Other', value: 'Other' }, // Add "Other" option here
-                ]}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Type"
-                value={selectedType}
-                onChange={(item) => setSelectedType(item.value)}
-              />
-            </DropdownStyle>
-          </DropdownContainer>
-
-          {/* Month Filter */}
-          <DropdownContainer>
-            <DropdownLabel>Filter by Month</DropdownLabel>
-            <DropdownStyle>
-              <Dropdown
-                data={months}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Month"
-                value={selectedMonth}
-                onChange={(item) => setSelectedMonth(item.value)}
-              />
-            </DropdownStyle>
-          </DropdownContainer>
-
-          {/* Year Filter */}
-          <DropdownContainer>
-            <DropdownLabel>Filter by Year</DropdownLabel>
-            <DropdownStyle>
-              <Dropdown
-                data={Array.from({ length: 10 }, (_, index) => {
-                  const year = new Date().getFullYear() - index;
-                  return { label: `${year}`, value: year };
-                })}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Year"
-                value={selectedYear}
-                onChange={(item) => setSelectedYear(item.value)}
-              />
-            </DropdownStyle>
-          </DropdownContainer>
-
-          {/* Apply Filter Button */}
-          <AddButton onPress={filterRecords} disabled={!hasActiveFilters()}>
-            <ButtonText style={{ opacity: hasActiveFilters() ? 1 : 0.5 }}>
-              Apply Filter
-            </ButtonText>
-          </AddButton>
-        </ModalContainer>
-      </Container>
-    </Modal>
-  );
-
-  const renderEmptyList = () => (
-    <EmptyListContainer>
-      <EmptyListImage source={healthRecordsImage} />
-      <EmptyListText>
-        No health records yet. Add your first pet and start adding records to
-        keep track of your pet’s health.
-      </EmptyListText>
-    </EmptyListContainer>
-  );
-
   return (
     <Container>
       {isFilterApplied && (
         <FloatingClearFilterButton
           onPress={() => {
-            clearFilters();
             setIsFilterApplied(false);
             setFilteredRecords([]);
+            setActiveFilters({ type: null, month: null, year: null });
           }}
         >
           <Ionicons name="close" size={20} color="#FFF" />
         </FloatingClearFilterButton>
       )}
 
-      {renderFilterModal()}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={handleApplyFilter}
+        typeOptions={FILTER_TYPE_OPTIONS}
+      />
 
       <FlatList
         data={isFilterApplied ? filteredRecords : healthRecords}
         renderItem={renderRecord}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={renderEmptyList}
+        ListEmptyComponent={
+          <EmptyStateList
+            image={healthRecordsImage}
+            text="No health records yet. Add your first pet and start adding records to keep track of your pet's health."
+          />
+        }
         contentContainerStyle={{ paddingBottom: 80 }}
       />
 
@@ -409,9 +236,7 @@ export default function HealthRecordsScreen({ navigation }) {
         <>
           <AddButton
             onPress={() =>
-              navigation.navigate('AddHealthRecord', {
-                addRecord: addHealthRecord,
-              })
+              navigation.navigate('AddHealthRecord', { addRecord: addHealthRecord })
             }
           >
             <ButtonText>Add Health Record</ButtonText>
@@ -419,7 +244,7 @@ export default function HealthRecordsScreen({ navigation }) {
           {(isFilterApplied
             ? filteredRecords.length > 0
             : healthRecords.length > 0) && (
-            <FloatingFilterButton onPress={() => setShowDateModal(true)}>
+            <FloatingFilterButton onPress={() => setShowFilterModal(true)}>
               <Ionicons name="filter" size={20} color="#FFF" />
             </FloatingFilterButton>
           )}
