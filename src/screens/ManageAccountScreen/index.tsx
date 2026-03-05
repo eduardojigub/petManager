@@ -9,7 +9,7 @@ import {
   ButtonText,
   ErrorText,
 } from './styles';
-import auth from '@react-native-firebase/auth';
+import { getAuth, reauthenticateWithCredential, updatePassword, EmailAuthProvider } from '@react-native-firebase/auth';
 import { Alert } from 'react-native';
 
 export default function AccountSettingsScreen({ navigation }) {
@@ -33,17 +33,17 @@ export default function AccountSettingsScreen({ navigation }) {
     }
 
     try {
-      const user = auth().currentUser;
+      const user = getAuth().currentUser;
 
       // Reauthenticate user
-      const credential = auth.EmailAuthProvider.credential(
+      const credential = EmailAuthProvider.credential(
         user.email,
         currentPassword
       );
-      await user.reauthenticateWithCredential(credential);
+      await reauthenticateWithCredential(user, credential);
 
       // Update password
-      await user.updatePassword(newPassword);
+      await updatePassword(user, newPassword);
       Alert.alert('Success', 'Password updated successfully.');
       navigation.goBack();
     } catch (error) {

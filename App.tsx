@@ -7,7 +7,7 @@ import {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { getAuth, onAuthStateChanged, FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -59,7 +59,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    const subscriber = onAuthStateChanged(getAuth(), onAuthStateChanged);
     return subscriber;
   }, []);
 

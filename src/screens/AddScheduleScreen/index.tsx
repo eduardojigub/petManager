@@ -26,7 +26,8 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import auth from '@react-native-firebase/auth';
+import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import DatePickerField from '../../components/DatePickerField';
 import TypeSelectorComponent from '../../components/TypeSelector';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -69,7 +70,7 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
       return;
     }
 
-    const userId = auth().currentUser?.uid;
+    const userId = getAuth().currentUser?.uid;
     if (!userId) {
       Alert.alert('Error', 'User not logged in. Please log in to save schedules.');
       return;
@@ -117,10 +118,10 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
       };
 
       if (isEditMode && schedule) {
-        await db.collection('schedules').doc(schedule.id).update(scheduleData);
+        await updateDoc(doc(db, 'schedules', schedule.id), scheduleData);
         Alert.alert('Success', 'Schedule updated successfully!');
       } else {
-        await db.collection('schedules').add(scheduleData);
+        await addDoc(collection(db, 'schedules'), scheduleData);
         Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
       }
       navigation.goBack();

@@ -23,6 +23,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import { Question } from 'phosphor-react-native';
 import useImageUpload from '../../hooks/useImageUpload';
 import DatePickerField from '../../components/DatePickerField';
@@ -80,11 +81,11 @@ export default function AddHealthRecordScreen({ navigation, route }: Props) {
 
     try {
       if (route.params?.isEditMode) {
-        await db.collection('healthRecords').doc(record.id).update(newRecord);
+        await updateDoc(doc(db, 'healthRecords', record.id), newRecord);
         if (route.params?.onGoBack) route.params.onGoBack();
         navigation.navigate('HealthRecords');
       } else {
-        await db.collection('healthRecords').add(newRecord);
+        await addDoc(collection(db, 'healthRecords'), newRecord);
         if (route.params?.addRecord) route.params.addRecord(newRecord);
         navigation.goBack();
       }

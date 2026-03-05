@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import storage from '@react-native-firebase/storage';
+import { getStorage, ref, getDownloadURL, putFile } from '@react-native-firebase/storage';
 
 interface UseImageUploadOptions {
   resize?: boolean;
@@ -59,13 +59,13 @@ export default function useImageUpload(
     const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
     const uploadUri =
       Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
-    const storageRef = storage().ref(`${storagePath}/${filename}`);
+    const storageRef = ref(getStorage(), `${storagePath}/${filename}`);
 
     setUploading(true);
 
     try {
-      await storageRef.putFile(uploadUri);
-      const downloadURL = await storageRef.getDownloadURL();
+      await putFile(storageRef, uploadUri);
+      const downloadURL = await getDownloadURL(storageRef);
       setUploading(false);
       return downloadURL;
     } catch (error) {

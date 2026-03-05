@@ -20,6 +20,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
 import {
   useFocusEffect,
   useNavigation,
@@ -53,10 +54,9 @@ export default function ExpenseScreen() {
     if (!selectedDog) return;
 
     try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
+      const snapshot = await getDocs(
+        query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
+      );
 
       const expensesData = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -146,7 +146,7 @@ export default function ExpenseScreen() {
         (expense) => expense.id === expenseId
       );
 
-      await db.collection('expenses').doc(expenseId).delete();
+      await deleteDoc(doc(db, 'expenses', expenseId));
 
       const updatedExpenses = allExpenses.filter(
         (expense) => expense.id !== expenseId

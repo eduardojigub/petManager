@@ -7,7 +7,8 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { db } from '../../firebase/Firestore';
-import auth from '@react-native-firebase/auth';
+import { collection, addDoc, doc, updateDoc, deleteDoc } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import {
   Container,
   Label,
@@ -57,7 +58,7 @@ export default function EditProfileScreen({ navigation, route }: Props) {
   };
 
   const handleSave = async () => {
-    const userId = auth().currentUser?.uid;
+    const userId = getAuth().currentUser?.uid;
 
     if (!userId || !name || !breed || !age || !weight) {
       Alert.alert('Error', 'All fields are required!');
@@ -78,9 +79,9 @@ export default function EditProfileScreen({ navigation, route }: Props) {
 
     try {
       if (isNewProfile) {
-        await db.collection('dogProfiles').add(profile);
+        await addDoc(collection(db, 'dogProfiles'), profile);
       } else {
-        await db.collection('dogProfiles').doc(id).update(profile);
+        await updateDoc(doc(db, 'dogProfiles', id), profile);
       }
 
       navigation.navigate('Profile');
@@ -99,7 +100,7 @@ export default function EditProfileScreen({ navigation, route }: Props) {
       cancelable: false,
       onConfirm: async () => {
         try {
-          await db.collection('dogProfiles').doc(id).delete();
+          await deleteDoc(doc(db, 'dogProfiles', id));
           setSelectedDog(null);
           Alert.alert(
             'Profile Deleted',

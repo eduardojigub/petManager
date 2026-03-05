@@ -13,8 +13,9 @@ import {
   ScheduleLoadingIndicator,
 } from './styles';
 import { db } from '../../firebase/Firestore';
+import { collection, query, where, getDocs } from '@react-native-firebase/firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DogProfile } from '../../types/dogProfile';
 import ProfileItem from './components/ProfileItem';
@@ -29,7 +30,7 @@ export default function ProfileScreen() {
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
   const [upcomingSchedules, setUpcomingSchedules] = useState<any[]>([]);
   const navigation = useNavigation<any>();
-  const userId = auth().currentUser?.uid;
+  const userId = getAuth().currentUser?.uid;
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const loadIdRef = useRef(0);
 
@@ -40,10 +41,9 @@ export default function ProfileScreen() {
   const loadProfiles = async () => {
     if (!userId) return;
     try {
-      const profileSnapshot = await db
-        .collection('dogProfiles')
-        .where('userId', '==', userId)
-        .get();
+      const profileSnapshot = await getDocs(
+        query(collection(db, 'dogProfiles'), where('userId', '==', userId))
+      );
       const profiles = profileSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -68,11 +68,13 @@ export default function ProfileScreen() {
       const currentLoadId = ++loadIdRef.current;
       setIsLoadingSchedules(true);
       try {
-        const schedulesSnapshot = await db
-          .collection('schedules')
-          .where('dogId', '==', selectedDog.id)
-          .where('userId', '==', userId)
-          .get();
+        const schedulesSnapshot = await getDocs(
+          query(
+            collection(db, 'schedules'),
+            where('dogId', '==', selectedDog.id),
+            where('userId', '==', userId)
+          )
+        );
 
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

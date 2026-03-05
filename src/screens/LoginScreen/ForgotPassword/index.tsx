@@ -1,5 +1,5 @@
 import React from 'react';
-import auth from '@react-native-firebase/auth';
+import { getAuth, sendPasswordResetEmail } from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { useAlert } from '../../../hooks/useAlert';
 import {
@@ -26,7 +26,7 @@ export default function ForgotPasswordScreen() {
     }
 
     try {
-      await auth().sendPasswordResetEmail(email);
+      await sendPasswordResetEmail(getAuth(), email);
       showAlert('Success', 'Password reset email has been sent.');
     } catch (error) {
       showAlert('Error', error.message);

@@ -19,6 +19,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
 import { TrashSimple, Calendar, Clock } from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
 import dogThingsImage from '../../assets/dogThings.png';
@@ -41,10 +42,9 @@ export default function ScheduleScreen({ navigation }: Props) {
       return;
     }
 
-    const schedulesSnapshot = await db
-      .collection('schedules')
-      .where('dogId', '==', selectedDog.id)
-      .get();
+    const schedulesSnapshot = await getDocs(
+      query(collection(db, 'schedules'), where('dogId', '==', selectedDog.id))
+    );
 
     const loadedSchedules = schedulesSnapshot.docs.map((doc) => {
       const data = doc.data();
@@ -75,7 +75,7 @@ export default function ScheduleScreen({ navigation }: Props) {
   const deleteSchedule = async (scheduleId, notificationId) => {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
-      await db.collection('schedules').doc(scheduleId).delete();
+      await deleteDoc(doc(db, 'schedules', scheduleId));
       setSchedules((prevSchedules) =>
         prevSchedules.filter((schedule) => schedule.id !== scheduleId)
       );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
 import { useAlert } from '../../../hooks/useAlert';
 import {
   Container,
@@ -41,7 +41,7 @@ export default function SignInScreen() {
     }
 
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      await signInWithEmailAndPassword(getAuth(), email, password);
       navigation.reset({
         index: 0,
         routes: [{ name: 'AppTabs' }],

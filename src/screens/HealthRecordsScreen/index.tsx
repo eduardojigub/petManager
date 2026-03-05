@@ -18,6 +18,7 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
 import { TrashSimple } from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png';
 import { getHealthScheduleIcon } from '../../utils/iconMappings';
@@ -60,10 +61,9 @@ export default function HealthRecordsScreen({ navigation }: Props) {
         }
 
         try {
-          const recordsSnapshot = await db
-            .collection('healthRecords')
-            .where('dogId', '==', selectedDog.id)
-            .get();
+          const recordsSnapshot = await getDocs(
+            query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id))
+          );
 
           const records = recordsSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -131,7 +131,7 @@ export default function HealthRecordsScreen({ navigation }: Props) {
 
   const deleteHealthRecord = async (id) => {
     try {
-      await db.collection('healthRecords').doc(id).delete();
+      await deleteDoc(doc(db, 'healthRecords', id));
       const updatedRecords = healthRecords.filter((record) => record.id !== id);
       setHealthRecords(updatedRecords);
 

@@ -24,6 +24,7 @@ import {
 
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import DatePickerField from '../../components/DatePickerField';
 import { EXPENSE_TYPES } from '../../constants/typeOptions';
 
@@ -82,9 +83,9 @@ const handleSave = async () => {
 
   try {
     if (expense) {
-      await db.collection('expenses').doc(expense.id).update(newExpense);
+      await updateDoc(doc(db, 'expenses', expense.id), newExpense);
     } else {
-      const docRef = await db.collection('expenses').add(newExpense);
+      const docRef = await addDoc(collection(db, 'expenses'), newExpense);
       const addedExpense = { ...newExpense, id: docRef.id };
       if (route.params?.addExpense) route.params.addExpense(addedExpense);
     }
