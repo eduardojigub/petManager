@@ -280,3 +280,27 @@ export const NoDogsText = styled.Text`
   margin-top: 10px;
   text-align: center;
 `;
+
+export const ProfileItemWrapper = styled.TouchableOpacity`
+  margin-horizontal: 10px;
+`;
+
+export const ProfileItemContent = styled.View`
+  align-items: center;
+`;
+
+export const NoAppointmentContainer = styled.View`
+  align-items: center;
+  margin-top: 20px;
+`;
+
+export const CalendarIcon = styled.View`
+  margin-bottom: 10px;
+`;
+
+export const ScheduleLoadingIndicator = styled.ActivityIndicator.attrs({
+  size: 'large',
+  color: '#41245C',
+})`
+  margin-vertical: 20px;
+`;

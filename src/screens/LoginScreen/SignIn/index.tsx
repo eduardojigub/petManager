@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import { useAlert } from '../../../hooks/useAlert';
 import {
   Container,
   HeaderWrapper,
   HeaderTitle,
   HeaderSubtitle,
   InputContainer,
+  Label,
   Input,
   CustomButton,
   ButtonText,
@@ -23,21 +25,13 @@ import { Eye, EyeSlash } from 'phosphor-react-native'; // Import eye icons
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertMessage, setAlertMessage] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
+  const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
 
   const validateEmail = (email) => {
     const emailRegex = /\S+@\S+\.\S+/;
     return emailRegex.test(email);
-  };
-
-  const showAlert = (title, message) => {
-    setAlertTitle(title);
-    setAlertMessage(message);
-    setAlertVisible(true);
   };
 
   const handleSignIn = async () => {
@@ -47,7 +41,7 @@ export default function SignInScreen() {
     }
 
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      await signInWithEmailAndPassword(getAuth(), email, password);
       navigation.reset({
         index: 0,
         routes: [{ name: 'AppTabs' }],
@@ -65,6 +59,7 @@ export default function SignInScreen() {
       </HeaderWrapper>
 
       <InputContainer>
+        <Label>Email</Label>
         <Input
           placeholder="Enter your email"
           value={email}
@@ -76,6 +71,7 @@ export default function SignInScreen() {
       </InputContainer>
 
       <InputContainer>
+        <Label>Password</Label>
         <Input
           placeholder="Enter your password"
           secureTextEntry={!showPassword} // Control visibility based on `showPassword`
@@ -111,7 +107,7 @@ export default function SignInScreen() {
       {/* Custom Alert */}
       <CustomAlert
         visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        onClose={hideAlert}
         title={alertTitle}
         message={alertMessage}
       />

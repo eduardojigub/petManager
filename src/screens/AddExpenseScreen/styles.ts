@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+export { KeyboardAvoidingContainer } from '../../styles/shared';
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -54,3 +55,4 @@ export const DatePickerText = styled.Text`
   color: #333;
   font-size: 16px;
 `;
+

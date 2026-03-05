@@ -1,82 +1,62 @@
 import React, { useContext, useState } from 'react';
-import { View, FlatList, Alert } from 'react-native';
+import { FlatList, Alert } from 'react-native';
 import {
   Container,
-  Title,
   ButtonText,
   ExpenseItem,
   ExpenseItemText,
   ExpenseIconContainer,
   ExpenseDateText,
   AddButton,
+  DisabledAddButton,
   TotalText,
   ListItemDetailHint,
   TrashIconContainer,
-  MonthSelectorContainer,
-  MonthButton,
+  ExpenseItemContent,
+  ExpenseAmountText,
+  TotalRow,
+  YearTotalText,
+  FadeDivider,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
+import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
 import {
   useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import * as Icon from 'phosphor-react-native'; // Icons for expense types
+import { TrashSimple } from 'phosphor-react-native';
 import { PieChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native'; // For responsive chart sizing
-import { LinearGradient } from 'expo-linear-gradient';
-import {
-  EmptyListContainer,
-  EmptyListImage,
-  EmptyListText,
-} from '../HealthRecordsScreen/styles';
+import { getExpenseIcon } from '../../utils/iconMappings';
+import { confirmDelete as confirmDeleteUtil } from '../../utils/confirmDelete';
+import { formatShortDate } from '../../utils/dateFormarter';
+import { Dimensions } from 'react-native';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
+import EmptyStateList from '../../components/EmptyStateList';
+import MonthSelector from '../../components/MonthSelector';
 
 export default function ExpenseScreen() {
   const { selectedDog } = useContext(DogProfileContext);
-  const [expenses, setExpenses] = useState([]); // For the filtered expenses
-  const [allExpenses, setAllExpenses] = useState([]); // For the full list of expenses
+  const [expenses, setExpenses] = useState([]);
+  const [allExpenses, setAllExpenses] = useState([]);
   const [total, setTotal] = useState(0);
   const [expenseDistribution, setExpenseDistribution] = useState({});
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(
-    new Date().getMonth()
-  );
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const screenWidth = Dimensions.get('window').width;
-  const [isManualMonthChange, setIsManualMonthChange] = useState(false); // To track manual month changes
+  const [isManualMonthChange, setIsManualMonthChange] = useState(false);
   const navigation = useNavigation();
-  const [isExpenseAdded, setIsExpenseAdded] = useState(false); // New flag to handle added expense
+  const [isExpenseAdded, setIsExpenseAdded] = useState(false);
   const route = useRoute();
 
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  // Fetch expenses function
-
-  // Update fetchExpenses to filter after fetching
-  // Fetch expenses function
-  // Fetch expenses function
   const fetchExpenses = async (monthIndex, year) => {
     if (!selectedDog) return;
 
     try {
-      const snapshot = await db
-        .collection('expenses')
-        .where('dogId', '==', selectedDog.id)
-        .get();
+      const snapshot = await getDocs(
+        query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
+      );
 
       const expensesData = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -87,63 +67,37 @@ export default function ExpenseScreen() {
         (a, b) => new Date(b.date) - new Date(a.date)
       );
       setAllExpenses(sortedExpenses);
-
-      // Filter the list based on the selected month and year
       updateFilteredExpenses(sortedExpenses, monthIndex, year);
     } catch (error) {
       console.error('Error fetching expenses:', error);
     }
   };
 
-  // UseFocusEffect to handle focus change and resetting month when navigating back
-  // UseFocusEffect to handle focus change and resetting month when navigating back
   useFocusEffect(
     React.useCallback(() => {
-      // If the expense was added, don't reset to the current month
       if (!isExpenseAdded && !isManualMonthChange) {
         const currentDate = new Date();
         setSelectedMonthIndex(currentDate.getMonth());
         setSelectedYear(currentDate.getFullYear());
       }
 
-      // Fetch expenses for the current month and year
       fetchExpenses(selectedMonthIndex, selectedYear);
 
       return () => {
         setIsManualMonthChange(false);
-        setIsExpenseAdded(false); // Reset the flag
+        setIsExpenseAdded(false);
       };
     }, [selectedDog, selectedMonthIndex, selectedYear, isExpenseAdded])
   );
-  // Prepare data for PieChart
 
-  const chartData = Object.keys(expenseDistribution).map((type, index) => {
-    return {
-      name: `${type}`,
-      amount: expenseDistribution[type],
-      color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5], // cycle through colors
-      legendFontColor: '#333',
-      legendFontSize: 15,
-    };
-  });
-  // Function to render the correct icon based on expense type
-  const getExpenseIcon = (type) => {
-    switch (type) {
-      case 'Food':
-        return <Icon.ForkKnife size={24} color="#7289DA" />;
-      case 'Medical':
-        return <Icon.Stethoscope size={24} color="#7289DA" />;
-      case 'Toys':
-        return <Icon.PuzzlePiece size={24} color="#7289DA" />;
-      case 'Grooming':
-        return <Icon.Scissors size={24} color="#7289DA" />;
-      case 'Other':
-      default:
-        return <Icon.FileText size={24} color="#7289DA" />;
-    }
-  };
+  const chartData = Object.keys(expenseDistribution).map((type, index) => ({
+    name: `${type}`,
+    amount: expenseDistribution[type],
+    color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5],
+    legendFontColor: '#333',
+    legendFontSize: 15,
+  }));
 
-  // Handle filtering expenses based on the selected month and year
   const updateFilteredExpenses = (allExpenses, monthIndex, year) => {
     const filteredExpenses = allExpenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
@@ -168,40 +122,21 @@ export default function ExpenseScreen() {
 
     setExpenseDistribution(distribution);
   };
-  // Handle month changes (left or right navigation)
 
-  // Handle month changes (left or right navigation)
-  const handleMonthChange = (direction) => {
-    let newMonthIndex = selectedMonthIndex;
-    let newYear = selectedYear;
-
-    if (direction === 'left') {
-      newMonthIndex = newMonthIndex === 0 ? 11 : newMonthIndex - 1;
-      newYear = newMonthIndex === 11 ? newYear - 1 : newYear;
-    } else {
-      newMonthIndex = newMonthIndex === 11 ? 0 : newMonthIndex + 1;
-      newYear = newMonthIndex === 0 ? newYear + 1 : newYear;
-    }
-
+  const handleMonthChange = (newMonthIndex, newYear) => {
     setSelectedMonthIndex(newMonthIndex);
     setSelectedYear(newYear);
     setIsManualMonthChange(true);
-
-    // Fetch expenses for the new month and year
     fetchExpenses(newMonthIndex, newYear);
   };
 
-  // Update selected month/year and re-fetch expenses when an expense is added
   const handleAddExpenseNavigation = (expenseDate) => {
     const expenseMonthIndex = new Date(expenseDate).getMonth();
     const expenseYear = new Date(expenseDate).getFullYear();
 
-    // Navigate to the added expense's month and year
     setSelectedMonthIndex(expenseMonthIndex);
     setSelectedYear(expenseYear);
-    setIsExpenseAdded(true); // Set flag to prevent automatic reset
-
-    // Re-fetch expenses for the added expense's month/year
+    setIsExpenseAdded(true);
     fetchExpenses(expenseMonthIndex, expenseYear);
   };
 
@@ -211,104 +146,66 @@ export default function ExpenseScreen() {
         (expense) => expense.id === expenseId
       );
 
-      await db.collection('expenses').doc(expenseId).delete();
+      await deleteDoc(doc(db, 'expenses', expenseId));
 
-      // Update the full list of expenses by removing the deleted one
       const updatedExpenses = allExpenses.filter(
         (expense) => expense.id !== expenseId
       );
-      setAllExpenses(updatedExpenses); // Update the full list of expenses
+      setAllExpenses(updatedExpenses);
 
-      // Automatically navigate to the month of the deleted expense
       handleAddExpenseNavigation(expenseToDelete.date);
-
-      // Reapply the filter to the current month after the deletion
-      updateFilteredExpenses(updatedExpenses, selectedMonthIndex); // Refresh the filtered expenses
+      updateFilteredExpenses(updatedExpenses, selectedMonthIndex, selectedYear);
     } catch (error) {
       console.error('Error deleting expense:', error);
       Alert.alert('Error', 'Unable to delete the expense.');
     }
   };
-  const handleDeleteExpense = (expenseId) => {
-    Alert.alert(
-      'Delete Expense',
-      'Are you sure you want to delete this expense?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', onPress: () => deleteExpense(expenseId) },
-      ],
-      { cancelable: true }
-    );
+
+  const handleDeleteExpense = (expenseId: string) => {
+    confirmDeleteUtil({
+      title: 'Delete Expense',
+      message: 'Are you sure you want to delete this expense?',
+      onConfirm: () => deleteExpense(expenseId),
+    });
   };
 
   const renderExpenseItem = ({ item }) => {
-    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const formattedDate = formatShortDate(item.date);
 
-    // Use Intl.NumberFormat to format the amount with commas
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(item.amount);
 
     return (
-      <ExpenseItem
-         onPress={() => navigation.navigate('AddExpense', { expense: item })}
-      >
-        {/* Icon for each expense */}
+      <ExpenseItem onPress={() => navigation.navigate('AddExpense', { expense: item })}>
         <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
-
-        {/* Title, date, and amount */}
-        <View style={{ flex: 1 }}>
+        <ExpenseItemContent>
           <ExpenseItemText>{item.title}</ExpenseItemText>
           <ListItemDetailHint>
             <ExpenseDateText>{formattedDate}</ExpenseDateText>
           </ListItemDetailHint>
-        </View>
-
-        {/* Amount */}
-        <ExpenseItemText style={{ fontWeight: 'bold' }}>
+        </ExpenseItemContent>
+        <ExpenseAmountText>
           {formattedAmount}
-        </ExpenseItemText>
-
-        {/* Delete button */}
+        </ExpenseAmountText>
         <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
-          <Icon.TrashSimple size={20} color="#FF5C5C" />
+          <TrashSimple size={20} color="#FF5C5C" />
         </TrashIconContainer>
       </ExpenseItem>
     );
   };
 
-  const renderEmptyList = () => (
-    <EmptyListContainer>
-      <EmptyListImage source={expensesRecordsImage} />
-      <EmptyListText>
-        No expenses yet. Add your first pet and start adding records to keep
-        track of your expenses.
-      </EmptyListText>
-    </EmptyListContainer>
-  );
-
   return (
     <Container>
-      {/* Month Selector */}
       {selectedDog && (
-        <MonthSelectorContainer>
-          <MonthButton onPress={() => handleMonthChange('left')}>
-            <Icon.CaretLeft size={24} color="#333" />
-          </MonthButton>
-
-          <Title>{`${months[selectedMonthIndex]}, ${selectedYear}`}</Title>
-
-          <MonthButton onPress={() => handleMonthChange('right')}>
-            <Icon.CaretRight size={24} color="#333" />
-          </MonthButton>
-        </MonthSelectorContainer>
+        <MonthSelector
+          monthIndex={selectedMonthIndex}
+          year={selectedYear}
+          onChange={handleMonthChange}
+        />
       )}
-      {/* PieChart for Expense Distribution */}
+
       {expenses && expenses.length > 0 && (
         <PieChart
           data={chartData}
@@ -326,64 +223,56 @@ export default function ExpenseScreen() {
           paddingLeft="15"
         />
       )}
-      {/* Divider above the FlatList */}
+
       <FlatList
         data={expenses}
         renderItem={renderExpenseItem}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={renderEmptyList}
-        showsVerticalScrollIndicator={false}
-      />
-      {expenses && expenses.length > 0 && (
-        <View>
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.1)']} // Start with transparent, fade to a slight dark color
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 10, // Adjust height of the gradient
-            }}
+        ListEmptyComponent={
+          <EmptyStateList
+            image={expensesRecordsImage}
+            text="No expenses yet. Add your first pet and start adding records to keep track of your expenses."
           />
-        </View>
+        }
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      />
+
+      {expenses && expenses.length > 0 && (
+        <FadeDivider />
       )}
 
       <>
         {selectedDog && expenses.length > 0 && (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingHorizontal: 30,
-            }}
-          >
-            <ExpenseDateText style={{ fontSize: 16, paddingTop: 20 }}>
+          <TotalRow>
+            <YearTotalText>
               Year: $
               {allExpenses
-                .filter((expense) => expense.date.includes(selectedYear)) // Filter expenses for the selected year
-                .reduce((total, expense) => total + expense.amount, 0) // Calculate the total amount
+                .filter((expense) => expense.date.includes(selectedYear))
+                .reduce((total, expense) => total + expense.amount, 0)
                 .toFixed(2)}{' '}
-              {/* Format the total to 2 decimal places */}
-            </ExpenseDateText>
+            </YearTotalText>
             <TotalText>Month: ${total.toFixed(2)}</TotalText>
-          </View>
+          </TotalRow>
         )}
 
-        {selectedDog && (
+        {selectedDog ? (
           <AddButton
             onPress={() =>
               navigation.navigate('AddExpense', {
                 addExpense: (newExpense) => {
                   handleAddExpenseNavigation(newExpense.date);
-                  // Immediately refetch expenses after adding a new one
-                  fetchExpenses(); // or alternatively call updateFilteredExpenses with the correct month/year
+                  fetchExpenses();
                 },
               })
             }
           >
             <ButtonText>Add Expense</ButtonText>
           </AddButton>
+        ) : (
+          <DisabledAddButton disabled>
+            <ButtonText>Add Expense</ButtonText>
+          </DisabledAddButton>
         )}
       </>
     </Container>

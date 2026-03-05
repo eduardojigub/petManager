@@ -1,11 +1,18 @@
 import React, { createContext, useState } from 'react';
+import { DogProfile } from '../types/dogProfile';
 
-// Create the context
-export const DogProfileContext = createContext();
+export interface DogProfileContextType {
+  selectedDog: DogProfile | null;
+  setSelectedDog: React.Dispatch<React.SetStateAction<DogProfile | null>>;
+}
 
-// Provider component
-export const DogProfileProvider = ({ children }) => {
-  const [selectedDog, setSelectedDog] = useState(null); // State for selected dog
+export const DogProfileContext = createContext<DogProfileContextType>({
+  selectedDog: null,
+  setSelectedDog: () => {},
+});
+
+export const DogProfileProvider = ({ children }: { children: React.ReactNode }) => {
+  const [selectedDog, setSelectedDog] = useState<DogProfile | null>(null);
 
   return (
     <DogProfileContext.Provider value={{ selectedDog, setSelectedDog }}>
