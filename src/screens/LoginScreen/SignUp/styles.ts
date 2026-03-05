@@ -92,13 +92,12 @@ export const SignInText = styled.Text`
 export const SignInLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
-  text-decoration: underline;
+  text-decoration-line: underline;
 `;
 
 
-// Styled component for terms link
 export const TermsLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
-  text-decoration: underline;
+  text-decoration-line: underline;
 `;

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import FastImage from 'react-native-fast-image';
+import { Image } from 'expo-image';
 
 
 export const Container = styled.View`
@@ -37,7 +37,7 @@ export const Title2 = styled.Text`
   color: #000;
 `;
 
-export const StyledImage = styled(FastImage)`
+export const StyledImage = styled(Image)`
   width: 350px;
   height: 300px;
   margin-bottom: 60px;

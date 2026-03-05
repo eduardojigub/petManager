@@ -76,7 +76,7 @@ export const ForgotPasswordContainer = styled.View`
 export const ForgotPasswordLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
-  text-decoration: underline;
+  text-decoration-line: underline;
 `;
 
 export const SignUpLinkContainer = styled.View`
@@ -92,11 +92,11 @@ export const SignUpText = styled.Text`
 export const SignUpLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
-  text-decoration: underline;
+  text-decoration-line: underline;
 `;
 
 export const TogglePasswordIconSignIn = styled.TouchableOpacity`
   position: absolute;
   right: 15px;
-  top: 12px; // Adjust if needed to align with your input field
+  top: 12px;
 `;

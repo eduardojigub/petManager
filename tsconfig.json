@@ -4,8 +4,6 @@
   "compilerOptions": {
     "strict": true,
       "jsx": "react",
-      "types": [
-        "@types/styled-components-react-native"
-      ]
+      "types": []
   }
 }

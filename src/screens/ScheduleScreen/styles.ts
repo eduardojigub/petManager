@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
-import FastImage from 'react-native-fast-image';
+import { Image } from 'expo-image';
 
 interface ListItemProps {
   isPast: boolean;
@@ -83,7 +83,7 @@ export const EmptyListContainer = styled.View`
   margin-top: 50px;
 `;
 
-export const EmptyListImage = styled(FastImage)`
+export const EmptyListImage = styled(Image)`
   width: 300px;
   height: 300px;
   margin-bottom: 20px;
@@ -105,5 +105,5 @@ export const DisabledAddButton = styled.TouchableOpacity`
   margin-top: 20px;
   align-items: center;
   width: 100%;
-  opacity: 0.5; // Reduced opacity for disabled effect
+  opacity: 0.5;
 `;

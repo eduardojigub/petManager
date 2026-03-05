@@ -19,7 +19,7 @@ No test or lint scripts are configured. Builds are managed through EAS (`eas.jso
 ## Architecture
 
 ### Tech Stack
-- React Native 0.76 / Expo 52 / TypeScript
+- React Native 0.79 / Expo 53 / TypeScript (React 19, New Architecture)
 - Firebase: Auth (email/password), Firestore (database), Storage (images)
 - React Navigation v6 (bottom tabs + nested stacks)
 - styled-components/native for styling

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import FastImage from 'react-native-fast-image';
+import { Image } from 'expo-image';
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -66,7 +66,7 @@ export const ButtonText = styled.Text`
   font-weight: bold;
 `;
 
-export const ImagePreview = styled(FastImage)`
+export const ImagePreview = styled(Image)`
   width: 200px;
   height: 200px;
   border-radius: 10px;

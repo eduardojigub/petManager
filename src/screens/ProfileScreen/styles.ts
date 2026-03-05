@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import FastImage from 'react-native-fast-image';
+import { Image } from 'expo-image';
 
 export const Container = styled.View`
   flex: 1;
@@ -18,8 +18,8 @@ export const WelcomeHeader = styled.Text`
   font-size: 24px;
   font-family: 'Poppins_600SemiBold';
   color: #333;
-  align-self: flex-start; // Aligns the text to the left within the Header
-  margin-left: 10px; // Optional: Add a slight margin for consistent padding
+  align-self: flex-start;
+  margin-left: 10px;
 `;
 
 export const ProfileList = styled.View`
@@ -27,7 +27,7 @@ export const ProfileList = styled.View`
   margin-bottom: 20px;
 `;
 
-export const ProfileImage = styled(FastImage)`
+export const ProfileImage = styled(Image)`
   width: 80px;
   height: 80px;
   border-radius: 40px;
@@ -85,7 +85,7 @@ export const DogDetails = styled.View`
   margin-bottom: 10px;
 `;
 
-export const DogImage = styled(FastImage)`
+export const DogImage = styled(Image)`
   width: 120px;
   height: 120px;
   border-radius: 60px;
@@ -164,7 +164,7 @@ export const BulletPoint = styled.Text`
   color: white;
   font-size: 14px;
   font-family: 'Poppins_400Regular';
-  margin: 0 5px; // Adds space around the bullet point
+  margin: 0 5px;
 `;
 
 
@@ -173,7 +173,7 @@ export const NotesHeader = styled.View`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding-right: 10px; // Optional: Add slight padding for spacing from the right edge
+  padding-right: 10px;
   margin-bottom: 20px;
 `;
 export const NotesTitle = styled.Text`
@@ -181,8 +181,8 @@ export const NotesTitle = styled.Text`
   font-weight: normal;
   font-family: 'Poppins_600SemiBold';
   color: #333;
-  align-self: flex-start; // Aligns the text to the left within the Header
-  margin-left: 10px; // Optional: Add a slight margin for consistent padding
+  align-self: flex-start;
+  margin-left: 10px;
 `;
 
 export const NoteItem = styled.Text`

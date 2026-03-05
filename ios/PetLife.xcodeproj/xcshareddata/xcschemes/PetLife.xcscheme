@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "PetsLife.app"
-               BlueprintName = "PetsLife"
-               ReferencedContainer = "container:PetsLife.xcodeproj">
+               BuildableName = "PetLife.app"
+               BlueprintName = "PetLife"
+               ReferencedContainer = "container:PetLife.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "PetsLifeTests.xctest"
-               BlueprintName = "PetsLifeTests"
-               ReferencedContainer = "container:PetsLife.xcodeproj">
+               BuildableName = "PetLifeTests.xctest"
+               BlueprintName = "PetLifeTests"
+               ReferencedContainer = "container:PetLife.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PetsLife.app"
-            BlueprintName = "PetsLife"
-            ReferencedContainer = "container:PetsLife.xcodeproj">
+            BuildableName = "PetLife.app"
+            BlueprintName = "PetLife"
+            ReferencedContainer = "container:PetLife.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PetsLife.app"
-            BlueprintName = "PetsLife"
-            ReferencedContainer = "container:PetsLife.xcodeproj">
+            BuildableName = "PetLife.app"
+            BlueprintName = "PetLife"
+            ReferencedContainer = "container:PetLife.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
