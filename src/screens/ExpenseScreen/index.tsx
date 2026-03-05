@@ -8,6 +8,7 @@ import {
   ExpenseIconContainer,
   ExpenseDateText,
   AddButton,
+  DisabledAddButton,
   TotalText,
   ListItemDetailHint,
   TrashIconContainer,
@@ -234,6 +235,7 @@ export default function ExpenseScreen() {
           />
         }
         showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       />
 
       {expenses && expenses.length > 0 && (
@@ -254,7 +256,7 @@ export default function ExpenseScreen() {
           </TotalRow>
         )}
 
-        {selectedDog && (
+        {selectedDog ? (
           <AddButton
             onPress={() =>
               navigation.navigate('AddExpense', {
@@ -267,6 +269,10 @@ export default function ExpenseScreen() {
           >
             <ButtonText>Add Expense</ButtonText>
           </AddButton>
+        ) : (
+          <DisabledAddButton disabled>
+            <ButtonText>Add Expense</ButtonText>
+          </DisabledAddButton>
         )}
       </>
     </Container>

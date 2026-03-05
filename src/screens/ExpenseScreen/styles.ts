@@ -104,6 +104,16 @@ export const YearTotalText = styled.Text`
   padding-top: 20px;
 `;
 
+export const DisabledAddButton = styled.TouchableOpacity`
+  background-color: #41245c;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  align-items: center;
+  width: 100%;
+  opacity: 0.5;
+`;
+
 export const FadeDivider = styled(LinearGradient).attrs({
   colors: ['transparent', 'rgba(0,0,0,0.1)'],
 })`
