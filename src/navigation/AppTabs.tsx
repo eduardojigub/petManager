@@ -7,8 +7,9 @@ import ScheduleStack from './ScheduleStack';
 import SettingsStack from './SettingsStack';
 import ExpenseScreen from '../screens/ExpenseScreen';
 import { DogProfileContext } from '../context/DogProfileContext';
+import { AppTabsParamList } from '../types/navigation';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<AppTabsParamList>();
 
 export default function AppTabs() {
   const { selectedDog } = useContext(DogProfileContext);

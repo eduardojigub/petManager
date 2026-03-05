@@ -24,8 +24,10 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import * as Icon from 'phosphor-react-native';
+import { TrashSimple } from 'phosphor-react-native';
 import { PieChart } from 'react-native-chart-kit';
+import { getExpenseIcon } from '../../utils/iconMappings';
+import { confirmDelete as confirmDeleteUtil } from '../../utils/confirmDelete';
 import { Dimensions } from 'react-native';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
 import EmptyStateList from '../../components/EmptyStateList';
@@ -94,22 +96,6 @@ export default function ExpenseScreen() {
     legendFontSize: 15,
   }));
 
-  const getExpenseIcon = (type) => {
-    switch (type) {
-      case 'Food':
-        return <Icon.ForkKnife size={24} color="#7289DA" />;
-      case 'Medical':
-        return <Icon.Stethoscope size={24} color="#7289DA" />;
-      case 'Toys':
-        return <Icon.PuzzlePiece size={24} color="#7289DA" />;
-      case 'Grooming':
-        return <Icon.Scissors size={24} color="#7289DA" />;
-      case 'Other':
-      default:
-        return <Icon.FileText size={24} color="#7289DA" />;
-    }
-  };
-
   const updateFilteredExpenses = (allExpenses, monthIndex, year) => {
     const filteredExpenses = allExpenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
@@ -173,16 +159,12 @@ export default function ExpenseScreen() {
     }
   };
 
-  const handleDeleteExpense = (expenseId) => {
-    Alert.alert(
-      'Delete Expense',
-      'Are you sure you want to delete this expense?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', onPress: () => deleteExpense(expenseId) },
-      ],
-      { cancelable: true }
-    );
+  const handleDeleteExpense = (expenseId: string) => {
+    confirmDeleteUtil({
+      title: 'Delete Expense',
+      message: 'Are you sure you want to delete this expense?',
+      onConfirm: () => deleteExpense(expenseId),
+    });
   };
 
   const renderExpenseItem = ({ item }) => {
@@ -210,7 +192,7 @@ export default function ExpenseScreen() {
           {formattedAmount}
         </ExpenseAmountText>
         <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
-          <Icon.TrashSimple size={20} color="#FF5C5C" />
+          <TrashSimple size={20} color="#FF5C5C" />
         </TrashIconContainer>
       </ExpenseItem>
     );

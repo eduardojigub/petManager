@@ -7,7 +7,7 @@ import {
   Keyboard,
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Icon from 'phosphor-react-native';
+import { Calendar, Clock, CheckSquare } from 'phosphor-react-native';
 import {
   Container,
   StyledTextInput,
@@ -28,17 +28,14 @@ import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import auth from '@react-native-firebase/auth';
 import DatePickerField from '../../components/DatePickerField';
-import TypeSelectorComponent, { TypeOption as TypeOptionData } from '../../components/TypeSelector';
+import TypeSelectorComponent from '../../components/TypeSelector';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ScheduleStackParamList } from '../../types/navigation';
+import { HEALTH_SCHEDULE_TYPES } from '../../constants/typeOptions';
 
-const SCHEDULE_TYPES: TypeOptionData[] = [
-  { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
-  { label: 'Vet Appointment', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
-  { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
-  { label: 'Pet Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
-  { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
-];
+type Props = StackScreenProps<ScheduleStackParamList, 'AddSchedule'>;
 
-export default function AddScheduleScreen({ route, navigation }) {
+export default function AddScheduleScreen({ route, navigation }: Props) {
   const { schedule, isEditMode = false } = route.params || {};
   const { selectedDog } = useContext(DogProfileContext);
 
@@ -151,7 +148,7 @@ export default function AddScheduleScreen({ route, navigation }) {
           <SectionTitle>Select Type:</SectionTitle>
           <TypeSelectorWrapper>
             <TypeSelectorComponent
-              types={SCHEDULE_TYPES}
+              types={HEALTH_SCHEDULE_TYPES}
               selected={type}
               onSelect={setType}
               renderOption={(item, isSelected, onPress) => (
@@ -171,7 +168,7 @@ export default function AddScheduleScreen({ route, navigation }) {
             renderButton={(onPress, displayText) => (
               <DatePickerButton onPress={onPress}>
                 <IconRow>
-                  <Icon.Calendar size={24} color="#41245C" />
+                  <Calendar size={24} color="#41245C" />
                   <DatePickerText>Select Date: {date.toLocaleDateString()}</DatePickerText>
                 </IconRow>
               </DatePickerButton>
@@ -186,7 +183,7 @@ export default function AddScheduleScreen({ route, navigation }) {
             renderButton={(onPress, displayText) => (
               <DatePickerButton onPress={onPress}>
                 <IconRow>
-                  <Icon.Clock size={24} color="#41245C" />
+                  <Clock size={24} color="#41245C" />
                   <DatePickerText>Select Time: {time.toLocaleTimeString()}</DatePickerText>
                 </IconRow>
               </DatePickerButton>
@@ -197,7 +194,7 @@ export default function AddScheduleScreen({ route, navigation }) {
             <TouchableOpacity
               onPress={() => setIsPushNotificationReminder(!isPushNotificationReminder)}
             >
-              <Icon.CheckSquare
+              <CheckSquare
                 size={24}
                 color={isPushNotificationReminder ? '#41245C' : '#ddd'}
               />

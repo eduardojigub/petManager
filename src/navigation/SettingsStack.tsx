@@ -4,8 +4,9 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ManageNotificationsScreen from '../screens/ManageNotificationScreen';
 import ManageAccountScreen from '../screens/ManageAccountScreen';
 import CustomBackButton from '../components/CustomBackButton';
+import { SettingsStackParamList } from '../types/navigation';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<SettingsStackParamList>();
 
 const headerStyle = {
   backgroundColor: '#fff',

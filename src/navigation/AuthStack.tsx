@@ -5,8 +5,9 @@ import SignInScreen from '../screens/LoginScreen/SignIn';
 import SignUpScreen from '../screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from '../screens/LoginScreen/ForgotPassword';
 import CustomBackButton from '../components/CustomBackButton';
+import { AuthStackParamList } from '../types/navigation';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<AuthStackParamList>();
 
 const headerStyle = {
   backgroundColor: '#fff',

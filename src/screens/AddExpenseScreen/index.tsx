@@ -24,10 +24,10 @@ import {
 
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import * as Icon from 'phosphor-react-native';
 import DatePickerField from '../../components/DatePickerField';
+import { EXPENSE_TYPES } from '../../constants/typeOptions';
 
-export default function AddExpenseScreen({ navigation, route }) {
+export default function AddExpenseScreen({ navigation, route }: any) {
   const { expense } = route.params || {};
 
   const [expenseTitle, setExpenseTitle] = useState(expense?.title || '');
@@ -63,14 +63,6 @@ export default function AddExpenseScreen({ navigation, route }) {
     }
   };
 
-
-  const expenseTypes = [
-    { label: 'Food', icon: <Icon.ForkKnife size={20} color="#7289DA" /> },
-    { label: 'Medical', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
-    { label: 'Grooming', icon: <Icon.Scissors size={20} color="#7289DA" /> },
-    { label: 'Toys', icon: <Icon.PuzzlePiece size={20} color="#7289DA" /> },
-    { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
-  ];
 
 const handleSave = async () => {
   if (!expenseTitle || !amount || !date || !type) {
@@ -111,7 +103,7 @@ const handleSave = async () => {
         <Title>{expense ? 'Edit Expense' : 'Add Expense'}</Title>
 
           <TypeSelector>
-            {expenseTypes.map((item) => (
+            {EXPENSE_TYPES.map((item) => (
               <TypeOption
                 key={item.label}
                 onPress={() => setType(item.label)}

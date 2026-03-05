@@ -3,8 +3,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
+import { ProfileStackParamList } from '../types/navigation';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<ProfileStackParamList>();
 
 export default function ProfileStack() {
   return (

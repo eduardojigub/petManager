@@ -4,8 +4,9 @@ import ScheduleScreen from '../screens/ScheduleScreen';
 import AddScheduleScreen from '../screens/AddScheduleScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import { DogProfileContext } from '../context/DogProfileContext';
+import { ScheduleStackParamList } from '../types/navigation';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<ScheduleStackParamList>();
 
 const headerStyle = {
   backgroundColor: '#fff',

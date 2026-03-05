@@ -26,8 +26,13 @@ import {
 import { DogProfileContext } from '../../context/DogProfileContext';
 import * as Icon from 'phosphor-react-native';
 import useImageUpload from '../../hooks/useImageUpload';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ProfileStackParamList } from '../../types/navigation';
+import { confirmDelete } from '../../utils/confirmDelete';
 
-export default function EditProfileScreen({ navigation, route }) {
+type Props = StackScreenProps<ProfileStackParamList, 'EditProfile'>;
+
+export default function EditProfileScreen({ navigation, route }: Props) {
   const {
     id,
     name: initialName,
@@ -86,35 +91,27 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      'Delete Profile',
-      'Are you sure you want to delete this profile?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Delete canceled'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: async () => {
-            try {
-              await db.collection('dogProfiles').doc(id).delete();
-              setSelectedDog(null);
-              Alert.alert(
-                'Profile Deleted',
-                'The profile has been successfully deleted.'
-              );
-              navigation.navigate('Profile');
-            } catch (error) {
-              console.error('Failed to delete profile:', error);
-              Alert.alert('Error', 'Failed to delete profile');
-            }
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    confirmDelete({
+      title: 'Delete Profile',
+      message: 'Are you sure you want to delete this profile?',
+      confirmText: 'OK',
+      destructive: false,
+      cancelable: false,
+      onConfirm: async () => {
+        try {
+          await db.collection('dogProfiles').doc(id).delete();
+          setSelectedDog(null);
+          Alert.alert(
+            'Profile Deleted',
+            'The profile has been successfully deleted.'
+          );
+          navigation.navigate('Profile');
+        } catch (error) {
+          console.error('Failed to delete profile:', error);
+          Alert.alert('Error', 'Failed to delete profile');
+        }
+      },
+    });
   };
 
   const handleInput = (input, setInput) => {

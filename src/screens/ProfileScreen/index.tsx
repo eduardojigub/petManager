@@ -1,68 +1,36 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import {
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   Container,
   Header,
   ProfileList,
-  ProfileImage,
-  ProfileName,
-  SelectedDogSection,
-  EditButton,
-  EditButtonText,
-  NotesSection,
-  NotesTitle,
   WelcomeHeader,
-  AddProfileCircle,
   MoreButtonText,
+  NotesSection,
   NotesHeader,
-  NoAppointmentText,
-  NoteItemRow,
-  IconCircle,
-  DescriptionContainer,
-  DescriptionText,
-  SubtitleText,
-  DetailsButton,
-  DetailsButtonText,
-  DogImageBackground,
-  GradientOverlay,
-  DogDetailsContainer,
-  DogInfo,
-  DogInfoText,
-  DogInfoRow,
-  InfoText,
-  BulletPoint,
-  ProfilePlaceholder,
-  PlaceholderBackground,
-  NoDogsContainer,
-  NoDogsText,
-  ProfileItemWrapper,
-  ProfileItemContent,
-  NoAppointmentContainer,
-  CalendarIcon,
+  NotesTitle,
   ScheduleLoadingIndicator,
 } from './styles';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import auth from '@react-native-firebase/auth';
-import * as IconPhospor from 'phosphor-react-native';
-import { formatDateTime } from '../../utils/dateFormarter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { DogProfile } from '../../types/dogProfile';
+import ProfileItem from './components/ProfileItem';
+import AddProfileButton from './components/AddProfileButton';
+import DogDetailsCard from './components/DogDetailsCard';
+import ScheduleItem from './components/ScheduleItem';
+import NoAppointment from './components/NoAppointment';
+import NoDogs from './components/NoDogs';
 
 export default function ProfileScreen() {
-  const [dogProfiles, setDogProfiles] = useState([]);
+  const [dogProfiles, setDogProfiles] = useState<DogProfile[]>([]);
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
-  const [upcomingSchedules, setUpcomingSchedules] = useState([]);
-  const navigation = useNavigation();
+  const [upcomingSchedules, setUpcomingSchedules] = useState<any[]>([]);
+  const navigation = useNavigation<any>();
   const userId = auth().currentUser?.uid;
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
-
-  // Ref to track the current loadId
   const loadIdRef = useRef(0);
 
   useEffect(() => {
@@ -79,13 +47,12 @@ export default function ProfileScreen() {
       const profiles = profileSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as DogProfile[];
       setDogProfiles(profiles);
-  
-      const storedDogId = await AsyncStorage.getItem('selectedDogId'); // Retrieve saved ID
+
+      const storedDogId = await AsyncStorage.getItem('selectedDogId');
       const savedDog = profiles.find((dog) => dog.id === storedDogId);
-  
-      // Set selectedDog to the saved dog if it exists, else default to first profile
+
       if (savedDog) {
         setSelectedDog(savedDog);
       } else if (profiles.length > 0) {
@@ -99,7 +66,7 @@ export default function ProfileScreen() {
   const loadSchedules = async () => {
     if (selectedDog && userId) {
       const currentLoadId = ++loadIdRef.current;
-      setIsLoadingSchedules(true); // Start loading indicator
+      setIsLoadingSchedules(true);
       try {
         const schedulesSnapshot = await db
           .collection('schedules')
@@ -107,40 +74,24 @@ export default function ProfileScreen() {
           .where('userId', '==', userId)
           .get();
 
-        const now = new Date(); // Current date and time
-        const today = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate()
-        ); // Start of today
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         const schedules = schedulesSnapshot.docs
           .map((doc) => {
             const data = doc.data();
-
-            // Parse schedule date and time
             const [year, month, day] = data.date.split('-').map(Number);
             const [hours, minutes] = data.time.split(':').map(Number);
-            const scheduleDateTime = new Date(
-              year,
-              month - 1,
-              day,
-              hours,
-              minutes
-            );
-
-            // Determine if the schedule is upcoming (today or later)
-            const isUpcoming = scheduleDateTime >= today;
+            const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
 
             return {
               id: doc.id,
               ...data,
-              isUpcoming,
+              isUpcoming: scheduleDateTime >= today,
             };
           })
-          .filter((schedule) => schedule.isUpcoming); // Only include upcoming schedules
+          .filter((schedule) => schedule.isUpcoming);
 
-        // Only set schedules if loadId hasn't changed
         if (currentLoadId === loadIdRef.current) {
           setUpcomingSchedules(schedules);
         }
@@ -148,7 +99,7 @@ export default function ProfileScreen() {
         console.error('Error loading schedules:', error);
       } finally {
         if (currentLoadId === loadIdRef.current) {
-          setIsLoadingSchedules(false); // Stop loading only if still the latest
+          setIsLoadingSchedules(false);
         }
       }
     }
@@ -164,143 +115,19 @@ export default function ProfileScreen() {
     loadSchedules();
   }, [selectedDog]);
 
-  const handleSelectDog = async (dog) => {
+  const handleSelectDog = async (dog: DogProfile) => {
     setSelectedDog(dog);
     loadSchedules();
-  
     try {
-      await AsyncStorage.setItem('selectedDogId', dog.id); // Save selected dog's ID
+      await AsyncStorage.setItem('selectedDogId', dog.id);
     } catch (error) {
       console.error('Failed to save selected dog ID', error);
     }
   };
 
-  const renderProfileItem = ({ item }) => (
-    <ProfileItemWrapper onPress={() => handleSelectDog(item)}>
-      <ProfileItemContent>
-        {item.image ? (
-          <ProfileImage source={{ uri: item.image }} />
-        ) : (
-          <ProfilePlaceholder>
-            <Icon name="dog" size={32} color="#ffffff" />
-          </ProfilePlaceholder>
-        )}
-        <ProfileName>{item.name}</ProfileName>
-      </ProfileItemContent>
-    </ProfileItemWrapper>
-  );
+  const navigateToEditProfile = () => navigation.navigate('EditProfile');
+  const navigateToEdit = (dog: DogProfile) => navigation.navigate('EditProfile', dog);
 
-  const renderAddProfileButton = () => (
-    <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
-      <AddProfileCircle>
-        <Icon name="plus" size={40} color="#41245C" />
-      </AddProfileCircle>
-    </TouchableOpacity>
-  );
-
-  const renderDogDetails = (dog) => (
-    <SelectedDogSection>
-      {dog.image ? (
-        <DogImageBackground source={{ uri: dog.image }}>
-          <GradientOverlay>
-            <DogDetailsContainer>
-              <DogInfo>
-                <DogInfoText>{dog.name}</DogInfoText>
-                <DogInfoRow>
-                  <InfoText>{dog.age} years</InfoText>
-                  <BulletPoint>•</BulletPoint>
-                  <InfoText>{dog.weight} kg</InfoText>
-                </DogInfoRow>
-                <DogInfoText>{dog.breed}</DogInfoText>
-              </DogInfo>
-              <EditButton
-                onPress={() => navigation.navigate('EditProfile', dog)}
-              >
-                <EditButtonText>Edit Profile</EditButtonText>
-              </EditButton>
-            </DogDetailsContainer>
-          </GradientOverlay>
-        </DogImageBackground>
-      ) : (
-        <PlaceholderBackground>
-          <DogDetailsContainer>
-            <DogInfo>
-              <DogInfoText>{dog.name}</DogInfoText>
-              <DogInfoRow>
-                <InfoText>{dog.age} years</InfoText>
-                <BulletPoint>•</BulletPoint>
-                <InfoText>{dog.weight} kg</InfoText>
-              </DogInfoRow>
-              <DogInfoText>{dog.breed}</DogInfoText>
-            </DogInfo>
-            <EditButton onPress={() => navigation.navigate('EditProfile', dog)}>
-              <EditButtonText>Edit Profile</EditButtonText>
-            </EditButton>
-          </DogDetailsContainer>
-        </PlaceholderBackground>
-      )}
-    </SelectedDogSection>
-  );
-  // Map each type to its corresponding icon
-  const typeIcons = {
-    Vaccine: <IconPhospor.Syringe size={32} color="#41245C" />,
-    'Vet Appointment': <IconPhospor.Stethoscope size={32} color="#41245C" />,
-    Medication: <IconPhospor.Pill size={32} color="#41245C" />,
-    'Pet Groomer': <IconPhospor.Scissors size={32} color="#41245C" />,
-    Other: <IconPhospor.FileText size={32} color="#41245C" />,
-  };
-
-  const renderScheduleItem = (schedule) => {
-    const icon = typeIcons[schedule.type] || typeIcons.Other;
-
-    return (
-      <NoteItemRow key={schedule.id}>
-        <IconCircle>{icon}</IconCircle>
-        <DescriptionContainer>
-          <DescriptionText>{schedule.description}</DescriptionText>
-          <SubtitleText>
-            {formatDateTime(`${schedule.date} ${schedule.time}`)}
-          </SubtitleText>
-        </DescriptionContainer>
-
-        <DetailsButton
-          onPress={() =>
-            navigation.navigate('AddSchedule', {
-              schedule,
-              isEditMode: true,
-            })
-          }
-        >
-          <DetailsButtonText>Details</DetailsButtonText>
-        </DetailsButton>
-      </NoteItemRow>
-    );
-  };
-
-  const renderNoAppointment = () => (
-    <NoAppointmentContainer>
-      <CalendarIcon>
-        <IconPhospor.CalendarDots
-          size={64}
-          color="#000"
-          weight="thin"
-        />
-      </CalendarIcon>
-      <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
-    </NoAppointmentContainer>
-  );
-
-  const renderNoDogs = () => (
-    <NoDogsContainer>
-      <IconPhospor.PawPrint size={64} color="#41245C" weight="thin" />
-      <NoDogsText>No pet profiles added. Start by creating one!</NoDogsText>
-      <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
-        <AddProfileCircle>
-          <Icon name="plus" size={40} color="#41245C" />
-        </AddProfileCircle>
-      </TouchableOpacity>
-    </NoDogsContainer>
-  );
   return (
     <Container>
       <Header>
@@ -308,24 +135,28 @@ export default function ProfileScreen() {
       </Header>
 
       {dogProfiles.length === 0 ? (
-        renderNoDogs() // Exibe o ícone e mensagem no centro da tela quando não há cachorros cadastrados
+        <NoDogs onAddProfile={navigateToEditProfile} />
       ) : (
         <>
           <ProfileList>
             <FlatList
               horizontal
               data={dogProfiles}
-              renderItem={renderProfileItem}
+              renderItem={({ item }) => (
+                <ProfileItem dog={item} onSelect={handleSelectDog} />
+              )}
               keyExtractor={(item) => item.id}
-              ListEmptyComponent={renderAddProfileButton}
+              ListEmptyComponent={<AddProfileButton onPress={navigateToEditProfile} />}
               ListFooterComponent={
-                dogProfiles.length > 0 ? renderAddProfileButton : null
+                dogProfiles.length > 0
+                  ? () => <AddProfileButton onPress={navigateToEditProfile} />
+                  : null
               }
               showsHorizontalScrollIndicator={false}
             />
           </ProfileList>
 
-          {selectedDog && renderDogDetails(selectedDog)}
+          {selectedDog && <DogDetailsCard dog={selectedDog} onEdit={navigateToEdit} />}
 
           <NotesSection showsVerticalScrollIndicator={false}>
             <NotesHeader>
@@ -338,9 +169,20 @@ export default function ProfileScreen() {
             {isLoadingSchedules ? (
               <ScheduleLoadingIndicator />
             ) : upcomingSchedules.length > 0 ? (
-              upcomingSchedules.map(renderScheduleItem)
+              upcomingSchedules.map((schedule) => (
+                <ScheduleItem
+                  key={schedule.id}
+                  schedule={schedule}
+                  onViewDetails={(s) =>
+                    navigation.navigate('AddSchedule', {
+                      schedule: s,
+                      isEditMode: true,
+                    })
+                  }
+                />
+              ))
             ) : (
-              renderNoAppointment() // Display the icon and text when no schedules are available
+              <NoAppointment />
             )}
           </NotesSection>
         </>

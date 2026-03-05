@@ -18,11 +18,17 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import * as Icon from 'phosphor-react-native';
+import { TrashSimple } from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png';
+import { getHealthScheduleIcon } from '../../utils/iconMappings';
+import { confirmDelete } from '../../utils/confirmDelete';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import EmptyStateList from '../../components/EmptyStateList';
 import FilterModal from '../../components/FilterModal';
+import { StackScreenProps } from '@react-navigation/stack';
+import { HealthStackParamList } from '../../types/navigation';
+
+type Props = StackScreenProps<HealthStackParamList, 'HealthRecords'>;
 
 const FILTER_TYPE_OPTIONS = [
   { label: 'All Types', value: null },
@@ -33,7 +39,7 @@ const FILTER_TYPE_OPTIONS = [
   { label: 'Other', value: 'Other' },
 ];
 
-export default function HealthRecordsScreen({ navigation }) {
+export default function HealthRecordsScreen({ navigation }: Props) {
   const [healthRecords, setHealthRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
@@ -114,16 +120,12 @@ export default function HealthRecordsScreen({ navigation }) {
     setHealthRecords([...healthRecords, newRecord]);
   };
 
-  const confirmDelete = (id) => {
-    Alert.alert(
-      'Delete Health Record',
-      'Are you sure you want to delete this health record?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteHealthRecord(id) },
-      ],
-      { cancelable: true }
-    );
+  const handleConfirmDelete = (id: string) => {
+    confirmDelete({
+      title: 'Delete Health Record',
+      message: 'Are you sure you want to delete this health record?',
+      onConfirm: () => deleteHealthRecord(id),
+    });
   };
 
   const deleteHealthRecord = async (id) => {
@@ -149,21 +151,6 @@ export default function HealthRecordsScreen({ navigation }) {
     }
   };
 
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'Vaccine':
-        return <Icon.Syringe size={20} color="#7289DA" />;
-      case 'Vet Appointment':
-        return <Icon.Stethoscope size={20} color="#7289DA" />;
-      case 'Medication':
-        return <Icon.Pill size={20} color="#7289DA" />;
-      case 'Pet Groomer':
-        return <Icon.Scissors size={20} color="#7289DA" />;
-      default:
-        return <Icon.FileText size={20} color="#7289DA" />;
-    }
-  };
-
   const renderRecord = ({ item }) => {
     const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -182,7 +169,7 @@ export default function HealthRecordsScreen({ navigation }) {
           navigation.navigate('HealthRecordDetails', { record: item, setIsFilterApplied })
         }
       >
-        <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
+        <TypeIcon>{getHealthScheduleIcon(item.type)}</TypeIcon>
         <ListItemContent>
           <ListItemText>{displayText || item.type}</ListItemText>
           <ListItemDetailHint>
@@ -190,8 +177,8 @@ export default function HealthRecordsScreen({ navigation }) {
             <DetailDateText>• {formattedDate}</DetailDateText>
           </ListItemDetailHint>
         </ListItemContent>
-        <TrashIconContainer onPress={() => confirmDelete(item.id)}>
-          <Icon.TrashSimple size={20} color="#e74c3c" />
+        <TrashIconContainer onPress={() => handleConfirmDelete(item.id)}>
+          <TrashSimple size={20} color="#e74c3c" />
         </TrashIconContainer>
       </ListItem>
     );

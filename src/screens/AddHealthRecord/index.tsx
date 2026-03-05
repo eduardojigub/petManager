@@ -23,20 +23,17 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import * as Icon from 'phosphor-react-native';
+import { Question } from 'phosphor-react-native';
 import useImageUpload from '../../hooks/useImageUpload';
 import DatePickerField from '../../components/DatePickerField';
-import TypeSelectorComponent, { TypeOption as TypeOptionData } from '../../components/TypeSelector';
+import TypeSelectorComponent from '../../components/TypeSelector';
+import { StackScreenProps } from '@react-navigation/stack';
+import { HealthStackParamList } from '../../types/navigation';
+import { HEALTH_SCHEDULE_TYPES } from '../../constants/typeOptions';
 
-const RECORD_TYPES: TypeOptionData[] = [
-  { label: 'Vaccine', icon: <Icon.Syringe size={20} color="#7289DA" /> },
-  { label: 'Vet Appointment', icon: <Icon.Stethoscope size={20} color="#7289DA" /> },
-  { label: 'Medication', icon: <Icon.Pill size={20} color="#7289DA" /> },
-  { label: 'Pet Groomer', icon: <Icon.Scissors size={20} color="#7289DA" /> },
-  { label: 'Other', icon: <Icon.FileText size={20} color="#7289DA" /> },
-];
+type Props = StackScreenProps<HealthStackParamList, 'AddHealthRecord'>;
 
-export default function AddHealthRecordScreen({ navigation, route }) {
+export default function AddHealthRecordScreen({ navigation, route }: Props) {
   const { record } = route.params;
 
   const [type, setType] = useState(record?.type || '');
@@ -107,7 +104,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
           <TypeSelector>
             <TypeSelectorComponent
-              types={RECORD_TYPES}
+              types={HEALTH_SCHEDULE_TYPES}
               selected={type}
               onSelect={setType}
               renderOption={(item, isSelected, onPress) => (
@@ -121,7 +118,7 @@ export default function AddHealthRecordScreen({ navigation, route }) {
 
           {!type && (
             <PlaceholderContainer>
-              <Icon.Question size={40} color="#7289DA" />
+              <Question size={40} color="#7289DA" />
               <PlaceholderText>
                 Please select a type to continue
               </PlaceholderText>

@@ -11,8 +11,12 @@ import {
   RecordTitle,
 } from './styles';
 import * as Icon from 'phosphor-react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { HealthStackParamList } from '../../types/navigation';
 
-export default function HealthRecordDetailsScreen({ route, navigation }) {
+type Props = StackScreenProps<HealthStackParamList, 'HealthRecordDetails'>;
+
+export default function HealthRecordDetailsScreen({ route, navigation }: Props) {
   const { record, setIsFilterApplied } = route.params; // Receive the health record passed via navigation
 
 

@@ -5,8 +5,9 @@ import HealthRecordDetailsScreen from '../screens/HealthRecordsDetailScreen';
 import AddHealthRecordScreen from '../screens/AddHealthRecord';
 import CustomBackButton from '../components/CustomBackButton';
 import { DogProfileContext } from '../context/DogProfileContext';
+import { HealthStackParamList } from '../types/navigation';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<HealthStackParamList>();
 
 const headerStyle = {
   backgroundColor: '#fff',

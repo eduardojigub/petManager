@@ -19,13 +19,19 @@ import {
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import * as Icon from 'phosphor-react-native';
+import { TrashSimple, Calendar, Clock } from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
 import dogThingsImage from '../../assets/dogThings.png';
+import { getHealthScheduleIcon } from '../../utils/iconMappings';
+import { confirmDelete } from '../../utils/confirmDelete';
 import { ListItemDetailHint } from '../HealthRecordsScreen/styles';
 import EmptyStateList from '../../components/EmptyStateList';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ScheduleStackParamList } from '../../types/navigation';
 
-export default function ScheduleScreen({ navigation }) {
+type Props = StackScreenProps<ScheduleStackParamList, 'ScheduleScreen'>;
+
+export default function ScheduleScreen({ navigation }: Props) {
   const [schedules, setSchedules] = useState([]);
   const { selectedDog } = useContext(DogProfileContext);
 
@@ -80,39 +86,17 @@ export default function ScheduleScreen({ navigation }) {
     }
   };
 
-  const handleDelete = (scheduleId, notificationId) => {
-    Alert.alert(
-      'Delete Schedule',
-      'Are you sure you want to delete this schedule?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          onPress: () => deleteSchedule(scheduleId, notificationId),
-        },
-      ],
-      { cancelable: true }
-    );
-  };
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'Vaccine':
-        return <Icon.Syringe size={20} color="#7289DA" />;
-      case 'Vet Appointment':
-        return <Icon.Stethoscope size={20} color="#7289DA" />;
-      case 'Medication':
-        return <Icon.Pill size={20} color="#7289DA" />;
-      case 'Pet Groomer':
-        return <Icon.Scissors size={20} color="#7289DA" />;
-      default:
-        return <Icon.FileText size={20} color="#7289DA" />;
-    }
+  const handleDelete = (scheduleId: string, notificationId: string) => {
+    confirmDelete({
+      title: 'Delete Schedule',
+      message: 'Are you sure you want to delete this schedule?',
+      onConfirm: () => deleteSchedule(scheduleId, notificationId),
+    });
   };
 
   const renderSchedule = ({ item }) => (
     <ListItem isPast={item.isPast}>
-      <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
+      <TypeIcon>{getHealthScheduleIcon(item.type)}</TypeIcon>
       <ScheduleItemTouchable
         onPress={() =>
           navigation.navigate('AddSchedule', {
@@ -131,11 +115,11 @@ export default function ScheduleScreen({ navigation }) {
           </ListItemText>
           <IconRow>
             <CalendarIconWrapper>
-              <Icon.Calendar size={20} color="#41245C" />
+              <Calendar size={20} color="#41245C" />
             </CalendarIconWrapper>
             <DetailDateText>{item.date}</DetailDateText>
             <ClockIconWrapper>
-              <Icon.Clock size={20} color="#41245C" />
+              <Clock size={20} color="#41245C" />
             </ClockIconWrapper>
             <DetailDateText>{item.time}</DetailDateText>
           </IconRow>
@@ -145,7 +129,7 @@ export default function ScheduleScreen({ navigation }) {
       <TrashIconContainer
         onPress={() => handleDelete(item.id, item.notificationId)}
       >
-        <Icon.TrashSimple size={20} color="#e74c3c" />
+        <TrashSimple size={20} color="#e74c3c" />
       </TrashIconContainer>
     </ListItem>
   );
