@@ -12,7 +12,7 @@ import {
   ScrollContainer,
 } from './styles';
 import { Alert, Modal, Linking } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { getAuth, signOut } from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 
@@ -23,12 +23,13 @@ export default function SettingsScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigation = useNavigation();
 
-  const handleLogout = () => {
-    auth()
-      .signOut()
-      .catch((error) => {
-        Alert.alert('Logout Error', error.message);
-      });
+  const handleLogout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+    } catch (error) {
+      console.warn('Sign out error:', error.message);
+    }
   };
 
   const toggleAboutModal = () => {

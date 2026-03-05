@@ -65,3 +65,10 @@ export const ButtonText = styled.Text`
   font-size: 16px;
   font-weight: bold;
 `;
+
+export const RecordTitle = styled.Text`
+  font-size: 26px;
+  font-weight: bold;
+  color: #41245C;
+  margin-bottom: 20px;
+`;

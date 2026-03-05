@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import {
   Container,
   Section,
@@ -9,27 +8,24 @@ import {
   DetailImage,
   StyledButton,
   ButtonText,
+  RecordTitle,
 } from './styles';
 import * as Icon from 'phosphor-react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { HealthStackParamList } from '../../types/navigation';
+import { formatLongDate } from '../../utils/dateFormarter';
 
-export default function HealthRecordDetailsScreen({ route, navigation }) {
+type Props = StackScreenProps<HealthStackParamList, 'HealthRecordDetails'>;
+
+export default function HealthRecordDetailsScreen({ route, navigation }: Props) {
   const { record, setIsFilterApplied } = route.params; // Receive the health record passed via navigation
 
 
   return (
     <Container>
-      <Text
-        style={{
-          fontSize: 26,
-          fontWeight: 'bold',
-          color: '#41245C',
-          marginBottom: 20,
-        }}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-      >
+      <RecordTitle numberOfLines={1} ellipsizeMode="tail">
         {record?.extraInfo || record?.type}
-      </Text>
+      </RecordTitle>
 
       <Section>
         <IconRow>
@@ -44,13 +40,7 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
           <Icon.Calendar size={24} color="#41245C" />
           <IconText>Date:</IconText>
         </IconRow>
-        <DetailText>
-          {new Date(record.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </DetailText>
+        <DetailText>{formatLongDate(record.date)}</DetailText>
       </Section>
 
       {record.image ? (

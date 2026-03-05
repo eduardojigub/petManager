@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 import { Image } from 'expo-image';
+export { KeyboardAvoidingContainer, TypeSelector, TypeOption, TypeText } from '../../styles/shared';
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -15,30 +16,6 @@ export const Title = styled.Text`
   color: #41245C;
 `;
 
-export const TypeSelector = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`;
-
-export const TypeOption = styled.TouchableOpacity`
-  flex-direction: row;
-  align-items: center;
-  padding: 10px;
-  background-color: ${({ selected }) => (selected ? '#41245C' : '#f5f5f5')};
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  flex-basis: 48%; /* Two options per row */
-  justify-content: center;
-`;
-
-export const TypeText = styled.Text`
-  margin-left: 8px;
-  color: ${({ selected }) => (selected ? '#fff' : '#666')};
-  font-weight: bold;
-`;
 
 export const Input = styled.TextInput`
   width: 100%;
@@ -90,3 +67,15 @@ export const DatePickerText = styled.Text`
   color: #333;
   font-size: 16px;
 `;
+
+export const PlaceholderContainer = styled.View`
+  align-items: center;
+  margin-vertical: 20px;
+`;
+
+export const PlaceholderText = styled.Text`
+  color: #7289DA;
+  font-size: 16px;
+  margin-top: 10px;
+`;
+

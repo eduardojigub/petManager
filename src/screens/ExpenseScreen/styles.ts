@@ -1,4 +1,6 @@
 import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
+export { ListItemDetailHint } from '../../styles/shared';
 
 export const Container = styled.View`
   flex: 1;
@@ -43,11 +45,6 @@ export const ExpenseDateText = styled.Text`
   font-size: 12px;
 `;
 
-export const ListItemDetailHint = styled.Text`
-  color: #7289da;
-  font-size: 12px;
-  margin-top: 4px;
-`;
 
 export const TotalText = styled.Text`
   font-size: 16px;
@@ -84,3 +81,41 @@ export const MonthSelectorContainer = styled.View`
   padding-horizontal: 20px;
 `;
 export const MonthButton = styled.TouchableOpacity``;
+
+export const ExpenseItemContent = styled.View`
+  flex: 1;
+`;
+
+export const ExpenseAmountText = styled.Text`
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+`;
+
+export const TotalRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  padding-horizontal: 30px;
+`;
+
+export const YearTotalText = styled.Text`
+  color: #a9a9a9;
+  font-size: 16px;
+  padding-top: 20px;
+`;
+
+export const DisabledAddButton = styled.TouchableOpacity`
+  background-color: #41245c;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  align-items: center;
+  width: 100%;
+  opacity: 0.5;
+`;
+
+export const FadeDivider = styled(LinearGradient).attrs({
+  colors: ['transparent', 'rgba(0,0,0,0.1)'],
+})`
+  height: 10px;
+`;
