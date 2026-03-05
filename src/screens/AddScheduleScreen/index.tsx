@@ -1,11 +1,8 @@
 import React, { useState, useContext } from 'react';
 import {
   Alert,
-  Text,
   TouchableOpacity,
-  View,
   Platform,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
@@ -23,6 +20,9 @@ import {
   CheckboxText,
   TypeOption,
   TypeOptionText,
+  SectionTitle,
+  TypeSelectorWrapper,
+  KeyboardAvoidingContainer,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -134,9 +134,8 @@ export default function AddScheduleScreen({ route, navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingContainer
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
@@ -149,10 +148,8 @@ export default function AddScheduleScreen({ route, navigation }) {
             onSubmitEditing={() => Keyboard.dismiss()}
           />
 
-          <Text style={{ fontSize: 18, color: '#41245C', marginBottom: 10 }}>
-            Select Type:
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 }}>
+          <SectionTitle>Select Type:</SectionTitle>
+          <TypeSelectorWrapper>
             <TypeSelectorComponent
               types={SCHEDULE_TYPES}
               selected={type}
@@ -164,7 +161,7 @@ export default function AddScheduleScreen({ route, navigation }) {
                 </TypeOption>
               )}
             />
-          </View>
+          </TypeSelectorWrapper>
 
           <DatePickerField
             value={date}
@@ -215,6 +212,6 @@ export default function AddScheduleScreen({ route, navigation }) {
           </AddButton>
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingContainer>
   );
 }

@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
-  SafeAreaView,
-  StyleSheet,
   ActivityIndicator,
   Alert,
-  View,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
@@ -25,6 +22,7 @@ import AuthStack from './src/navigation/AuthStack';
 import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
+import { SafeArea, LoadingContainer } from './src/navigation/styles';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -96,16 +94,16 @@ export default function App() {
 
   if (initializing || !fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <LoadingContainer>
         <ActivityIndicator size="large" color="#7289DA" />
-      </View>
+      </LoadingContainer>
     );
   }
 
   return (
     <DogProfileProvider>
       <NavigationContainer>
-        <SafeAreaView style={styles.safeArea}>
+        <SafeArea>
           <Stack.Navigator>
             {user ? (
               <>
@@ -151,14 +149,8 @@ export default function App() {
               />
             )}
           </Stack.Navigator>
-        </SafeAreaView>
+        </SafeArea>
       </NavigationContainer>
     </DogProfileProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-});

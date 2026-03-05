@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { KeyboardAvoidingView } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
@@ -100,4 +101,36 @@ export const TermsLink = styled.Text`
   color: #EBA059;
   font-size: 14px;
   text-decoration-line: underline;
+`;
+
+export const TermsModalOverlay = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+export const TermsModalContent = styled.View`
+  width: 90%;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+`;
+
+export const TermsTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+`;
+
+export const TermsScrollView = styled.ScrollView`
+  max-height: 400px;
+`;
+
+export const TermsBodyText = styled.Text`
+  font-size: 14px;
+`;
+
+export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
+  flex: 1;
 `;

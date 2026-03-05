@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import {
   Container,
   Section,
@@ -9,6 +8,7 @@ import {
   DetailImage,
   StyledButton,
   ButtonText,
+  RecordTitle,
 } from './styles';
 import * as Icon from 'phosphor-react-native';
 
@@ -18,18 +18,9 @@ export default function HealthRecordDetailsScreen({ route, navigation }) {
 
   return (
     <Container>
-      <Text
-        style={{
-          fontSize: 26,
-          fontWeight: 'bold',
-          color: '#41245C',
-          marginBottom: 20,
-        }}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-      >
+      <RecordTitle numberOfLines={1} ellipsizeMode="tail">
         {record?.extraInfo || record?.type}
-      </Text>
+      </RecordTitle>
 
       <Section>
         <IconRow>

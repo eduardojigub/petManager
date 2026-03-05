@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, FlatList, Alert } from 'react-native';
+import { FlatList, Alert } from 'react-native';
 import {
   Container,
   ButtonText,
@@ -11,6 +11,11 @@ import {
   TotalText,
   ListItemDetailHint,
   TrashIconContainer,
+  ExpenseItemContent,
+  ExpenseAmountText,
+  TotalRow,
+  YearTotalText,
+  FadeDivider,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -22,7 +27,6 @@ import {
 import * as Icon from 'phosphor-react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
 import EmptyStateList from '../../components/EmptyStateList';
 import MonthSelector from '../../components/MonthSelector';
@@ -196,15 +200,15 @@ export default function ExpenseScreen() {
     return (
       <ExpenseItem onPress={() => navigation.navigate('AddExpense', { expense: item })}>
         <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
-        <View style={{ flex: 1 }}>
+        <ExpenseItemContent>
           <ExpenseItemText>{item.title}</ExpenseItemText>
           <ListItemDetailHint>
             <ExpenseDateText>{formattedDate}</ExpenseDateText>
           </ListItemDetailHint>
-        </View>
-        <ExpenseItemText style={{ fontWeight: 'bold' }}>
+        </ExpenseItemContent>
+        <ExpenseAmountText>
           {formattedAmount}
-        </ExpenseItemText>
+        </ExpenseAmountText>
         <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
           <Icon.TrashSimple size={20} color="#FF5C5C" />
         </TrashIconContainer>
@@ -254,38 +258,21 @@ export default function ExpenseScreen() {
       />
 
       {expenses && expenses.length > 0 && (
-        <View>
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.1)']}
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 10,
-            }}
-          />
-        </View>
+        <FadeDivider />
       )}
 
       <>
         {selectedDog && expenses.length > 0 && (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingHorizontal: 30,
-            }}
-          >
-            <ExpenseDateText style={{ fontSize: 16, paddingTop: 20 }}>
+          <TotalRow>
+            <YearTotalText>
               Year: $
               {allExpenses
                 .filter((expense) => expense.date.includes(selectedYear))
                 .reduce((total, expense) => total + expense.amount, 0)
                 .toFixed(2)}{' '}
-            </ExpenseDateText>
+            </YearTotalText>
             <TotalText>Month: ${total.toFixed(2)}</TotalText>
-          </View>
+          </TotalRow>
         )}
 
         {selectedDog && (

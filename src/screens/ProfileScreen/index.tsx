@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
-  View,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
@@ -41,6 +39,11 @@ import {
   PlaceholderBackground,
   NoDogsContainer,
   NoDogsText,
+  ProfileItemWrapper,
+  ProfileItemContent,
+  NoAppointmentContainer,
+  CalendarIcon,
+  ScheduleLoadingIndicator,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db } from '../../firebase/Firestore';
@@ -173,11 +176,8 @@ export default function ProfileScreen() {
   };
 
   const renderProfileItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => handleSelectDog(item)}
-      style={{ marginHorizontal: 10 }}
-    >
-      <View style={{ alignItems: 'center' }}>
+    <ProfileItemWrapper onPress={() => handleSelectDog(item)}>
+      <ProfileItemContent>
         {item.image ? (
           <ProfileImage source={{ uri: item.image }} />
         ) : (
@@ -186,8 +186,8 @@ export default function ProfileScreen() {
           </ProfilePlaceholder>
         )}
         <ProfileName>{item.name}</ProfileName>
-      </View>
-    </TouchableOpacity>
+      </ProfileItemContent>
+    </ProfileItemWrapper>
   );
 
   const renderAddProfileButton = () => (
@@ -278,15 +278,16 @@ export default function ProfileScreen() {
   };
 
   const renderNoAppointment = () => (
-    <View style={{ alignItems: 'center', marginTop: 20 }}>
-      <IconPhospor.CalendarDots
-        size={64}
-        color="#000"
-        weight="thin"
-        style={{ marginBottom: 10 }}
-      />
+    <NoAppointmentContainer>
+      <CalendarIcon>
+        <IconPhospor.CalendarDots
+          size={64}
+          color="#000"
+          weight="thin"
+        />
+      </CalendarIcon>
       <NoAppointmentText>No upcoming schedules for now.</NoAppointmentText>
-    </View>
+    </NoAppointmentContainer>
   );
 
   const renderNoDogs = () => (
@@ -335,11 +336,7 @@ export default function ProfileScreen() {
             </NotesHeader>
 
             {isLoadingSchedules ? (
-              <ActivityIndicator
-                size="large"
-                color="#41245C"
-                style={{ marginVertical: 20 }}
-              />
+              <ScheduleLoadingIndicator />
             ) : upcomingSchedules.length > 0 ? (
               upcomingSchedules.map(renderScheduleItem)
             ) : (

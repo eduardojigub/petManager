@@ -18,14 +18,16 @@ import {
   SignInLink,
   CheckboxLabel,
   TermsLink,
+  TermsModalOverlay,
+  TermsModalContent,
+  TermsTitle,
+  TermsScrollView,
+  TermsBodyText,
+  KeyboardAvoidingContainer,
 } from './styles';
 import {
   Modal,
-  ScrollView,
   TouchableOpacity,
-  View,
-  Text,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
@@ -84,9 +86,8 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingContainer
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
@@ -151,7 +152,7 @@ export default function SignUpScreen() {
               onValueChange={setAgree}
               tintColors={{ true: '#41245C', false: '#7C7C7C' }}
             />
-            <CheckboxLabel style={{ fontSize: 14 }}>
+            <CheckboxLabel>
               I agree with{' '}
             </CheckboxLabel>
             <TouchableOpacity onPress={() => setTermsVisible(true)}>
@@ -179,29 +180,11 @@ export default function SignUpScreen() {
             transparent={true}
             onRequestClose={() => setTermsVisible(false)}
           >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              }}
-            >
-              <View
-                style={{
-                  width: '90%',
-                  backgroundColor: 'white',
-                  borderRadius: 10,
-                  padding: 20,
-                }}
-              >
-                <Text
-                  style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}
-                >
-                  Terms and Conditions
-                </Text>
-                <ScrollView style={{ maxHeight: 400 }}>
-                  <Text style={{ fontSize: 14 }}>
+            <TermsModalOverlay>
+              <TermsModalContent>
+                <TermsTitle>Terms and Conditions</TermsTitle>
+                <TermsScrollView>
+                  <TermsBodyText>
                     Welcome to our application. Please read the following terms
                     and conditions carefully.
                     {'\n\n'}1. **Acceptance of Terms** By accessing and using
@@ -234,13 +217,13 @@ export default function SignUpScreen() {
                     indirect or consequential damages. The app is provided "as
                     is" and "as available" without any warranties, either
                     express or implied.
-                  </Text>
-                </ScrollView>
+                  </TermsBodyText>
+                </TermsScrollView>
                 <CustomButton onPress={() => setTermsVisible(false)}>
                   <ButtonText>Close</ButtonText>
                 </CustomButton>
-              </View>
-            </View>
+              </TermsModalContent>
+            </TermsModalOverlay>
           </Modal>
 
           {/* Custom Alert */}
@@ -252,6 +235,6 @@ export default function SignUpScreen() {
           />
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingContainer>
   );
 }

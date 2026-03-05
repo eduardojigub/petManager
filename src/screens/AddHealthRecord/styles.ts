@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { KeyboardAvoidingView } from 'react-native';
 import { Image } from 'expo-image';
 
 export const Container = styled.ScrollView`
@@ -89,4 +90,19 @@ export const DatePickerButton = styled.TouchableOpacity`
 export const DatePickerText = styled.Text`
   color: #333;
   font-size: 16px;
+`;
+
+export const PlaceholderContainer = styled.View`
+  align-items: center;
+  margin-vertical: 20px;
+`;
+
+export const PlaceholderText = styled.Text`
+  color: #7289DA;
+  font-size: 16px;
+  margin-top: 10px;
+`;
+
+export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
+  flex: 1;
 `;

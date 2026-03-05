@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { X } from 'phosphor-react-native';
+import {
+  Overlay,
+  ModalContainer,
+  Header,
+  Title,
+  CloseButton,
+  DropdownContainer,
+  DropdownLabel,
+  DropdownWrapper,
+  ApplyButton,
+  ApplyButtonText,
+} from './styles';
 
 interface FilterModalProps {
   visible: boolean;
@@ -71,18 +83,18 @@ export default function FilterModal({
       transparent
       onRequestClose={handleClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Filter Health Records</Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+      <Overlay>
+        <ModalContainer>
+          <Header>
+            <Title>Filter Health Records</Title>
+            <CloseButton onPress={handleClose}>
               <X size={32} />
-            </TouchableOpacity>
-          </View>
+            </CloseButton>
+          </Header>
 
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.dropdownLabel}>Filter by Type</Text>
-            <View style={styles.dropdownWrapper}>
+          <DropdownContainer>
+            <DropdownLabel>Filter by Type</DropdownLabel>
+            <DropdownWrapper>
               <Dropdown
                 data={typeOptions}
                 labelField="label"
@@ -91,12 +103,12 @@ export default function FilterModal({
                 value={selectedType}
                 onChange={(item) => setSelectedType(item.value)}
               />
-            </View>
-          </View>
+            </DropdownWrapper>
+          </DropdownContainer>
 
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.dropdownLabel}>Filter by Month</Text>
-            <View style={styles.dropdownWrapper}>
+          <DropdownContainer>
+            <DropdownLabel>Filter by Month</DropdownLabel>
+            <DropdownWrapper>
               <Dropdown
                 data={months}
                 labelField="label"
@@ -105,12 +117,12 @@ export default function FilterModal({
                 value={selectedMonth}
                 onChange={(item) => setSelectedMonth(item.value)}
               />
-            </View>
-          </View>
+            </DropdownWrapper>
+          </DropdownContainer>
 
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.dropdownLabel}>Filter by Year</Text>
-            <View style={styles.dropdownWrapper}>
+          <DropdownContainer>
+            <DropdownLabel>Filter by Year</DropdownLabel>
+            <DropdownWrapper>
               <Dropdown
                 data={years}
                 labelField="label"
@@ -119,78 +131,18 @@ export default function FilterModal({
                 value={selectedYear}
                 onChange={(item) => setSelectedYear(item.value)}
               />
-            </View>
-          </View>
+            </DropdownWrapper>
+          </DropdownContainer>
 
-          <TouchableOpacity
-            style={[
-              styles.applyButton,
-              { opacity: hasActiveFilters ? 1 : 0.5 },
-            ]}
+          <ApplyButton
+            hasActiveFilters={hasActiveFilters}
             onPress={handleApply}
             disabled={!hasActiveFilters}
           >
-            <Text style={styles.applyButtonText}>Apply Filter</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <ApplyButtonText>Apply Filter</ApplyButtonText>
+          </ApplyButton>
+        </ModalContainer>
+      </Overlay>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    width: '90%',
-    maxHeight: '80%',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#41245C',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  dropdownContainer: {
-    marginBottom: 16,
-  },
-  dropdownLabel: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#666',
-    marginBottom: 6,
-  },
-  dropdownWrapper: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 8,
-  },
-  applyButton: {
-    backgroundColor: '#7289DA',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Poppins_600SemiBold',
-  },
-});

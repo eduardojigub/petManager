@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { FlatList, TouchableOpacity, Alert } from 'react-native';
+import { FlatList, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Container,
@@ -13,6 +13,9 @@ import {
   DetailDateText,
   TypeIcon,
   DisabledAddButton,
+  ScheduleItemTouchable,
+  CalendarIconWrapper,
+  ClockIconWrapper,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -110,14 +113,13 @@ export default function ScheduleScreen({ navigation }) {
   const renderSchedule = ({ item }) => (
     <ListItem isPast={item.isPast}>
       <TypeIcon>{getTypeIcon(item.type)}</TypeIcon>
-      <TouchableOpacity
+      <ScheduleItemTouchable
         onPress={() =>
           navigation.navigate('AddSchedule', {
             schedule: item,
             isEditMode: true,
           })
         }
-        style={{ flex: 1 }}
       >
         <ListItemContent>
           <ListItemText
@@ -128,14 +130,18 @@ export default function ScheduleScreen({ navigation }) {
             {item.description}
           </ListItemText>
           <IconRow>
-            <Icon.Calendar size={20} color="#41245C" style={{ marginRight: 5 }} />
+            <CalendarIconWrapper>
+              <Icon.Calendar size={20} color="#41245C" />
+            </CalendarIconWrapper>
             <DetailDateText>{item.date}</DetailDateText>
-            <Icon.Clock size={20} color="#41245C" style={{ marginLeft: 10, marginRight: 5 }} />
+            <ClockIconWrapper>
+              <Icon.Clock size={20} color="#41245C" />
+            </ClockIconWrapper>
             <DetailDateText>{item.time}</DetailDateText>
           </IconRow>
           <ListItemDetailHint>Tap to edit details</ListItemDetailHint>
         </ListItemContent>
-      </TouchableOpacity>
+      </ScheduleItemTouchable>
       <TrashIconContainer
         onPress={() => handleDelete(item.id, item.notificationId)}
       >

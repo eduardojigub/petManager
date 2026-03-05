@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { KeyboardAvoidingView } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
@@ -93,4 +94,20 @@ export const TypeOptionText = styled.Text`
   font-size: 14px;
   color: #41245C;
   margin-left: 5px;
+`;
+
+export const SectionTitle = styled.Text`
+  font-size: 18px;
+  color: #41245C;
+  margin-bottom: 10px;
+`;
+
+export const TypeSelectorWrapper = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+`;
+
+export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
+  flex: 1;
 `;

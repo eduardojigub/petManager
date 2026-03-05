@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export const Container = styled.View`
   flex: 1;
@@ -84,3 +85,31 @@ export const MonthSelectorContainer = styled.View`
   padding-horizontal: 20px;
 `;
 export const MonthButton = styled.TouchableOpacity``;
+
+export const ExpenseItemContent = styled.View`
+  flex: 1;
+`;
+
+export const ExpenseAmountText = styled.Text`
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+`;
+
+export const TotalRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  padding-horizontal: 30px;
+`;
+
+export const YearTotalText = styled.Text`
+  color: #a9a9a9;
+  font-size: 16px;
+  padding-top: 20px;
+`;
+
+export const FadeDivider = styled(LinearGradient).attrs({
+  colors: ['transparent', 'rgba(0,0,0,0.1)'],
+})`
+  height: 10px;
+`;

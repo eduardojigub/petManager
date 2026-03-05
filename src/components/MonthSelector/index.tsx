@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Icon from 'phosphor-react-native';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Container, ArrowButton, MonthTitle } from './styles';
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -31,32 +31,14 @@ export default function MonthSelector({
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={handleLeft} style={styles.button}>
+    <Container>
+      <ArrowButton onPress={handleLeft}>
         <Icon.CaretLeft size={24} color="#333" />
-      </TouchableOpacity>
-      <Text style={styles.title}>{`${MONTHS[monthIndex]}, ${year}`}</Text>
-      <TouchableOpacity onPress={handleRight} style={styles.button}>
+      </ArrowButton>
+      <MonthTitle>{`${MONTHS[monthIndex]}, ${year}`}</MonthTitle>
+      <ArrowButton onPress={handleRight}>
         <Icon.CaretRight size={24} color="#333" />
-      </TouchableOpacity>
-    </View>
+      </ArrowButton>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  button: {
-    padding: 8,
-  },
-  title: {
-    fontSize: 18,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#41245C',
-  },
-});

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import {
   Modal,
-  View,
-  Text,
   TouchableOpacity,
   Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalTitle,
+  ButtonRow,
+  ActionText,
+} from './styles';
 
 interface DatePickerFieldProps {
   value: Date;
@@ -50,31 +55,9 @@ export default function DatePickerField({
           animationType="slide"
           onRequestClose={() => setShowModal(false)}
         >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: 'white',
-                padding: 20,
-                borderRadius: 10,
-                width: '90%',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 18,
-                  textAlign: 'center',
-                  marginBottom: 10,
-                }}
-              >
-                {label}
-              </Text>
+          <ModalOverlay>
+            <ModalContent>
+              <ModalTitle>{label}</ModalTitle>
               <DateTimePicker
                 value={tempValue}
                 mode={mode}
@@ -83,15 +66,9 @@ export default function DatePickerField({
                   if (selectedValue) setTempValue(selectedValue);
                 }}
               />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 20,
-                }}
-              >
+              <ButtonRow>
                 <TouchableOpacity onPress={() => setShowModal(false)}>
-                  <Text style={{ color: '#7289DA', fontSize: 16 }}>Cancel</Text>
+                  <ActionText>Cancel</ActionText>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
@@ -99,13 +76,11 @@ export default function DatePickerField({
                     setShowModal(false);
                   }}
                 >
-                  <Text style={{ color: '#7289DA', fontSize: 16 }}>
-                    Confirm
-                  </Text>
+                  <ActionText>Confirm</ActionText>
                 </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+              </ButtonRow>
+            </ModalContent>
+          </ModalOverlay>
         </Modal>
       </>
     );

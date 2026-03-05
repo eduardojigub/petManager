@@ -1,11 +1,8 @@
 import React, { useContext, useState } from 'react';
 import {
   Alert,
-  View,
-  Text,
   Platform,
   Keyboard,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from 'react-native';
 import {
@@ -20,6 +17,9 @@ import {
   TypeText,
   DatePickerButton,
   DatePickerText,
+  PlaceholderContainer,
+  PlaceholderText,
+  KeyboardAvoidingContainer,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
@@ -98,9 +98,8 @@ export default function AddHealthRecordScreen({ navigation, route }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingContainer
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
@@ -121,12 +120,12 @@ export default function AddHealthRecordScreen({ navigation, route }) {
           </TypeSelector>
 
           {!type && (
-            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+            <PlaceholderContainer>
               <Icon.Question size={40} color="#7289DA" />
-              <Text style={{ color: '#7289DA', fontSize: 16, marginTop: 10 }}>
+              <PlaceholderText>
                 Please select a type to continue
-              </Text>
-            </View>
+              </PlaceholderText>
+            </PlaceholderContainer>
           )}
 
           {type && (
@@ -178,6 +177,6 @@ export default function AddHealthRecordScreen({ navigation, route }) {
           )}
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingContainer>
   );
 }

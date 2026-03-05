@@ -107,3 +107,16 @@ export const DisabledAddButton = styled.TouchableOpacity`
   width: 100%;
   opacity: 0.5;
 `;
+
+export const ScheduleItemTouchable = styled.TouchableOpacity`
+  flex: 1;
+`;
+
+export const CalendarIconWrapper = styled.View`
+  margin-right: 5px;
+`;
+
+export const ClockIconWrapper = styled.View`
+  margin-left: 10px;
+  margin-right: 5px;
+`;
