@@ -5,20 +5,9 @@ import AddScheduleScreen from '../screens/AddScheduleScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import { DogProfileContext } from '../context/DogProfileContext';
 import { ScheduleStackParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Stack = createStackNavigator<ScheduleStackParamList>();
-
-const headerStyle = {
-  backgroundColor: '#fff',
-  elevation: 0,
-  shadowOpacity: 0,
-  borderBottomWidth: 0,
-};
-
-const headerTitleStyle = {
-  fontFamily: 'Poppins_400Regular',
-  fontWeight: 'normal' as const,
-};
 
 export default function ScheduleStack() {
   const { selectedDog } = useContext(DogProfileContext);

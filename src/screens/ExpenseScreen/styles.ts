@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
+export { ListItemDetailHint } from '../../styles/shared';
 
 export const Container = styled.View`
   flex: 1;
@@ -44,11 +45,6 @@ export const ExpenseDateText = styled.Text`
   font-size: 12px;
 `;
 
-export const ListItemDetailHint = styled.Text`
-  color: #7289da;
-  font-size: 12px;
-  margin-top: 4px;
-`;
 
 export const TotalText = styled.Text`
   font-size: 16px;

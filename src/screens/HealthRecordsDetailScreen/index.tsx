@@ -13,6 +13,7 @@ import {
 import * as Icon from 'phosphor-react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { HealthStackParamList } from '../../types/navigation';
+import { formatLongDate } from '../../utils/dateFormarter';
 
 type Props = StackScreenProps<HealthStackParamList, 'HealthRecordDetails'>;
 
@@ -39,13 +40,7 @@ export default function HealthRecordDetailsScreen({ route, navigation }: Props) 
           <Icon.Calendar size={24} color="#41245C" />
           <IconText>Date:</IconText>
         </IconRow>
-        <DetailText>
-          {new Date(record.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </DetailText>
+        <DetailText>{formatLongDate(record.date)}</DetailText>
       </Section>
 
       {record.image ? (

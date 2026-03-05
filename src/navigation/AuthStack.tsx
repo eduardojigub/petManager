@@ -6,20 +6,9 @@ import SignUpScreen from '../screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from '../screens/LoginScreen/ForgotPassword';
 import CustomBackButton from '../components/CustomBackButton';
 import { AuthStackParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Stack = createStackNavigator<AuthStackParamList>();
-
-const headerStyle = {
-  backgroundColor: '#fff',
-  elevation: 0,
-  shadowOpacity: 0,
-  borderBottomWidth: 0,
-};
-
-const headerTitleStyle = {
-  fontFamily: 'Poppins_400Regular',
-  fontWeight: 'normal' as const,
-};
 
 export default function AuthStack() {
   return (

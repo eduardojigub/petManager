@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { KeyboardAvoidingView } from 'react-native';
+export { KeyboardAvoidingContainer } from '../../styles/shared';
 
 export const Container = styled.View`
   flex: 1;
@@ -108,6 +108,3 @@ export const TypeSelectorWrapper = styled.View`
   margin-bottom: 20px;
 `;
 
-export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
-  flex: 1;
-`;

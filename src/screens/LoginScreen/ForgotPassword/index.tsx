@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { useAlert } from '../../../hooks/useAlert';
 import {
   Container,
   HeaderWrapper,
@@ -14,29 +15,21 @@ import {
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 
 export default function ForgotPasswordScreen() {
-  const [email, setEmail] = useState('');
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertMessage, setAlertMessage] = useState('');
+  const [email, setEmail] = React.useState('');
+  const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
   const navigation = useNavigation();
 
   const handlePasswordReset = async () => {
     if (!email) {
-      setAlertTitle('Error');
-      setAlertMessage('Please enter your email.');
-      setAlertVisible(true);
+      showAlert('Error', 'Please enter your email.');
       return;
     }
 
     try {
       await auth().sendPasswordResetEmail(email);
-      setAlertTitle('Success');
-      setAlertMessage('Password reset email has been sent.');
-      setAlertVisible(true);
+      showAlert('Success', 'Password reset email has been sent.');
     } catch (error) {
-      setAlertTitle('Error');
-      setAlertMessage(error.message);
-      setAlertVisible(true);
+      showAlert('Error', error.message);
     }
   };
 
@@ -65,7 +58,7 @@ export default function ForgotPasswordScreen() {
       {/* Custom Alert */}
       <CustomAlert
         visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        onClose={hideAlert}
         title={alertTitle}
         message={alertMessage}
       />

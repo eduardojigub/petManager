@@ -20,7 +20,7 @@ import {
   TypeSelector,
   TypeOption,
   TypeText,
-} from '../AddHealthRecord/styles';
+} from '../../styles/shared';
 
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';

@@ -22,6 +22,7 @@ import { TrashSimple } from 'phosphor-react-native';
 import healthRecordsImage from '../../assets/healthRecords.png';
 import { getHealthScheduleIcon } from '../../utils/iconMappings';
 import { confirmDelete } from '../../utils/confirmDelete';
+import { formatShortDate } from '../../utils/dateFormarter';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import EmptyStateList from '../../components/EmptyStateList';
 import FilterModal from '../../components/FilterModal';
@@ -152,11 +153,7 @@ export default function HealthRecordsScreen({ navigation }: Props) {
   };
 
   const renderRecord = ({ item }) => {
-    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const formattedDate = formatShortDate(item.date);
 
     const displayText =
       item.type === 'Medication' || item.type === 'Vaccine'

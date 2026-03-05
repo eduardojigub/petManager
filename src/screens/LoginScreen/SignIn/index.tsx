@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import { useAlert } from '../../../hooks/useAlert';
 import {
   Container,
   HeaderWrapper,
@@ -23,21 +24,13 @@ import { Eye, EyeSlash } from 'phosphor-react-native'; // Import eye icons
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertMessage, setAlertMessage] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
+  const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
 
   const validateEmail = (email) => {
     const emailRegex = /\S+@\S+\.\S+/;
     return emailRegex.test(email);
-  };
-
-  const showAlert = (title, message) => {
-    setAlertTitle(title);
-    setAlertMessage(message);
-    setAlertVisible(true);
   };
 
   const handleSignIn = async () => {
@@ -111,7 +104,7 @@ export default function SignInScreen() {
       {/* Custom Alert */}
       <CustomAlert
         visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        onClose={hideAlert}
         title={alertTitle}
         message={alertMessage}
       />

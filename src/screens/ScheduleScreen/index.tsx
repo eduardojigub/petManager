@@ -24,7 +24,7 @@ import * as Notifications from 'expo-notifications';
 import dogThingsImage from '../../assets/dogThings.png';
 import { getHealthScheduleIcon } from '../../utils/iconMappings';
 import { confirmDelete } from '../../utils/confirmDelete';
-import { ListItemDetailHint } from '../HealthRecordsScreen/styles';
+import { ListItemDetailHint } from '../../styles/shared';
 import EmptyStateList from '../../components/EmptyStateList';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ScheduleStackParamList } from '../../types/navigation';

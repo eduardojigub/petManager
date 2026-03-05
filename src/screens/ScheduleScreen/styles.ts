@@ -1,6 +1,5 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
-import { Image } from 'expo-image';
 
 interface ListItemProps {
   isPast: boolean;
@@ -77,26 +76,6 @@ export const TypeIcon = styled.View`
   margin-right: 10px;
 `;
 
-
-export const EmptyListContainer = styled.View`
-  align-items: center;
-  margin-top: 50px;
-`;
-
-export const EmptyListImage = styled(Image)`
-  width: 300px;
-  height: 300px;
-  margin-bottom: 20px;
-`;
-
-export const EmptyListText = styled.Text`
-  font-size: 16px;
-  color: #000;
-  text-align: center;
-  margin-horizontal: 20px;
-  margin-top: 30px;
-  font-family: 'Poppins_400Regular';
-`;
 
 export const DisabledAddButton = styled.TouchableOpacity`
   background-color: #41245C;

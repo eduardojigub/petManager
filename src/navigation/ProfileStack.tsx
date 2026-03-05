@@ -4,6 +4,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import { ProfileStackParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Stack = createStackNavigator<ProfileStackParamList>();
 
@@ -22,17 +23,9 @@ export default function ProfileStack() {
         name="EditProfile"
         component={EditProfileScreen}
         options={{
-          headerStyle: {
-            backgroundColor: '#fff',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-          },
+          headerStyle,
           headerTitle: 'Edit Profile',
-          headerTitleStyle: {
-            fontFamily: 'Poppins_400Regular',
-            fontWeight: 'normal',
-          },
+          headerTitleStyle,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { KeyboardAvoidingView } from 'react-native';
+export { KeyboardAvoidingContainer } from '../../styles/shared';
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -56,6 +56,3 @@ export const DatePickerText = styled.Text`
   font-size: 16px;
 `;
 
-export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
-  flex: 1;
-`;

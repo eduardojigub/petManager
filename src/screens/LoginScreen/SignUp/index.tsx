@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import { useAlert } from '../../../hooks/useAlert';
 import {
   Container,
   HeaderWrapper,
@@ -43,17 +44,9 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for confirm password
   const [agree, setAgree] = useState(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertMessage, setAlertMessage] = useState('');
-  const [termsVisible, setTermsVisible] = useState(false); // State for terms modal
+  const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
+  const [termsVisible, setTermsVisible] = useState(false);
   const navigation = useNavigation();
-
-  const showAlert = (title, message) => {
-    setAlertTitle(title);
-    setAlertMessage(message);
-    setAlertVisible(true);
-  };
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
@@ -229,7 +222,7 @@ export default function SignUpScreen() {
           {/* Custom Alert */}
           <CustomAlert
             visible={alertVisible}
-            onClose={() => setAlertVisible(false)}
+            onClose={hideAlert}
             title={alertTitle}
             message={alertMessage}
           />

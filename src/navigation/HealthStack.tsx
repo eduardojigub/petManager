@@ -6,20 +6,9 @@ import AddHealthRecordScreen from '../screens/AddHealthRecord';
 import CustomBackButton from '../components/CustomBackButton';
 import { DogProfileContext } from '../context/DogProfileContext';
 import { HealthStackParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Stack = createStackNavigator<HealthStackParamList>();
-
-const headerStyle = {
-  backgroundColor: '#fff',
-  elevation: 0,
-  shadowOpacity: 0,
-  borderBottomWidth: 0,
-};
-
-const headerTitleStyle = {
-  fontFamily: 'Poppins_400Regular',
-  fontWeight: 'normal' as const,
-};
 
 export default function HealthStack() {
   const { selectedDog } = useContext(DogProfileContext);

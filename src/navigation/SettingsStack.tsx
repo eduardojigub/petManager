@@ -5,20 +5,9 @@ import ManageNotificationsScreen from '../screens/ManageNotificationScreen';
 import ManageAccountScreen from '../screens/ManageAccountScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import { SettingsStackParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Stack = createStackNavigator<SettingsStackParamList>();
-
-const headerStyle = {
-  backgroundColor: '#fff',
-  elevation: 0,
-  shadowOpacity: 0,
-  borderBottomWidth: 0,
-};
-
-const headerTitleStyle = {
-  fontFamily: 'Poppins_400Regular',
-  fontWeight: 'normal' as const,
-};
 
 export default function SettingsStack() {
   return (

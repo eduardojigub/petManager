@@ -28,6 +28,7 @@ import { TrashSimple } from 'phosphor-react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { getExpenseIcon } from '../../utils/iconMappings';
 import { confirmDelete as confirmDeleteUtil } from '../../utils/confirmDelete';
+import { formatShortDate } from '../../utils/dateFormarter';
 import { Dimensions } from 'react-native';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
 import EmptyStateList from '../../components/EmptyStateList';
@@ -168,11 +169,7 @@ export default function ExpenseScreen() {
   };
 
   const renderExpenseItem = ({ item }) => {
-    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const formattedDate = formatShortDate(item.date);
 
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',

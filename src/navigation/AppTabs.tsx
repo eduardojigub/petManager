@@ -8,6 +8,7 @@ import SettingsStack from './SettingsStack';
 import ExpenseScreen from '../screens/ExpenseScreen';
 import { DogProfileContext } from '../context/DogProfileContext';
 import { AppTabsParamList } from '../types/navigation';
+import { headerStyle, headerTitleStyle } from './styles';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
@@ -62,19 +63,11 @@ export default function AppTabs() {
             <Icon name="currency-usd" color={color} size={size} />
           ),
           headerShown: true,
-          headerStyle: {
-            backgroundColor: '#fff',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-          },
+          headerStyle,
           headerTitle: selectedDog
             ? `Expenses for ${selectedDog.name}`
             : 'Expenses',
-          headerTitleStyle: {
-            fontFamily: 'Poppins_400Regular',
-            fontWeight: 'normal',
-          },
+          headerTitleStyle,
         }}
       />
       <Tab.Screen
