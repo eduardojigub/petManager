@@ -13,9 +13,8 @@
       }
     },
     "production": {
-      "ios": {
-        
-      },
+      "autoIncrement": true,
+      "ios": {},
       "android": {}
     }
   },
