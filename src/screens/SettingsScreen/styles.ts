@@ -221,3 +221,27 @@ export const CloseButtonText = styled.Text`
   font-family: 'Poppins_600SemiBold';
   font-size: 15px;
 `;
+
+export const ModalOptionButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background-color: #f8f8f8;
+  margin-bottom: 10px;
+`;
+
+export const ModalOptionText = styled.Text`
+  font-size: 15px;
+  color: #333;
+  font-family: 'Poppins_600SemiBold';
+  margin-left: 12px;
+  flex: 1;
+`;
+
+export const ModalOptionCheck = styled.Text`
+  font-size: 18px;
+  color: #41245c;
+  font-family: 'Poppins_700Bold';
+`;

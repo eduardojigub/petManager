@@ -1,11 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Switch, Alert } from 'react-native';
 import { Container, OptionRow, OptionText } from './styles';
+import { LanguageContext } from '../../context/LanguageContext';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ManageNotificationsScreen() {
+  const { t } = useContext(LanguageContext);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function ManageNotificationsScreen() {
       // Request notification permissions
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Enable notifications in device settings.');
+        Alert.alert(t('notifications.permissionRequired'), t('notifications.enableInSettings'));
       }
     }
   };
@@ -34,7 +36,7 @@ export default function ManageNotificationsScreen() {
   return (
     <Container>
       <OptionRow>
-        <OptionText>Enable Notifications</OptionText>
+        <OptionText>{t('notifications.enable')}</OptionText>
         <Switch
           value={notificationsEnabled}
           onValueChange={toggleNotifications}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Container,
   Title,
@@ -11,8 +11,10 @@ import {
 } from './styles';
 import { getAuth, reauthenticateWithCredential, updatePassword, EmailAuthProvider } from '@react-native-firebase/auth';
 import { Alert } from 'react-native';
+import { LanguageContext } from '../../context/LanguageContext';
 
 export default function AccountSettingsScreen({ navigation }) {
+  const { t } = useContext(LanguageContext);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,15 +22,15 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const handleUpdatePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError('All fields are required.');
+      setError(t('password.allFieldsRequired'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('password.passwordsMismatch'));
       return;
     }
     if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      setError(t('password.passwordMin'));
       return;
     }
 
@@ -44,7 +46,7 @@ export default function AccountSettingsScreen({ navigation }) {
 
       // Update password
       await updatePassword(user, newPassword);
-      Alert.alert('Success', 'Password updated successfully.');
+      Alert.alert(t('common.success'), t('password.updated'));
       navigation.goBack();
     } catch (error) {
       setError(error.message);
@@ -53,39 +55,39 @@ export default function AccountSettingsScreen({ navigation }) {
 
   return (
     <Container>
-      <Title>Update Password</Title>
+      <Title>{t('password.title')}</Title>
 
       {error ? <ErrorText>{error}</ErrorText> : null}
 
       <InputContainer>
-        <Label>Current Password</Label>
+        <Label>{t('password.currentPassword')}</Label>
         <Input
-          placeholder="Enter your current password"
+          placeholder={t('password.currentPlaceholder')}
           value={currentPassword}
           onChangeText={setCurrentPassword}
         />
       </InputContainer>
 
       <InputContainer>
-        <Label>New Password</Label>
+        <Label>{t('password.newPassword')}</Label>
         <Input
-          placeholder="Enter your new password"
+          placeholder={t('password.newPlaceholder')}
           value={newPassword}
           onChangeText={setNewPassword}
         />
       </InputContainer>
 
       <InputContainer>
-        <Label>Confirm New Password</Label>
+        <Label>{t('password.confirmPassword')}</Label>
         <Input
-          placeholder="Confirm your new password"
+          placeholder={t('password.confirmPlaceholder')}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
         />
       </InputContainer>
 
       <Button onPress={handleUpdatePassword}>
-        <ButtonText>Update Password</ButtonText>
+        <ButtonText>{t('password.updateButton')}</ButtonText>
       </Button>
     </Container>
   );

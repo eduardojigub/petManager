@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { getAuth, sendPasswordResetEmail } from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { useAlert } from '../../../hooks/useAlert';
@@ -13,36 +13,38 @@ import {
   ButtonText
 } from './styles';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = React.useState('');
   const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
   const navigation = useNavigation();
+  const { t } = useContext(LanguageContext);
 
   const handlePasswordReset = async () => {
     if (!email) {
-      showAlert('Error', 'Please enter your email.');
+      showAlert(t('common.error'), t('forgot.enterEmail'));
       return;
     }
 
     try {
       await sendPasswordResetEmail(getAuth(), email);
-      showAlert('Success', 'Password reset email has been sent.');
+      showAlert(t('common.success'), t('forgot.emailSent'));
     } catch (error) {
-      showAlert('Error', error.message);
+      showAlert(t('common.error'), error.message);
     }
   };
 
   return (
     <Container>
       <HeaderWrapper>
-        <HeaderTitle>Forgot Password</HeaderTitle>
-        <HeaderSubtitle>Enter the email address associated with your account.</HeaderSubtitle>
+        <HeaderTitle>{t('forgot.title')}</HeaderTitle>
+        <HeaderSubtitle>{t('forgot.subtitle')}</HeaderSubtitle>
       </HeaderWrapper>
 
       <InputContainer>
         <Input
-          placeholder="Enter your email"
+          placeholder={t('forgot.emailPlaceholder')}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -52,7 +54,7 @@ export default function ForgotPasswordScreen() {
       </InputContainer>
 
       <CustomButton onPress={handlePasswordReset}>
-        <ButtonText>Reset password</ButtonText>
+        <ButtonText>{t('forgot.resetButton')}</ButtonText>
       </CustomButton>
 
       {/* Custom Alert */}

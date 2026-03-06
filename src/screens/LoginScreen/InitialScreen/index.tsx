@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import {
   Container,
@@ -17,10 +17,16 @@ import {
   SmallText,
   ButtonSignUP,
   ButtonTextSignUP,
+  LanguagePill,
+  FlagButton,
+  FlagText,
+  VersionText,
 } from './styles';
+import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import { Heart, House, Bone, CalendarDots, CurrencyDollar } from 'phosphor-react-native';
 import initialScreenDog from '../../../assets/initialScreenDog.png';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 function useFloatingAnimation(duration: number, distance: number) {
   const translateY = useRef(new Animated.Value(0)).current;
@@ -57,6 +63,7 @@ function useFloatingAnimation(duration: number, distance: number) {
 
 export default function InitialScreen() {
   const navigation = useNavigation();
+  const { t, locale, setLocale } = useContext(LanguageContext);
 
   const float1 = useFloatingAnimation(2000, 6);
   const float2 = useFloatingAnimation(2400, 5);
@@ -66,6 +73,15 @@ export default function InitialScreen() {
 
   return (
     <Container>
+      <LanguagePill>
+        <FlagButton selected={locale === 'en'} onPress={() => setLocale('en')}>
+          <FlagText>🇺🇸</FlagText>
+        </FlagButton>
+        <FlagButton selected={locale === 'pt'} onPress={() => setLocale('pt')}>
+          <FlagText>🇧🇷</FlagText>
+        </FlagButton>
+      </LanguagePill>
+
       <ImageWrapper>
         <CircularImageContainer>
           <CircularImage source={initialScreenDog} />
@@ -104,25 +120,27 @@ export default function InitialScreen() {
 
       <TitleWrapper>
         <TitleContainer>
-          <Title>Your </Title>
-          <HighlightedTitle>Pet's life,</HighlightedTitle>
+          <Title>{t('initial.titlePart1')}</Title>
+          <HighlightedTitle>{t('initial.titleHighlight')}</HighlightedTitle>
         </TitleContainer>
-        <Title2>organized!</Title2>
+        <Title2>{t('initial.titlePart2')}</Title2>
       </TitleWrapper>
 
       <Subtitle>
-        Keep track of health records, appointments, and expenses all in one place.
+        {t('initial.subtitle')}
       </Subtitle>
 
       <ButtonSignIN onPress={() => navigation.navigate('SignIn')}>
-        <ButtonTextSignIN>Login</ButtonTextSignIN>
+        <ButtonTextSignIN>{t('initial.login')}</ButtonTextSignIN>
       </ButtonSignIN>
 
-      <SmallText>Don't have an account?</SmallText>
+      <SmallText>{t('initial.noAccount')}</SmallText>
 
       <ButtonSignUP onPress={() => navigation.navigate('SignUp')}>
-        <ButtonTextSignUP>Register</ButtonTextSignUP>
+        <ButtonTextSignUP>{t('initial.register')}</ButtonTextSignUP>
       </ButtonSignUP>
+
+      <VersionText>v{Constants.expoConfig?.version}</VersionText>
     </Container>
   );
 }

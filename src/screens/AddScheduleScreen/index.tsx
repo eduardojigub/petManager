@@ -1,51 +1,94 @@
 import React, { useState, useContext } from 'react';
 import {
   Alert,
-  TouchableOpacity,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Switch,
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { Calendar, Clock, CheckSquare } from 'phosphor-react-native';
+import { CalendarBlank, Clock, Bell } from 'phosphor-react-native';
 import {
-  Container,
-  StyledTextInput,
-  DatePickerButton,
-  DatePickerText,
-  AddButton,
-  ButtonText,
-  IconRow,
-  CheckboxRow,
-  CheckboxText,
-  TypeOption,
-  TypeOptionText,
-  SectionTitle,
-  TypeSelectorWrapper,
   KeyboardAvoidingContainer,
+  Container,
+  ContentContainer,
+  SectionTitle,
+  TypeGrid,
+  TypeChip,
+  TypeChipText,
+  FormCard,
+  InputGroup,
+  InputLabel,
+  MultilineInput,
+  DateButton,
+  DateButtonText,
+  ReminderRow,
+  ReminderLabel,
+  ReminderChipsRow,
+  ReminderChip,
+  ReminderChipText,
+  SaveButton,
+  SaveButtonText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import DatePickerField from '../../components/DatePickerField';
-import TypeSelectorComponent from '../../components/TypeSelector';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ScheduleStackParamList } from '../../types/navigation';
 import { HEALTH_SCHEDULE_TYPES } from '../../constants/typeOptions';
+import { getHealthScheduleIcon } from '../../utils/iconMappings';
+import { LanguageContext } from '../../context/LanguageContext';
 
 type Props = StackScreenProps<ScheduleStackParamList, 'AddSchedule'>;
+
+const TYPE_COLOR: Record<string, string> = {
+  Vaccine: '#27ae60',
+  'Vet Appointment': '#3498db',
+  Medication: '#e67e22',
+  'Pet Groomer': '#e91e63',
+  Other: '#9b59b6',
+};
+
+const TYPE_BG: Record<string, string> = {
+  Vaccine: '#e8f5e9',
+  'Vet Appointment': '#e3f2fd',
+  Medication: '#fff3e0',
+  'Pet Groomer': '#fce4ec',
+  Other: '#f3e5f5',
+};
+
+const REMINDER_OPTION_KEYS = [
+  { key: 'add.atTime', minutes: 0 },
+  { key: 'add.15min', minutes: 15 },
+  { key: 'add.1hour', minutes: 60 },
+  { key: 'add.3hours', minutes: 180 },
+  { key: 'add.1day', minutes: 1440 },
+  { key: 'add.3days', minutes: 4320 },
+];
 
 export default function AddScheduleScreen({ route, navigation }: Props) {
   const { schedule, isEditMode = false } = route.params || {};
   const { selectedDog } = useContext(DogProfileContext);
+  const { t } = useContext(LanguageContext);
 
-  const convertTo24HourFormat = (timeString) => {
-    const [time, modifier] = timeString.split(' ');
-    let [hours, minutes, seconds] = time.split(':').map(Number);
-    if (modifier === 'PM' && hours < 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds || 0).padStart(2, '0')}`;
+  const parseTimeString = (timeString: string): Date => {
+    const parts = timeString.trim().split(' ');
+    const timePart = parts[0];
+    const modifier = parts[1]?.toUpperCase();
+    let [hours, minutes] = timePart.split(':').map(Number);
+
+    if (modifier) {
+      // 12h format: "9:20:00 PM"
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+    }
+    // else: already 24h format "21:20"
+
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    return d;
   };
 
   const parsedDate = schedule?.date
@@ -53,31 +96,35 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
     : new Date();
 
   const parsedTime = schedule?.time
-    ? new Date(`1970-01-01T${convertTo24HourFormat(schedule.time)}`)
+    ? parseTimeString(schedule.time)
     : new Date();
 
   const [description, setDescription] = useState(schedule?.description || '');
   const [date, setDate] = useState(parsedDate);
   const [time, setTime] = useState(parsedTime);
-  const [type, setType] = useState(schedule?.type || 'Other');
-  const [isPushNotificationReminder, setIsPushNotificationReminder] = useState(
-    schedule?.pushNotification || false
+  const [type, setType] = useState(schedule?.type || '');
+  const [reminder, setReminder] = useState(schedule?.pushNotification || false);
+  const [reminderMinutes, setReminderMinutes] = useState(
+    schedule?.reminderMinutes ?? 60
   );
 
   const handleSave = async () => {
+    if (!type) {
+      Alert.alert(t('common.error'), t('alert.selectType'));
+      return;
+    }
     if (!description.trim()) {
-      Alert.alert('Error', 'The schedule description cannot be empty.');
+      Alert.alert(t('common.error'), t('alert.addDescription'));
       return;
     }
 
     const userId = getAuth().currentUser?.uid;
     if (!userId) {
-      Alert.alert('Error', 'User not logged in. Please log in to save schedules.');
+      Alert.alert(t('common.error'), t('alert.userNotLogged'));
       return;
     }
 
     const now = new Date();
-
     let selectedDateTime = new Date(date);
     selectedDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
     let selectedDateTimeForSave = new Date(selectedDateTime);
@@ -85,49 +132,75 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
     if (Platform.OS === 'android') {
       const selectedDateTimeWithBuffer = new Date(selectedDateTime.getTime() + 120000);
       if (selectedDateTimeWithBuffer <= now) {
-        Alert.alert('Invalid Date/Time', 'Please select a date and time that is in the future.');
+        Alert.alert(t('alert.invalidDateTime'), t('alert.invalidDateTimeMsg'));
         return;
       }
     } else {
       if (selectedDateTime <= now) {
-        Alert.alert('Invalid Date/Time', 'Please select a date and time that is in the future.');
+        Alert.alert(t('alert.invalidDateTime'), t('alert.invalidDateTimeMsg'));
         return;
       }
     }
 
     try {
-      const notificationId = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'Schedule Reminder',
-          body: `Reminder: ${description}`,
-          sound: true,
-        },
-        trigger: { date: selectedDateTime },
-      });
+      // Cancel existing notification if editing
+      if (isEditMode && schedule?.notificationId) {
+        await Notifications.cancelScheduledNotificationAsync(schedule.notificationId).catch(() => {});
+      }
+
+      let notificationId: string | null = null;
+
+      if (reminder) {
+        const notifyAt = new Date(selectedDateTime.getTime() - reminderMinutes * 60 * 1000);
+        const reminderLabel = REMINDER_OPTION_KEYS.find((o) => o.minutes === reminderMinutes);
+        const reminderText = reminderLabel ? t(reminderLabel.key) : '';
+        const bodyText = reminderMinutes === 0
+          ? `${t('add.atTime')}: ${description}`
+          : `${description} - ${reminderText}`;
+
+        if (notifyAt.getTime() > Date.now() + 60000) {
+          notificationId = await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `${type} ${t('add.reminder')}`,
+              body: bodyText,
+              sound: true,
+            },
+            trigger: { date: notifyAt },
+          });
+        }
+      }
+
+      // Save time in consistent 24h format "HH:mm"
+      const savedTime = `${String(selectedDateTimeForSave.getHours()).padStart(2, '0')}:${String(selectedDateTimeForSave.getMinutes()).padStart(2, '0')}`;
 
       const scheduleData = {
         description,
         date: date.toLocaleDateString('en-CA'),
-        time: selectedDateTimeForSave.toLocaleTimeString(),
+        time: savedTime,
         dogId: selectedDog.id,
         userId,
         notificationId,
         type,
         emailReminder: false,
-        pushNotification: isPushNotificationReminder,
+        pushNotification: reminder,
+        reminderMinutes: reminder ? reminderMinutes : null,
       };
 
       if (isEditMode && schedule) {
         await updateDoc(doc(db, 'schedules', schedule.id), scheduleData);
-        Alert.alert('Success', 'Schedule updated successfully!');
+        Alert.alert(t('common.success'), t('alert.scheduleUpdated'));
       } else {
         await addDoc(collection(db, 'schedules'), scheduleData);
-        Alert.alert('Success', 'Schedule saved successfully and notification scheduled!');
+        Alert.alert(t('common.success'), t('alert.scheduleSaved'));
       }
-      navigation.goBack();
+      if (route.params?.fromProfile) {
+        navigation.navigate('ProfileTab' as any);
+      } else {
+        navigation.goBack();
+      }
     } catch (error) {
       console.error('Error saving schedule', error);
-      Alert.alert('Error', 'Failed to save schedule.');
+      Alert.alert(t('common.error'), t('alert.failedSaveSchedule'));
     }
   };
 
@@ -137,77 +210,123 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
-          <StyledTextInput
-            placeholder="Schedule Description"
-            value={description}
-            onChangeText={setDescription}
-            returnKeyType="done"
-            blurOnSubmit={true}
-            onSubmitEditing={() => Keyboard.dismiss()}
-          />
+          <ContentContainer>
+            <SectionTitle>{t('add.selectType')}</SectionTitle>
+            <TypeGrid>
+              {HEALTH_SCHEDULE_TYPES.map((item) => {
+                const isSelected = type === item.label;
+                const color = TYPE_COLOR[item.label] || '#41245c';
+                const bg = TYPE_BG[item.label] || '#f0eff4';
+                return (
+                  <TypeChip
+                    key={item.label}
+                    selected={isSelected}
+                    selectedBg={bg}
+                    onPress={() => setType(item.label)}
+                  >
+                    {getHealthScheduleIcon(item.label, 20, color)}
+                    <TypeChipText selected={isSelected} selectedColor={color}>
+                      {item.label}
+                    </TypeChipText>
+                  </TypeChip>
+                );
+              })}
+            </TypeGrid>
 
-          <SectionTitle>Select Type:</SectionTitle>
-          <TypeSelectorWrapper>
-            <TypeSelectorComponent
-              types={HEALTH_SCHEDULE_TYPES}
-              selected={type}
-              onSelect={setType}
-              renderOption={(item, isSelected, onPress) => (
-                <TypeOption key={item.label} onPress={onPress} selected={isSelected}>
-                  {item.icon}
-                  <TypeOptionText>{item.label}</TypeOptionText>
-                </TypeOption>
-              )}
-            />
-          </TypeSelectorWrapper>
+            {type ? (
+              <>
+                <FormCard>
+                  {/* Description */}
+                  <InputGroup>
+                    <InputLabel>{t('add.description')}</InputLabel>
+                    <MultilineInput
+                      value={description}
+                      onChangeText={setDescription}
+                      placeholder={t('add.descriptionPlaceholder')}
+                      placeholderTextColor="#ccc"
+                      multiline
+                      returnKeyType="done"
+                      blurOnSubmit
+                      onSubmitEditing={Keyboard.dismiss}
+                    />
+                  </InputGroup>
 
-          <DatePickerField
-            value={date}
-            onChange={setDate}
-            mode="date"
-            label="Select Date"
-            renderButton={(onPress, displayText) => (
-              <DatePickerButton onPress={onPress}>
-                <IconRow>
-                  <Calendar size={24} color="#41245C" />
-                  <DatePickerText>Select Date: {date.toLocaleDateString()}</DatePickerText>
-                </IconRow>
-              </DatePickerButton>
-            )}
-          />
+                  {/* Date */}
+                  <InputGroup>
+                    <InputLabel>{t('add.date')}</InputLabel>
+                    <DatePickerField
+                      value={date}
+                      onChange={setDate}
+                      mode="date"
+                      label={t('add.selectDate')}
+                      renderButton={(onPress, displayText) => (
+                        <DateButton onPress={onPress}>
+                          <CalendarBlank size={20} color="#41245c" />
+                          <DateButtonText hasValue>{displayText}</DateButtonText>
+                        </DateButton>
+                      )}
+                    />
+                  </InputGroup>
 
-          <DatePickerField
-            value={time}
-            onChange={setTime}
-            mode="time"
-            label="Select Time"
-            renderButton={(onPress, displayText) => (
-              <DatePickerButton onPress={onPress}>
-                <IconRow>
-                  <Clock size={24} color="#41245C" />
-                  <DatePickerText>Select Time: {time.toLocaleTimeString()}</DatePickerText>
-                </IconRow>
-              </DatePickerButton>
-            )}
-          />
+                  {/* Time */}
+                  <InputGroup>
+                    <InputLabel>{t('add.time')}</InputLabel>
+                    <DatePickerField
+                      value={time}
+                      onChange={setTime}
+                      mode="time"
+                      label={t('add.selectTime')}
+                      renderButton={(onPress, displayText) => (
+                        <DateButton onPress={onPress}>
+                          <Clock size={20} color="#41245c" />
+                          <DateButtonText hasValue>{displayText}</DateButtonText>
+                        </DateButton>
+                      )}
+                    />
+                  </InputGroup>
 
-          <CheckboxRow>
-            <TouchableOpacity
-              onPress={() => setIsPushNotificationReminder(!isPushNotificationReminder)}
-            >
-              <CheckSquare
-                size={24}
-                color={isPushNotificationReminder ? '#41245C' : '#ddd'}
-              />
-            </TouchableOpacity>
-            <CheckboxText>I want to be notified</CheckboxText>
-          </CheckboxRow>
+                  {/* Reminder */}
+                  <InputGroup>
+                    <InputLabel>{t('add.reminder')}</InputLabel>
+                    <ReminderRow>
+                      <Bell size={20} color="#41245c" />
+                      <ReminderLabel>{t('add.remindBefore')}</ReminderLabel>
+                      <Switch
+                        value={reminder}
+                        onValueChange={setReminder}
+                        trackColor={{ false: '#ddd', true: '#7289da' }}
+                        thumbColor={reminder ? '#41245c' : '#f4f3f4'}
+                      />
+                    </ReminderRow>
+                    {reminder && (
+                      <>
+                        <InputLabel style={{ marginTop: 10 }}>{t('add.howEarly')}</InputLabel>
+                        <ReminderChipsRow>
+                          {REMINDER_OPTION_KEYS.map((option) => (
+                            <ReminderChip
+                              key={option.minutes}
+                              selected={reminderMinutes === option.minutes}
+                              onPress={() => setReminderMinutes(option.minutes)}
+                            >
+                              <ReminderChipText selected={reminderMinutes === option.minutes}>
+                                {t(option.key)}
+                              </ReminderChipText>
+                            </ReminderChip>
+                          ))}
+                        </ReminderChipsRow>
+                      </>
+                    )}
+                  </InputGroup>
+                </FormCard>
 
-          <AddButton onPress={handleSave}>
-            <ButtonText>
-              {isEditMode ? 'Update Schedule' : 'Save Schedule'}
-            </ButtonText>
-          </AddButton>
+                <SaveButton onPress={handleSave}>
+                  <SaveButtonText>
+                    {isEditMode ? t('add.updateSchedule') : t('add.saveSchedule')}
+                  </SaveButtonText>
+                </SaveButton>
+              </>
+            ) : null}
+          </ContentContainer>
         </Container>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingContainer>

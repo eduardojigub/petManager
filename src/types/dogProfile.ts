@@ -6,4 +6,8 @@ export interface DogProfile {
   weight: string;
   image: string | null;
   userId?: string;
+  birthday?: string;
+  gender?: string;
+  color?: string;
+  microchip?: string;
 }

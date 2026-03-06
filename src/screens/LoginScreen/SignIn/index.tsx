@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
 import { useAlert } from '../../../hooks/useAlert';
@@ -21,6 +21,7 @@ import {
 } from './styles';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
 import { Eye, EyeSlash } from 'phosphor-react-native'; // Import eye icons
+import { LanguageContext } from '../../../context/LanguageContext';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function SignInScreen() {
   const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
+  const { t } = useContext(LanguageContext);
 
   const validateEmail = (email) => {
     const emailRegex = /\S+@\S+\.\S+/;
@@ -36,7 +38,7 @@ export default function SignInScreen() {
 
   const handleSignIn = async () => {
     if (!validateEmail(email)) {
-      showAlert('Error', 'Please enter a valid email.');
+      showAlert(t('common.error'), t('signIn.invalidEmail'));
       return;
     }
 
@@ -47,21 +49,21 @@ export default function SignInScreen() {
         routes: [{ name: 'AppTabs' }],
       });
     } catch (error) {
-      showAlert('Login Error', error.message);
+      showAlert(t('signIn.loginError'), error.message);
     }
   };
 
   return (
     <Container>
       <HeaderWrapper>
-        <HeaderTitle>Welcome Back</HeaderTitle>
-        <HeaderSubtitle>Please enter your credentials</HeaderSubtitle>
+        <HeaderTitle>{t('signIn.welcomeBack')}</HeaderTitle>
+        <HeaderSubtitle>{t('signIn.subtitle')}</HeaderSubtitle>
       </HeaderWrapper>
 
       <InputContainer>
-        <Label>Email</Label>
+        <Label>{t('signIn.email')}</Label>
         <Input
-          placeholder="Enter your email"
+          placeholder={t('signIn.emailPlaceholder')}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -71,9 +73,9 @@ export default function SignInScreen() {
       </InputContainer>
 
       <InputContainer>
-        <Label>Password</Label>
+        <Label>{t('signIn.password')}</Label>
         <Input
-          placeholder="Enter your password"
+          placeholder={t('signIn.passwordPlaceholder')}
           secureTextEntry={!showPassword} // Control visibility based on `showPassword`
           value={password}
           onChangeText={setPassword}
@@ -90,17 +92,17 @@ export default function SignInScreen() {
 
       <ForgotPasswordContainer>
         <ForgotPasswordLink onPress={() => navigation.navigate('ForgotPassword')}>
-          Forgot Password?
+          {t('signIn.forgotPassword')}
         </ForgotPasswordLink>
       </ForgotPasswordContainer>
 
       <CustomButton onPress={handleSignIn}>
-        <ButtonText>Login</ButtonText>
+        <ButtonText>{t('signIn.login')}</ButtonText>
       </CustomButton>
 
       <SignUpLinkContainer>
         <SignUpText>
-          Don’t have an account? <SignUpLink onPress={() => navigation.navigate('SignUp')}>Register</SignUpLink>
+          {t('signIn.noAccount')} <SignUpLink onPress={() => navigation.navigate('SignUp')}>{t('signIn.register')}</SignUpLink>
         </SignUpText>
       </SignUpLinkContainer>
 

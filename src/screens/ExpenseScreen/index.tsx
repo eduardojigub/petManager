@@ -1,70 +1,232 @@
 import React, { useContext, useState } from 'react';
-import { FlatList, Alert } from 'react-native';
+import { FlatList, Alert, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import { CaretRight, TrashSimple, ArrowsClockwise } from 'phosphor-react-native';
 import {
   Container,
-  ButtonText,
-  ExpenseItem,
-  ExpenseItemText,
-  ExpenseIconContainer,
-  ExpenseDateText,
-  AddButton,
-  DisabledAddButton,
-  TotalText,
-  ListItemDetailHint,
-  TrashIconContainer,
-  ExpenseItemContent,
-  ExpenseAmountText,
+  ContentContainer,
+  HeaderRow,
+  HeaderTitle,
+  HeaderSubtitle,
+  DogChipsRow,
+  DogChip,
+  DogChipImage,
+  DogChipPlaceholder,
+  DogChipPlaceholderText,
+  DogChipText,
+  MonthSelectorWrapper,
+  StatsCard,
+  StatsRow,
+  StatCard,
+  StatValue,
+  StatLabel,
   TotalRow,
-  YearTotalText,
-  FadeDivider,
+  TotalLabel,
+  TotalValue,
+  YearTotalValue,
+  FilterTabsContainer,
+  FilterTabsRow,
+  FilterTab,
+  FilterTabText,
+  ScrollHint,
+  ExpenseCard,
+  ExpenseIconContainer,
+  ExpenseContent,
+  ExpenseTitle,
+  ExpenseSubtitle,
+  ExpenseRight,
+  ExpenseAmount,
+  ExpenseDate,
+  AddButton,
+  AddButtonText,
+  DeleteAllButton,
+  DeleteAllButtonText,
+  SwipeDeleteButton,
+  EmptyContainer,
+  EmptyImage,
+  EmptyText,
+  EmptySubtext,
+  RecurringBadge,
+  RecurringBadgeText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
-import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
-import { TrashSimple } from 'phosphor-react-native';
-import { PieChart } from 'react-native-chart-kit';
+import { collection, query, where, getDocs, doc, deleteDoc, addDoc } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { DogProfile } from '../../types/dogProfile';
 import { getExpenseIcon } from '../../utils/iconMappings';
-import { confirmDelete as confirmDeleteUtil } from '../../utils/confirmDelete';
+import { confirmDelete } from '../../utils/confirmDelete';
 import { formatShortDate } from '../../utils/dateFormarter';
-import { Dimensions } from 'react-native';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
-import EmptyStateList from '../../components/EmptyStateList';
 import MonthSelector from '../../components/MonthSelector';
+import { StackScreenProps } from '@react-navigation/stack';
+import { LanguageContext } from '../../context/LanguageContext';
 
-export default function ExpenseScreen() {
-  const { selectedDog } = useContext(DogProfileContext);
-  const [expenses, setExpenses] = useState([]);
-  const [allExpenses, setAllExpenses] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [expenseDistribution, setExpenseDistribution] = useState({});
+type ExpenseStackParamList = {
+  ExpenseScreen: undefined;
+  AddExpense: { expense?: any; addExpense?: (expense: any) => void };
+};
+
+type Props = StackScreenProps<ExpenseStackParamList, 'ExpenseScreen'>;
+
+const FILTER_TAB_KEYS = [
+  { key: 'expenses.all', value: null },
+  { key: 'expenses.food', value: 'Food' },
+  { key: 'expenses.medical', value: 'Medical' },
+  { key: 'expenses.grooming', value: 'Grooming' },
+  { key: 'expenses.toys', value: 'Toys' },
+  { key: 'expenses.other', value: 'Other' },
+];
+
+const ICON_BG: Record<string, string> = {
+  Food: '#e8f5e9',
+  Medical: '#e3f2fd',
+  Grooming: '#fce4ec',
+  Toys: '#fff3e0',
+  Other: '#f3e5f5',
+};
+
+const ICON_COLOR: Record<string, string> = {
+  Food: '#27ae60',
+  Medical: '#3498db',
+  Grooming: '#e91e63',
+  Toys: '#e67e22',
+  Other: '#9b59b6',
+};
+
+const BORDER_COLOR: Record<string, string> = {
+  Food: '#27ae60',
+  Medical: '#3498db',
+  Grooming: '#e91e63',
+  Toys: '#e67e22',
+  Other: '#9b59b6',
+};
+
+export default function ExpenseScreen({ navigation }: Props) {
+  const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
+  const { t } = useContext(LanguageContext);
+  const [dogProfiles, setDogProfiles] = useState<DogProfile[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [allExpenses, setAllExpenses] = useState<any[]>([]);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const screenWidth = Dimensions.get('window').width;
   const [isManualMonthChange, setIsManualMonthChange] = useState(false);
-  const navigation = useNavigation();
-  const [isExpenseAdded, setIsExpenseAdded] = useState(false);
-  const route = useRoute();
+  const [showFilterFade, setShowFilterFade] = useState(true);
 
-  const fetchExpenses = async (monthIndex, year) => {
-    if (!selectedDog) return;
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid;
+
+  const loadProfiles = async () => {
+    if (!userId) return;
+    try {
+      const snapshot = await getDocs(
+        query(collection(db, 'dogProfiles'), where('userId', '==', userId))
+      );
+      const profiles = snapshot.docs.map((d: any) => ({
+        id: d.id,
+        ...d.data(),
+      })) as DogProfile[];
+      setDogProfiles(profiles);
+    } catch (error) {
+      console.error('Failed to load dog profiles:', error);
+    }
+  };
+
+  const generateRecurringExpenses = async (
+    allExpenses: any[],
+    monthIndex: number,
+    year: number
+  ): Promise<any[]> => {
+    const recurringExpenses = allExpenses.filter((e) => e.recurring && e.recurringFrequency);
+    const newExpenses: any[] = [];
+
+    for (const expense of recurringExpenses) {
+      const originalDate = new Date(expense.date);
+      const origMonth = originalDate.getMonth();
+      const origYear = originalDate.getFullYear();
+      const origDay = originalDate.getDate();
+
+      // Don't generate for months before or equal to the original expense
+      if (year < origYear || (year === origYear && monthIndex <= origMonth)) {
+        continue;
+      }
+
+      let shouldGenerate = false;
+
+      if (expense.recurringFrequency === 'weekly') {
+        const diffMs = new Date(year, monthIndex, origDay).getTime() - originalDate.getTime();
+        const diffWeeks = diffMs / (7 * 24 * 60 * 60 * 1000);
+        shouldGenerate = diffWeeks >= 1;
+      } else if (expense.recurringFrequency === 'monthly') {
+        shouldGenerate = true;
+      } else if (expense.recurringFrequency === 'yearly') {
+        shouldGenerate = monthIndex === origMonth;
+      }
+
+      if (!shouldGenerate) continue;
+
+      // Check if a recurring copy already exists for this month
+      const alreadyExists = allExpenses.some((e) => {
+        if (e.recurringSourceId !== expense.id) return false;
+        const eDate = new Date(e.date);
+        return eDate.getMonth() === monthIndex && eDate.getFullYear() === year;
+      });
+
+      if (alreadyExists) continue;
+
+      // Create the recurring copy with the same day in the target month
+      const lastDayOfMonth = new Date(year, monthIndex + 1, 0).getDate();
+      const targetDay = Math.min(origDay, lastDayOfMonth);
+      const targetDate = new Date(year, monthIndex, targetDay);
+
+      const newExpense = {
+        title: expense.title,
+        amount: expense.amount,
+        type: expense.type,
+        date: targetDate.toISOString(),
+        dogId: expense.dogId,
+        recurring: false,
+        recurringFrequency: null,
+        recurringSourceId: expense.id,
+      };
+
+      try {
+        const docRef = await addDoc(collection(db, 'expenses'), newExpense);
+        newExpenses.push({ ...newExpense, id: docRef.id });
+      } catch (error) {
+        console.error('Error creating recurring expense:', error);
+      }
+    }
+
+    return newExpenses;
+  };
+
+  const fetchExpenses = async (monthIndex: number, year: number) => {
+    if (!selectedDog) {
+      setExpenses([]);
+      setAllExpenses([]);
+      return;
+    }
 
     try {
       const snapshot = await getDocs(
         query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
       );
 
-      const expensesData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
+      const expensesData = snapshot.docs.map((d: any) => ({
+        id: d.id,
+        ...d.data(),
       }));
 
-      const sortedExpenses = expensesData.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
+      // Generate recurring expenses for the viewed month
+      const generated = await generateRecurringExpenses(expensesData, monthIndex, year);
+      const allData = [...expensesData, ...generated];
+
+      const sortedExpenses = allData.sort(
+        (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       setAllExpenses(sortedExpenses);
       updateFilteredExpenses(sortedExpenses, monthIndex, year);
@@ -73,208 +235,325 @@ export default function ExpenseScreen() {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (!isExpenseAdded && !isManualMonthChange) {
-        const currentDate = new Date();
-        setSelectedMonthIndex(currentDate.getMonth());
-        setSelectedYear(currentDate.getFullYear());
-      }
-
-      fetchExpenses(selectedMonthIndex, selectedYear);
-
-      return () => {
-        setIsManualMonthChange(false);
-        setIsExpenseAdded(false);
-      };
-    }, [selectedDog, selectedMonthIndex, selectedYear, isExpenseAdded])
-  );
-
-  const chartData = Object.keys(expenseDistribution).map((type, index) => ({
-    name: `${type}`,
-    amount: expenseDistribution[type],
-    color: ['#7289DA', '#FFA726', '#66BB6A', '#EF5350', '#AB47BC'][index % 5],
-    legendFontColor: '#333',
-    legendFontSize: 15,
-  }));
-
-  const updateFilteredExpenses = (allExpenses, monthIndex, year) => {
-    const filteredExpenses = allExpenses.filter((expense) => {
+  const updateFilteredExpenses = (all: any[], monthIndex: number, year: number) => {
+    const filtered = all.filter((expense: any) => {
       const expenseDate = new Date(expense.date);
       return (
         expenseDate.getMonth() === monthIndex &&
         expenseDate.getFullYear() === year
       );
     });
-
-    setExpenses(filteredExpenses);
-
-    const totalExpenses = filteredExpenses.reduce(
-      (sum, expense) => sum + expense.amount,
-      0
-    );
-    setTotal(totalExpenses);
-
-    const distribution = filteredExpenses.reduce((acc, expense) => {
-      acc[expense.type] = (acc[expense.type] || 0) + expense.amount;
-      return acc;
-    }, {});
-
-    setExpenseDistribution(distribution);
+    setExpenses(filtered);
   };
 
-  const handleMonthChange = (newMonthIndex, newYear) => {
-    setSelectedMonthIndex(newMonthIndex);
-    setSelectedYear(newYear);
-    setIsManualMonthChange(true);
-    fetchExpenses(newMonthIndex, newYear);
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!isManualMonthChange) {
+        const currentDate = new Date();
+        setSelectedMonthIndex(currentDate.getMonth());
+        setSelectedYear(currentDate.getFullYear());
+      }
+      loadProfiles();
+      fetchExpenses(selectedMonthIndex, selectedYear);
 
-  const handleAddExpenseNavigation = (expenseDate) => {
-    const expenseMonthIndex = new Date(expenseDate).getMonth();
-    const expenseYear = new Date(expenseDate).getFullYear();
+      return () => {
+        setIsManualMonthChange(false);
+      };
+    }, [selectedDog, selectedMonthIndex, selectedYear, userId])
+  );
 
-    setSelectedMonthIndex(expenseMonthIndex);
-    setSelectedYear(expenseYear);
-    setIsExpenseAdded(true);
-    fetchExpenses(expenseMonthIndex, expenseYear);
-  };
-
-  const deleteExpense = async (expenseId) => {
+  const handleSelectDog = async (dog: DogProfile) => {
+    setSelectedDog(dog);
     try {
-      const expenseToDelete = allExpenses.find(
-        (expense) => expense.id === expenseId
-      );
-
-      await deleteDoc(doc(db, 'expenses', expenseId));
-
-      const updatedExpenses = allExpenses.filter(
-        (expense) => expense.id !== expenseId
-      );
-      setAllExpenses(updatedExpenses);
-
-      handleAddExpenseNavigation(expenseToDelete.date);
-      updateFilteredExpenses(updatedExpenses, selectedMonthIndex, selectedYear);
+      await AsyncStorage.setItem('selectedDogId', dog.id);
     } catch (error) {
-      console.error('Error deleting expense:', error);
-      Alert.alert('Error', 'Unable to delete the expense.');
+      console.error('Failed to save selected dog ID', error);
     }
   };
 
-  const handleDeleteExpense = (expenseId: string) => {
-    confirmDeleteUtil({
-      title: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      onConfirm: () => deleteExpense(expenseId),
+  const handleMonthChange = (newMonthIndex: number, newYear: number) => {
+    setSelectedMonthIndex(newMonthIndex);
+    setSelectedYear(newYear);
+    setIsManualMonthChange(true);
+  };
+
+  const deleteExpense = async (expenseId: string) => {
+    try {
+      await deleteDoc(doc(db, 'expenses', expenseId));
+      const updated = allExpenses.filter((e) => e.id !== expenseId);
+      setAllExpenses(updated);
+      updateFilteredExpenses(updated, selectedMonthIndex, selectedYear);
+      Alert.alert(t('common.success'), t('alert.expenseDeleted'));
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      Alert.alert(t('common.error'), t('alert.failedDeleteExpense'));
+    }
+  };
+
+  const handleConfirmDelete = (id: string) => {
+    confirmDelete({
+      title: t('alert.deleteExpense'),
+      message: t('alert.deleteExpenseMsg'),
+      onConfirm: () => deleteExpense(id),
     });
   };
 
-  const renderExpenseItem = ({ item }) => {
-    const formattedDate = formatShortDate(item.date);
+  const handleDeleteAll = () => {
+    if (expenses.length === 0) return;
+    Alert.alert(
+      t('alert.deleteAllExpenses'),
+      t('alert.deleteAllExpensesMsg', { count: String(expenses.length) }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.deleteAll'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await Promise.all(
+                expenses.map(async (e) => {
+                  await deleteDoc(doc(db, 'expenses', e.id));
+                })
+              );
+              const updated = allExpenses.filter(
+                (e) => !expenses.find((exp) => exp.id === e.id)
+              );
+              setAllExpenses(updated);
+              updateFilteredExpenses(updated, selectedMonthIndex, selectedYear);
+              Alert.alert(t('common.success'), t('alert.allExpensesDeleted'));
+            } catch (error) {
+              console.error('Error deleting all expenses', error);
+              Alert.alert(t('common.error'), t('alert.failedDeleteAllExpenses'));
+            }
+          },
+        },
+      ]
+    );
+  };
 
-    const formattedAmount = new Intl.NumberFormat('en-US', {
+  const filteredExpenses = activeFilter
+    ? expenses.filter((e) => e.type === activeFilter)
+    : expenses;
+
+  const monthTotal = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
+  const yearTotal = allExpenses
+    .filter((e: any) => new Date(e.date).getFullYear() === selectedYear)
+    .reduce((sum: number, e: any) => sum + e.amount, 0);
+
+  // Stats per category for current month
+  const foodTotal = expenses.filter((e: any) => e.type === 'Food').reduce((s: number, e: any) => s + e.amount, 0);
+  const medicalTotal = expenses.filter((e: any) => e.type === 'Medical').reduce((s: number, e: any) => s + e.amount, 0);
+  const groomingTotal = expenses.filter((e: any) => e.type === 'Grooming').reduce((s: number, e: any) => s + e.amount, 0);
+  const otherTotal = expenses
+    .filter((e: any) => e.type === 'Toys' || e.type === 'Other')
+    .reduce((s: number, e: any) => s + e.amount, 0);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(item.amount);
-
-    return (
-      <ExpenseItem onPress={() => navigation.navigate('AddExpense', { expense: item })}>
-        <ExpenseIconContainer>{getExpenseIcon(item.type)}</ExpenseIconContainer>
-        <ExpenseItemContent>
-          <ExpenseItemText>{item.title}</ExpenseItemText>
-          <ListItemDetailHint>
-            <ExpenseDateText>{formattedDate}</ExpenseDateText>
-          </ListItemDetailHint>
-        </ExpenseItemContent>
-        <ExpenseAmountText>
-          {formattedAmount}
-        </ExpenseAmountText>
-        <TrashIconContainer onPress={() => handleDeleteExpense(item.id)}>
-          <TrashSimple size={20} color="#FF5C5C" />
-        </TrashIconContainer>
-      </ExpenseItem>
-    );
+    }).format(value);
   };
 
   return (
     <Container>
-      {selectedDog && (
-        <MonthSelector
-          monthIndex={selectedMonthIndex}
-          year={selectedYear}
-          onChange={handleMonthChange}
-        />
-      )}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ContentContainer>
+          {/* Header */}
+          <HeaderRow>
+            <HeaderTitle>{t('expenses.title')}</HeaderTitle>
+            {expenses.length > 0 && (
+              <DeleteAllButton onPress={handleDeleteAll}>
+                <DeleteAllButtonText>{t('common.deleteAll')}</DeleteAllButtonText>
+              </DeleteAllButton>
+            )}
+          </HeaderRow>
+          <HeaderSubtitle>
+            {selectedDog ? t('expenses.subtitle', { name: selectedDog.name }) : t('expenses.subtitleEmpty')}
+          </HeaderSubtitle>
 
-      {expenses && expenses.length > 0 && (
-        <PieChart
-          data={chartData}
-          width={screenWidth - 40}
-          height={200}
-          chartConfig={{
-            backgroundColor: '#ffffff',
-            backgroundGradientFrom: '#ffffff',
-            backgroundGradientTo: '#ffffff',
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          }}
-          accessor="amount"
-          backgroundColor="transparent"
-          paddingLeft="15"
-        />
-      )}
+          {/* Dog Chips */}
+          {dogProfiles.length > 0 && (
+            <DogChipsRow>
+              <FlatList
+                horizontal
+                data={dogProfiles}
+                renderItem={({ item }) => {
+                  const isSelected = selectedDog?.id === item.id;
+                  return (
+                    <DogChip selected={isSelected} onPress={() => handleSelectDog(item)}>
+                      {item.image ? (
+                        <DogChipImage source={{ uri: item.image }} />
+                      ) : (
+                        <DogChipPlaceholder>
+                          <DogChipPlaceholderText>
+                            {item.name.charAt(0)}
+                          </DogChipPlaceholderText>
+                        </DogChipPlaceholder>
+                      )}
+                      <DogChipText selected={isSelected}>{item.name}</DogChipText>
+                    </DogChip>
+                  );
+                }}
+                keyExtractor={(item) => item.id}
+                showsHorizontalScrollIndicator={false}
+              />
+            </DogChipsRow>
+          )}
 
-      <FlatList
-        data={expenses}
-        renderItem={renderExpenseItem}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={
-          <EmptyStateList
-            image={expensesRecordsImage}
-            text="No expenses yet. Add your first pet and start adding records to keep track of your expenses."
-          />
-        }
-        showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
-      />
+          {selectedDog && (
+            <>
+              {/* Month Selector */}
+              <MonthSelectorWrapper>
+                <MonthSelector
+                  monthIndex={selectedMonthIndex}
+                  year={selectedYear}
+                  onChange={handleMonthChange}
+                />
+              </MonthSelectorWrapper>
 
-      {expenses && expenses.length > 0 && (
-        <FadeDivider />
-      )}
+              {/* Total Card */}
+              {expenses.length > 0 && (
+                <TotalRow>
+                  <TotalLabel>{t('expenses.monthTotal')}</TotalLabel>
+                  <TotalValue>{formatCurrency(monthTotal)}</TotalValue>
+                  <YearTotalValue>{t('common.year')}: {formatCurrency(yearTotal)}</YearTotalValue>
+                </TotalRow>
+              )}
 
-      <>
-        {selectedDog && expenses.length > 0 && (
-          <TotalRow>
-            <YearTotalText>
-              Year: $
-              {allExpenses
-                .filter((expense) => expense.date.includes(selectedYear))
-                .reduce((total, expense) => total + expense.amount, 0)
-                .toFixed(2)}{' '}
-            </YearTotalText>
-            <TotalText>Month: ${total.toFixed(2)}</TotalText>
-          </TotalRow>
-        )}
+              {/* Stats */}
+              {expenses.length > 0 && (
+                <StatsCard>
+                  <StatsRow>
+                    <StatCard>
+                      <StatValue color="#27ae60">{formatCurrency(foodTotal)}</StatValue>
+                      <StatLabel>{t('expenses.food')}</StatLabel>
+                    </StatCard>
+                    <StatCard>
+                      <StatValue color="#3498db">{formatCurrency(medicalTotal)}</StatValue>
+                      <StatLabel>{t('expenses.medical')}</StatLabel>
+                    </StatCard>
+                    <StatCard>
+                      <StatValue color="#e91e63">{formatCurrency(groomingTotal)}</StatValue>
+                      <StatLabel>{t('expenses.grooming')}</StatLabel>
+                    </StatCard>
+                    <StatCard>
+                      <StatValue color="#e67e22">{formatCurrency(otherTotal)}</StatValue>
+                      <StatLabel>{t('expenses.other')}</StatLabel>
+                    </StatCard>
+                  </StatsRow>
+                </StatsCard>
+              )}
 
-        {selectedDog ? (
-          <AddButton
-            onPress={() =>
-              navigation.navigate('AddExpense', {
-                addExpense: (newExpense) => {
-                  handleAddExpenseNavigation(newExpense.date);
-                  fetchExpenses();
-                },
-              })
-            }
-          >
-            <ButtonText>Add Expense</ButtonText>
-          </AddButton>
-        ) : (
-          <DisabledAddButton disabled>
-            <ButtonText>Add Expense</ButtonText>
-          </DisabledAddButton>
-        )}
-      </>
+              {/* Filter Tabs */}
+              <FilterTabsContainer>
+                <FilterTabsRow>
+                  <FlatList
+                    horizontal
+                    data={FILTER_TAB_KEYS}
+                    renderItem={({ item }) => {
+                      const isSelected = activeFilter === item.value;
+                      return (
+                        <FilterTab
+                          selected={isSelected}
+                          onPress={() => setActiveFilter(item.value)}
+                        >
+                          <FilterTabText selected={isSelected}>{t(item.key)}</FilterTabText>
+                        </FilterTab>
+                      );
+                    }}
+                    keyExtractor={(item) => item.key}
+                    showsHorizontalScrollIndicator={false}
+                    onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+                      const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+                      const isAtEnd = contentOffset.x + layoutMeasurement.width >= contentSize.width - 10;
+                      if (isAtEnd && showFilterFade) setShowFilterFade(false);
+                      else if (!isAtEnd && !showFilterFade) setShowFilterFade(true);
+                    }}
+                    scrollEventThrottle={16}
+                  />
+                </FilterTabsRow>
+                {showFilterFade && (
+                  <ScrollHint>
+                    <CaretRight size={16} color="#999" />
+                  </ScrollHint>
+                )}
+              </FilterTabsContainer>
+
+              {/* Add Button */}
+              <AddButton
+                onPress={() =>
+                  navigation.navigate('AddExpense', {
+                    addExpense: () => {
+                      fetchExpenses(selectedMonthIndex, selectedYear);
+                    },
+                  })
+                }
+              >
+                <AddButtonText>{t('expenses.addExpense')}</AddButtonText>
+              </AddButton>
+
+              {/* Expense Cards */}
+              {filteredExpenses.length > 0 ? (
+                <>
+                  {filteredExpenses.map((item) => (
+                    <Swipeable
+                      key={item.id}
+                      renderRightActions={() => (
+                        <SwipeDeleteButton onPress={() => handleConfirmDelete(item.id)}>
+                          <TrashSimple size={22} color="#fff" />
+                        </SwipeDeleteButton>
+                      )}
+                      overshootRight={false}
+                    >
+                      <ExpenseCard
+                        borderColor={BORDER_COLOR[item.type] || '#41245c'}
+                        onPress={() =>
+                          navigation.navigate('AddExpense', { expense: item })
+                        }
+                      >
+                        <ExpenseIconContainer bgColor={ICON_BG[item.type] || '#f0eff4'}>
+                          {getExpenseIcon(item.type, 20, ICON_COLOR[item.type] || '#41245c')}
+                        </ExpenseIconContainer>
+                        <ExpenseContent>
+                          <ExpenseTitle>{item.title}</ExpenseTitle>
+                          <ExpenseSubtitle>{item.type}</ExpenseSubtitle>
+                          {item.recurring && (
+                            <RecurringBadge>
+                              <ArrowsClockwise size={10} color="#41245c" />
+                              <RecurringBadgeText>
+                                {item.recurringFrequency === 'weekly' ? t('expenses.weekly') :
+                                 item.recurringFrequency === 'yearly' ? t('expenses.yearly') : t('expenses.monthly')}
+                              </RecurringBadgeText>
+                            </RecurringBadge>
+                          )}
+                        </ExpenseContent>
+                        <ExpenseRight>
+                          <ExpenseAmount>{formatCurrency(item.amount)}</ExpenseAmount>
+                          <ExpenseDate>{formatShortDate(item.date)}</ExpenseDate>
+                        </ExpenseRight>
+                      </ExpenseCard>
+                    </Swipeable>
+                  ))}
+                </>
+              ) : (
+                <EmptyContainer>
+                  <EmptyText>{t('expenses.noExpenses')}</EmptyText>
+                  <EmptySubtext>{t('expenses.noExpensesSub')}</EmptySubtext>
+                </EmptyContainer>
+              )}
+            </>
+          )}
+
+          {!selectedDog && dogProfiles.length === 0 && (
+            <EmptyContainer>
+              <EmptyImage source={expensesRecordsImage} resizeMode="contain" />
+              <EmptyText>{t('expenses.noPets')}</EmptyText>
+              <EmptySubtext>{t('expenses.noPetsSub')}</EmptySubtext>
+            </EmptyContainer>
+          )}
+        </ContentContainer>
+      </ScrollView>
     </Container>
   );
 }

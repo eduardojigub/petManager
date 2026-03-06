@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
+import { LanguageContext } from '../../context/LanguageContext';
 import { getAuth, updateProfile } from '@react-native-firebase/auth';
 import { Camera } from 'phosphor-react-native';
 import useImageUpload from '../../hooks/useImageUpload';
@@ -18,6 +19,7 @@ import {
 } from './styles';
 
 export default function EditUserProfileScreen({ navigation }: any) {
+  const { t } = useContext(LanguageContext);
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -47,7 +49,7 @@ export default function EditUserProfileScreen({ navigation }: any) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Name cannot be empty.');
+      Alert.alert(t('common.error'), t('editUser.nameEmpty'));
       return;
     }
 
@@ -57,10 +59,10 @@ export default function EditUserProfileScreen({ navigation }: any) {
         displayName: name.trim(),
         photoURL: photoURL || undefined,
       });
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert(t('common.success'), t('editUser.profileUpdated'));
       navigation.goBack();
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to update profile.');
+      Alert.alert(t('common.error'), t('editUser.failedUpdate'));
       console.warn('Update profile error:', error.message);
     } finally {
       setSaving(false);
@@ -88,23 +90,23 @@ export default function EditUserProfileScreen({ navigation }: any) {
         </CameraIconContainer>
       </AvatarContainer>
 
-      <Label>Name</Label>
+      <Label>{t('editUser.name')}</Label>
       <Input
         value={name}
         onChangeText={setName}
-        placeholder="Enter your name"
+        placeholder={t('editUser.namePlaceholder')}
         placeholderTextColor="#ccc"
         autoCapitalize="words"
       />
 
-      <Label>Email</Label>
+      <Label>{t('editUser.email')}</Label>
       <EmailText>{userEmail}</EmailText>
 
       <SaveButton onPress={handleSave} disabled={!hasChanges || saving}>
         {saving ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <SaveButtonText>Save</SaveButtonText>
+          <SaveButtonText>{t('editUser.save')}</SaveButtonText>
         )}
       </SaveButton>
     </Container>
