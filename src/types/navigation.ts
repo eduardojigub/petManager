@@ -66,8 +66,11 @@ export type ScheduleStackParamList = {
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
+  Account: undefined;
+  EditUserProfile: undefined;
   ManageNotifications: undefined;
   AccountSettings: undefined;
+  Help: undefined;
 };
 
 export type AppTabsParamList = {
