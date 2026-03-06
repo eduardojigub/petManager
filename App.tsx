@@ -8,6 +8,7 @@ import {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 import { getAuth, onAuthStateChanged, FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -23,6 +24,7 @@ import AuthStack from './src/navigation/AuthStack';
 import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
+import TranslatedHeaderTitle from './src/components/TranslatedHeaderTitle';
 import { SafeArea } from './src/navigation/styles';
 
 // Keep the splash screen visible while we fetch resources
@@ -35,11 +37,6 @@ const headerStyle = {
   elevation: 0,
   shadowOpacity: 0,
   borderBottomWidth: 0,
-};
-
-const headerTitleStyle = {
-  fontFamily: 'Poppins_400Regular',
-  fontWeight: 'normal' as const,
 };
 
 export default function App() {
@@ -108,6 +105,7 @@ export default function App() {
   }
 
   return (
+    <LanguageProvider>
     <DogProfileProvider>
       <NavigationContainer>
         <SafeArea>
@@ -124,10 +122,11 @@ export default function App() {
                   component={AddScheduleScreen}
                   options={({ route }) => ({
                     headerStyle,
-                    headerTitle: route.params?.isEditMode
-                      ? 'Edit Schedule'
-                      : 'Add Schedule',
-                    headerTitleStyle,
+                    headerTitle: () => (
+                      <TranslatedHeaderTitle
+                        translationKey={route.params?.isEditMode ? 'nav.editSchedule' : 'nav.addSchedule'}
+                      />
+                    ),
                     headerLeft: ({ onPress }) => (
                       <CustomBackButton onPress={onPress} />
                     ),
@@ -138,10 +137,11 @@ export default function App() {
                   component={AddExpenseScreen}
                   options={({ route }) => ({
                     headerStyle,
-                    headerTitle: route.params?.expense
-                      ? 'Edit Expense'
-                      : 'Add Expense',
-                    headerTitleStyle,
+                    headerTitle: () => (
+                      <TranslatedHeaderTitle
+                        translationKey={route.params?.expense ? 'nav.editExpense' : 'nav.addExpense'}
+                      />
+                    ),
                     headerLeft: ({ onPress }) => (
                       <CustomBackButton onPress={onPress} />
                     ),
@@ -168,5 +168,6 @@ export default function App() {
         />
       )}
     </DogProfileProvider>
+    </LanguageProvider>
   );
 }

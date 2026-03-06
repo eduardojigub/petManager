@@ -3,8 +3,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
+import TranslatedHeaderTitle from '../components/TranslatedHeaderTitle';
 import { ProfileStackParamList } from '../types/navigation';
-import { headerStyle, headerTitleStyle } from './styles';
+import { headerStyle } from './styles';
 
 const Stack = createStackNavigator<ProfileStackParamList>();
 
@@ -15,7 +16,6 @@ export default function ProfileStack() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          title: 'Profile',
           headerShown: false,
         }}
       />
@@ -24,8 +24,7 @@ export default function ProfileStack() {
         component={EditProfileScreen}
         options={{
           headerStyle,
-          headerTitle: 'Edit Profile',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.editProfile" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Modal } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { X } from 'phosphor-react-native';
@@ -14,6 +14,7 @@ import {
   ApplyButton,
   ApplyButtonText,
 } from './styles';
+import { LanguageContext } from '../../context/LanguageContext';
 
 interface FilterModalProps {
   visible: boolean;
@@ -32,19 +33,23 @@ export default function FilterModal({
   onApply,
   typeOptions,
 }: FilterModalProps) {
+  const { t, locale } = useContext(LanguageContext);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   const currentMonth = new Date().getMonth();
 
+  const monthKeys = [
+    'month.january', 'month.february', 'month.march', 'month.april',
+    'month.may', 'month.june', 'month.july', 'month.august',
+    'month.september', 'month.october', 'month.november', 'month.december',
+  ];
+
   const months = Array.from({ length: 12 }, (_, index) => ({
-    label:
-      index === currentMonth
-        ? `${new Date(2023, index).toLocaleString('default', {
-            month: 'long',
-          })} (Current Month)`
-        : new Date(2023, index).toLocaleString('default', { month: 'long' }),
+    label: index === currentMonth
+      ? `${t(monthKeys[index])} ${t('filter.currentMonth')}`
+      : t(monthKeys[index]),
     value: index,
   }));
 
@@ -86,20 +91,20 @@ export default function FilterModal({
       <Overlay>
         <ModalContainer>
           <Header>
-            <Title>Filter Health Records</Title>
+            <Title>{t('filter.title')}</Title>
             <CloseButton onPress={handleClose}>
               <X size={32} />
             </CloseButton>
           </Header>
 
           <DropdownContainer>
-            <DropdownLabel>Filter by Type</DropdownLabel>
+            <DropdownLabel>{t('filter.byType')}</DropdownLabel>
             <DropdownWrapper>
               <Dropdown
                 data={typeOptions}
                 labelField="label"
                 valueField="value"
-                placeholder="Select Type"
+                placeholder={t('filter.selectType')}
                 value={selectedType}
                 onChange={(item) => setSelectedType(item.value)}
               />
@@ -107,13 +112,13 @@ export default function FilterModal({
           </DropdownContainer>
 
           <DropdownContainer>
-            <DropdownLabel>Filter by Month</DropdownLabel>
+            <DropdownLabel>{t('filter.byMonth')}</DropdownLabel>
             <DropdownWrapper>
               <Dropdown
                 data={months}
                 labelField="label"
                 valueField="value"
-                placeholder="Select Month"
+                placeholder={t('filter.selectMonth')}
                 value={selectedMonth}
                 onChange={(item) => setSelectedMonth(item.value)}
               />
@@ -121,13 +126,13 @@ export default function FilterModal({
           </DropdownContainer>
 
           <DropdownContainer>
-            <DropdownLabel>Filter by Year</DropdownLabel>
+            <DropdownLabel>{t('filter.byYear')}</DropdownLabel>
             <DropdownWrapper>
               <Dropdown
                 data={years}
                 labelField="label"
                 valueField="value"
-                placeholder="Select Year"
+                placeholder={t('filter.selectYear')}
                 value={selectedYear}
                 onChange={(item) => setSelectedYear(item.value)}
               />
@@ -139,7 +144,7 @@ export default function FilterModal({
             onPress={handleApply}
             disabled={!hasActiveFilters}
           >
-            <ApplyButtonText>Apply Filter</ApplyButtonText>
+            <ApplyButtonText>{t('filter.apply')}</ApplyButtonText>
           </ApplyButton>
         </ModalContainer>
       </Overlay>

@@ -5,8 +5,9 @@ import SignInScreen from '../screens/LoginScreen/SignIn';
 import SignUpScreen from '../screens/LoginScreen/SignUp';
 import ForgotPasswordScreen from '../screens/LoginScreen/ForgotPassword';
 import CustomBackButton from '../components/CustomBackButton';
+import TranslatedHeaderTitle from '../components/TranslatedHeaderTitle';
 import { AuthStackParamList } from '../types/navigation';
-import { headerStyle, headerTitleStyle } from './styles';
+import { headerStyle } from './styles';
 
 const Stack = createStackNavigator<AuthStackParamList>();
 
@@ -23,8 +24,7 @@ export default function AuthStack() {
         component={SignInScreen}
         options={{
           headerStyle,
-          headerTitle: 'Sign In',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.signIn" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -33,8 +33,7 @@ export default function AuthStack() {
         component={SignUpScreen}
         options={{
           headerStyle,
-          headerTitle: 'Sign Up',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.signUp" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -43,8 +42,7 @@ export default function AuthStack() {
         component={ForgotPasswordScreen}
         options={{
           headerStyle,
-          headerTitle: 'Forgot Password',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.forgotPassword" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
