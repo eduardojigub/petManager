@@ -6,7 +6,7 @@ interface BadgeStyle {
   label: string;
 }
 
-export function getBadgeStyle(record: { dueDate?: string }, t: TranslateFn): BadgeStyle {
+export function getBadgeStyle(record: any, t: TranslateFn): BadgeStyle {
   if (!record.dueDate) {
     return { bg: '#e0f5e9', color: '#27ae60', label: t('health.complete') };
   }
