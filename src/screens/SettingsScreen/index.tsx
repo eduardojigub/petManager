@@ -1,137 +1,250 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Linking, Modal, Share, Alert } from 'react-native';
+import { getAuth, signOut } from '@react-native-firebase/auth';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { SettingsStackParamList } from '../../types/navigation';
+import Constants from 'expo-constants';
+import { CaretRight, User, Bell, Question, SignOut, Star, ShareNetwork, FileText, DownloadSimple } from 'phosphor-react-native';
+import { exportUserData } from '../../utils/exportData';
 import {
   Container,
-  Title,
-  Button,
-  ButtonText,
+  ContentContainer,
+  HeaderTitle,
+  HeaderSubtitle,
+  ProfileCard,
+  ProfileAvatar,
+  ProfileAvatarText,
+  ProfileAvatarImage,
+  ProfileInfo,
+  ProfileName,
+  ProfileEmail,
+  MenuCard,
+  MenuItem,
+  MenuIconContainer,
+  MenuTextContainer,
+  MenuItemTitle,
+  MenuItemSubtitle,
+  MenuDivider,
+  LogoutTitle,
+  LogoutSubtitle,
+  FooterText,
+  FooterSubtext,
   ModalOverlay,
   ModalContainer,
+  ModalTitle,
   ModalText,
+  ScrollModalContent,
+  SectionTitle,
   CloseButton,
   CloseButtonText,
-  ScrollContainer,
 } from './styles';
-import { Alert, Modal, Linking } from 'react-native';
-import { getAuth, signOut } from '@react-native-firebase/auth';
-import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
 
-const appVersion = Constants.manifest?.version || 'Version not available';
+const appVersion = Constants.expoConfig?.version || 'Version not available';
 
 export default function SettingsScreen() {
-  const [showAboutModal, setShowAboutModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const navigation = useNavigation();
+  const [, forceUpdate] = useState(0);
+  const navigation = useNavigation<NavigationProp<SettingsStackParamList>>();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  useFocusEffect(
+    useCallback(() => {
+      forceUpdate((n) => n + 1);
+    }, [])
+  );
+
+  const userEmail = user?.email || '';
+  const userName = user?.displayName || userEmail.split('@')[0] || 'User';
+  const userPhoto = user?.photoURL || null;
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const handleLogout = async () => {
     try {
-      const auth = getAuth();
       await signOut(auth);
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Sign out error:', error.message);
     }
   };
 
-  const toggleAboutModal = () => {
-    setShowAboutModal(!showAboutModal);
-  };
+  const APP_STORE_URL = 'https://apps.apple.com/app/id6504808468';
 
-  const toggleTermsModal = () => {
-    setShowTermsModal(!showTermsModal);
-  };
-
-  // Function to handle the account deletion link
-  const handleDeleteAccount = () => {
-    const url = 'https://jp7dc7wdnld.typeform.com/to/UukaGjeR';
-    Linking.openURL(url).catch((err) =>
-      Alert.alert('Error', 'Failed to open the link')
+  const handleRateApp = () => {
+    Linking.openURL(APP_STORE_URL).catch(() =>
+      Alert.alert('Error', 'Could not open the App Store')
     );
   };
 
+  const handleShareApp = async () => {
+    try {
+      await Share.share({
+        message: `Check out Pet Life - the best app to manage your pet's health, schedules and expenses! ${APP_STORE_URL}`,
+      });
+    } catch (error) {
+      // user cancelled
+    }
+  };
+
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      await exportUserData();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to export data. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const menuItems = [
+    {
+      icon: <User size={20} color="#41245c" weight="bold" />,
+      bgColor: '#ede8f5',
+      title: 'Account',
+      subtitle: 'Profile and security',
+      onPress: () => navigation.navigate('Account'),
+    },
+    {
+      icon: <Bell size={20} color="#e67e22" weight="bold" />,
+      bgColor: '#fdf0e0',
+      title: 'Notifications',
+      subtitle: 'Alerts and reminders',
+      onPress: () => navigation.navigate('ManageNotifications'),
+    },
+    {
+      icon: <DownloadSimple size={20} color="#2ecc71" weight="bold" />,
+      bgColor: '#e0f5e9',
+      title: exporting ? 'Exporting...' : 'Export Data',
+      subtitle: 'Download your data as PDF',
+      onPress: handleExportData,
+    },
+    {
+      icon: <Question size={20} color="#3498db" weight="bold" />,
+      bgColor: '#e0eef9',
+      title: 'Help & FAQ',
+      subtitle: 'Frequently asked questions',
+      onPress: () => navigation.navigate('Help'),
+    },
+    {
+      icon: <Star size={20} color="#f1c40f" weight="bold" />,
+      bgColor: '#fdf8e0',
+      title: 'Rate the App',
+      subtitle: 'Leave a review on the App Store',
+      onPress: handleRateApp,
+    },
+    {
+      icon: <ShareNetwork size={20} color="#9b59b6" weight="bold" />,
+      bgColor: '#f0e6f6',
+      title: 'Share the App',
+      subtitle: 'Tell your friends about Pet Life',
+      onPress: handleShareApp,
+    },
+    {
+      icon: <FileText size={20} color="#7289da" weight="bold" />,
+      bgColor: '#e8ecf7',
+      title: 'Terms & Privacy',
+      subtitle: 'Terms of use and policy',
+      onPress: () => setShowTermsModal(true),
+    },
+  ];
+
   return (
     <Container>
-      <Title>Settings</Title>
+      <ContentContainer>
+        <HeaderTitle>Settings</HeaderTitle>
+        <HeaderSubtitle>Manage your preferences</HeaderSubtitle>
 
-      <Button onPress={() => navigation.navigate('ManageNotifications')}>
-        <ButtonText>Manage Notifications</ButtonText>
-      </Button>
+        <ProfileCard>
+          {userPhoto ? (
+            <ProfileAvatarImage source={{ uri: userPhoto }} />
+          ) : (
+            <ProfileAvatar>
+              <ProfileAvatarText>{userInitial}</ProfileAvatarText>
+            </ProfileAvatar>
+          )}
+          <ProfileInfo>
+            <ProfileName>{userName}</ProfileName>
+            <ProfileEmail>{userEmail}</ProfileEmail>
+          </ProfileInfo>
+        </ProfileCard>
 
-      {/* New Button for Deleting Account */}
-      <Button onPress={handleDeleteAccount}>
-        <ButtonText>Delete my account</ButtonText>
-      </Button>
-      <Button onPress={() => navigation.navigate('AccountSettings')}>
-        <ButtonText>Update Password</ButtonText>
-      </Button>
+        <MenuCard>
+          {menuItems.map((item, index) => (
+            <React.Fragment key={item.title}>
+              {index > 0 && <MenuDivider />}
+              <MenuItem onPress={item.onPress}>
+                <MenuIconContainer bgColor={item.bgColor}>
+                  {item.icon}
+                </MenuIconContainer>
+                <MenuTextContainer>
+                  <MenuItemTitle>{item.title}</MenuItemTitle>
+                  <MenuItemSubtitle>{item.subtitle}</MenuItemSubtitle>
+                </MenuTextContainer>
+                <CaretRight size={18} color="#ccc" weight="bold" />
+              </MenuItem>
+            </React.Fragment>
+          ))}
+        </MenuCard>
 
-      <Button onPress={toggleTermsModal}>
-        <ButtonText>Terms of Use and Privacy</ButtonText>
-      </Button> 
+        <MenuCard>
+          <MenuItem onPress={handleLogout}>
+            <MenuIconContainer bgColor="#fde8e8">
+              <SignOut size={20} color="#e74c3c" weight="bold" />
+            </MenuIconContainer>
+            <MenuTextContainer>
+              <LogoutTitle>Log Out</LogoutTitle>
+              <LogoutSubtitle>Sign out of your account</LogoutSubtitle>
+            </MenuTextContainer>
+            <CaretRight size={18} color="#e74c3c" weight="bold" />
+          </MenuItem>
+        </MenuCard>
 
-      <Button onPress={toggleAboutModal}>
-        <ButtonText>About the App</ButtonText>
-      </Button>
+        <FooterText>Pet Life v{appVersion}</FooterText>
+        <FooterSubtext>Made with love for pet lovers</FooterSubtext>
+      </ContentContainer>
 
-      <Button onPress={handleLogout}>
-        <ButtonText>Log Out</ButtonText>
-      </Button>
-
-
-
-      {/* About Modal */}
-      <Modal
-        visible={showAboutModal}
-        transparent
-        animationType="slide"
-        onRequestClose={toggleAboutModal}
-      >
-        <ModalOverlay>
-          <ModalContainer>
-            <Title>About the App</Title>
-            <ModalText>Version: {appVersion}</ModalText>
-            <ModalText>Developed by C.A.T</ModalText>
-            <CloseButton onPress={toggleAboutModal}>
-              <CloseButtonText>Close</CloseButtonText>
-            </CloseButton>
-          </ModalContainer>
-        </ModalOverlay>
-      </Modal>
-
-      {/* Terms and Privacy Modal */}
       <Modal
         visible={showTermsModal}
         transparent
         animationType="slide"
-        onRequestClose={toggleTermsModal}
+        onRequestClose={() => setShowTermsModal(false)}
       >
         <ModalOverlay>
           <ModalContainer>
-            <Title>Terms of Use & Privacy Policy</Title>
-            <ScrollContainer>
+            <ModalTitle>Terms of Use & Privacy Policy</ModalTitle>
+            <ScrollModalContent>
               <ModalText>
                 Welcome to our application. By using this app, you agree to the
                 following terms and conditions. We reserve the right to update
                 these terms at any time.
               </ModalText>
+
+              <SectionTitle>1. Data Collection</SectionTitle>
               <ModalText>
-                1. **Data Collection**: We collect data to improve user
-                experience. We respect your privacy and ensure your data is
-                secure.
+                We collect data to improve user experience. We respect your
+                privacy and ensure your data is secure.
               </ModalText>
+
+              <SectionTitle>2. Usage</SectionTitle>
               <ModalText>
-                2. **Usage**: You agree not to misuse our services, including
-                unlawful or unauthorized activities.
+                You agree not to misuse our services, including unlawful or
+                unauthorized activities.
               </ModalText>
+
+              <SectionTitle>3. Disclaimer</SectionTitle>
               <ModalText>
-                3. **Disclaimer**: We are not liable for any losses or damages
-                arising from your use of this app.
+                We are not liable for any losses or damages arising from your
+                use of this app.
               </ModalText>
+
               <ModalText>
                 For more details, please contact support@catapp.com. Thank you
                 for choosing us.
               </ModalText>
-            </ScrollContainer>
-            <CloseButton onPress={toggleTermsModal}>
+            </ScrollModalContent>
+            <CloseButton onPress={() => setShowTermsModal(false)}>
               <CloseButtonText>Close</CloseButtonText>
             </CloseButton>
           </ModalContainer>
