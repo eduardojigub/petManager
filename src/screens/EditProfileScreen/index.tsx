@@ -5,33 +5,79 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
+  ActivityIndicator,
+  View,
 } from 'react-native';
 import { db } from '../../firebase/Firestore';
 import { collection, addDoc, doc, updateDoc, deleteDoc } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import {
-  Container,
-  Label,
+  ScrollContainer,
+  ContentContainer,
+  AvatarContainer,
+  AvatarImage,
+  AvatarPlaceholder,
+  CameraIconBadge,
+  FormCard,
+  FormTitle,
+  InputGroup,
+  InputLabel,
+  InputWithIcon,
   IconInput,
+  UnitText,
+  GenderRow,
+  GenderChip,
+  GenderChipText,
+  DatePickerButton,
+  DatePickerText,
+  AgeDisplay,
+  OptionalBadge,
   SaveButton,
   ButtonText,
-  NoImageText,
-  AddPhotoButton,
-  ScrollContainer,
   DeleteButton,
-  FormContainer,
-  BannerImageBackground,
-  InputWithIcon,
-  UnitText,
 } from './styles';
 import { DogProfileContext } from '../../context/DogProfileContext';
-import * as Icon from 'phosphor-react-native';
+import { LanguageContext } from '../../context/LanguageContext';
+import { Dog, PawPrint, Scales, Camera, GenderMale, GenderFemale, CalendarBlank, Palette, Barcode } from 'phosphor-react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import useImageUpload from '../../hooks/useImageUpload';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../../types/navigation';
 import { confirmDelete } from '../../utils/confirmDelete';
+import DatePickerField from '../../components/DatePickerField';
 
 type Props = StackScreenProps<ProfileStackParamList, 'EditProfile'>;
+
+function calculateAge(birthday: Date, t: (key: string, params?: Record<string, string>) => string): string {
+  const now = new Date();
+  let years = now.getFullYear() - birthday.getFullYear();
+  let months = now.getMonth() - birthday.getMonth();
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  if (now.getDate() < birthday.getDate()) {
+    months--;
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+  }
+  if (years === 0) {
+    return t('editPet.ageMonthsOld', { count: String(months) });
+  }
+  if (months === 0) {
+    return t('editPet.ageYearsOld', { count: String(years) });
+  }
+  return t('editPet.ageYearsMonthsOld', { years: String(years), months: String(months) });
+}
+
+function ageToDecimal(birthday: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - birthday.getTime();
+  const years = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+  return years.toFixed(1);
+}
 
 export default function EditProfileScreen({ navigation, route }: Props) {
   const {
@@ -41,15 +87,25 @@ export default function EditProfileScreen({ navigation, route }: Props) {
     age: initialAge,
     weight: initialWeight,
     image: initialImage,
+    birthday: initialBirthday,
+    gender: initialGender,
+    color: initialColor,
+    microchip: initialMicrochip,
   } = route.params || {};
   const isNewProfile = !id;
   const { setSelectedDog } = useContext(DogProfileContext);
+  const { t } = useContext(LanguageContext);
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');
-  const [age, setAge] = useState(initialAge || '');
   const [weight, setWeight] = useState(initialWeight || '');
   const [image, setImage] = useState(initialImage || null);
+  const [gender, setGender] = useState(initialGender || '');
+  const [color, setColor] = useState(initialColor || '');
+  const [microchip, setMicrochip] = useState(initialMicrochip || '');
+  const [birthday, setBirthday] = useState<Date | null>(
+    initialBirthday ? new Date(initialBirthday) : null
+  );
   const { pickImage, uploadImage, uploading } = useImageUpload('dogProfiles', { resize: true });
 
   const handlePickImage = async () => {
@@ -60,8 +116,8 @@ export default function EditProfileScreen({ navigation, route }: Props) {
   const handleSave = async () => {
     const userId = getAuth().currentUser?.uid;
 
-    if (!userId || !name || !breed || !age || !weight) {
-      Alert.alert('Error', 'All fields are required!');
+    if (!userId || !name || !breed || !birthday || !weight) {
+      Alert.alert(t('common.error'), t('editPet.requiredFields'));
       return;
     }
 
@@ -70,12 +126,24 @@ export default function EditProfileScreen({ navigation, route }: Props) {
     if (image && image.startsWith('file://')) {
       imageUrl = await uploadImage(image);
       if (!imageUrl) {
-        Alert.alert('Error', 'Image upload failed. Cannot save the profile.');
+        Alert.alert(t('common.error'), t('editPet.imageUploadFailed'));
         return;
       }
     }
 
-    const profile = { name, breed, age, weight, image: imageUrl, userId };
+    const age = ageToDecimal(birthday);
+    const profile = {
+      name,
+      breed,
+      age,
+      weight,
+      image: imageUrl,
+      userId,
+      birthday: birthday.toISOString().split('T')[0],
+      gender: gender || null,
+      color: color || null,
+      microchip: microchip || null,
+    };
 
     try {
       if (isNewProfile) {
@@ -87,40 +155,35 @@ export default function EditProfileScreen({ navigation, route }: Props) {
       navigation.navigate('Profile');
     } catch (error) {
       console.error('Failed to save profile:', error);
-      Alert.alert('Error', 'Failed to save profile');
+      Alert.alert(t('common.error'), t('editPet.failedSave'));
     }
   };
 
   const handleDelete = () => {
     confirmDelete({
-      title: 'Delete Profile',
-      message: 'Are you sure you want to delete this profile?',
-      confirmText: 'OK',
+      title: t('editPet.deleteConfirmTitle'),
+      message: t('editPet.deleteConfirmMsg'),
+      confirmText: t('common.ok'),
       destructive: false,
       cancelable: false,
       onConfirm: async () => {
         try {
           await deleteDoc(doc(db, 'dogProfiles', id));
           setSelectedDog(null);
-          Alert.alert(
-            'Profile Deleted',
-            'The profile has been successfully deleted.'
-          );
+          Alert.alert(t('editPet.profileDeleted'), t('editPet.profileDeletedMsg'));
           navigation.navigate('Profile');
         } catch (error) {
           console.error('Failed to delete profile:', error);
-          Alert.alert('Error', 'Failed to delete profile');
+          Alert.alert(t('common.error'), t('editPet.failedDelete'));
         }
       },
     });
   };
 
-  const handleInput = (input, setInput) => {
-    const formattedInput = input.replace(/[^0-9.]/g, '');
-    const validDecimal = formattedInput.split('.').length <= 2;
-
-    if (validDecimal) {
-      setInput(formattedInput);
+  const handleWeightInput = (input: string) => {
+    const formatted = input.replace(/[^0-9.]/g, '');
+    if (formatted.split('.').length <= 2) {
+      setWeight(formatted);
     }
   };
 
@@ -131,92 +194,178 @@ export default function EditProfileScreen({ navigation, route }: Props) {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollContainer>
-          <BannerImageBackground source={image ? { uri: image } : null}>
-            {!image && <NoImageText>No image selected</NoImageText>}
-          </BannerImageBackground>
-
-          <FormContainer>
-            <Container>
-              <Label>
-                {isNewProfile ? 'Add New Pet Profile' : "Edit Pet's Profile"}
-              </Label>
-
-              <InputWithIcon>
-                <Icon.Dog size={24} color="#666" />
-                <IconInput
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Enter pet name"
-                  maxLength={20}
-                  returnKeyType="done"
-                  blurOnSubmit={true}
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                />
-              </InputWithIcon>
-
-              <InputWithIcon>
-                <Icon.PawPrint size={24} color="#666" />
-                <IconInput
-                  value={breed}
-                  onChangeText={setBreed}
-                  placeholder="Enter breed"
-                  returnKeyType="done"
-                  blurOnSubmit={true}
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                />
-              </InputWithIcon>
-
-              <InputWithIcon>
-                <Icon.Cake size={24} color="#666" />
-                <IconInput
-                  value={age}
-                  onChangeText={(text) => handleInput(text, setAge)}
-                  placeholder="Enter age (e.g., 0.5 for 6 months, 1.6 for 1 year 6 months)"
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
-                  blurOnSubmit={true}
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                />
-                <UnitText>years</UnitText>
-              </InputWithIcon>
-
-              <InputWithIcon>
-                <Icon.Scales size={24} color="#666" />
-                <IconInput
-                  value={weight}
-                  onChangeText={(text) => handleInput(text, setWeight)}
-                  placeholder="Enter weight (kg), Ex: 5kg"
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
-                  blurOnSubmit={true}
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                />
-                <UnitText>kg</UnitText>
-              </InputWithIcon>
-
-              <AddPhotoButton onPress={handlePickImage}>
-                <ButtonText>
-                  {image ? 'Change Photo' : 'Add a Photo'}
-                </ButtonText>
-              </AddPhotoButton>
-
-              <SaveButton onPress={handleSave} disabled={uploading}>
-                <ButtonText>
-                  {uploading
-                    ? 'Uploading...'
-                    : isNewProfile
-                    ? 'Create Profile'
-                    : 'Save Changes'}
-                </ButtonText>
-              </SaveButton>
-
-              {!isNewProfile && (
-                <DeleteButton onPress={handleDelete}>
-                  <ButtonText>Delete Profile</ButtonText>
-                </DeleteButton>
+          <ContentContainer>
+            <AvatarContainer onPress={handlePickImage}>
+              {image ? (
+                <AvatarImage source={{ uri: image }} />
+              ) : (
+                <AvatarPlaceholder>
+                  <Icon name="dog" size={44} color="#41245c" />
+                </AvatarPlaceholder>
               )}
-            </Container>
-          </FormContainer>
+              <CameraIconBadge>
+                <Camera size={16} color="#fff" weight="bold" />
+              </CameraIconBadge>
+            </AvatarContainer>
+
+            <FormCard>
+              <FormTitle>
+                {isNewProfile ? t('editPet.addNew') : t('editPet.editProfile')}
+              </FormTitle>
+
+              <InputGroup>
+                <InputLabel>{t('editPet.name')}</InputLabel>
+                <InputWithIcon>
+                  <Dog size={22} color="#41245c" />
+                  <IconInput
+                    value={name}
+                    onChangeText={setName}
+                    placeholder={t('editPet.namePlaceholder')}
+                    placeholderTextColor="#ccc"
+                    maxLength={20}
+                    returnKeyType="done"
+                    blurOnSubmit
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                </InputWithIcon>
+              </InputGroup>
+
+              <InputGroup>
+                <InputLabel>{t('editPet.breed')}</InputLabel>
+                <InputWithIcon>
+                  <PawPrint size={22} color="#41245c" />
+                  <IconInput
+                    value={breed}
+                    onChangeText={setBreed}
+                    placeholder={t('editPet.breedPlaceholder')}
+                    placeholderTextColor="#ccc"
+                    returnKeyType="done"
+                    blurOnSubmit
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                </InputWithIcon>
+              </InputGroup>
+
+              <InputGroup>
+                <InputLabel>{t('editPet.gender')}</InputLabel>
+                <GenderRow>
+                  <GenderChip
+                    selected={gender === 'Male'}
+                    onPress={() => setGender(gender === 'Male' ? '' : 'Male')}
+                  >
+                    <GenderMale
+                      size={20}
+                      color={gender === 'Male' ? '#fff' : '#999'}
+                      weight="bold"
+                    />
+                    <GenderChipText selected={gender === 'Male'}>{t('editPet.male')}</GenderChipText>
+                  </GenderChip>
+                  <GenderChip
+                    selected={gender === 'Female'}
+                    onPress={() => setGender(gender === 'Female' ? '' : 'Female')}
+                  >
+                    <GenderFemale
+                      size={20}
+                      color={gender === 'Female' ? '#fff' : '#999'}
+                      weight="bold"
+                    />
+                    <GenderChipText selected={gender === 'Female'}>{t('editPet.female')}</GenderChipText>
+                  </GenderChip>
+                </GenderRow>
+              </InputGroup>
+
+              <InputGroup>
+                <InputLabel>{t('editPet.birthday')}</InputLabel>
+                <DatePickerField
+                  value={birthday || new Date()}
+                  onChange={(date) => setBirthday(date)}
+                  mode="date"
+                  label={t('editPet.selectBirthday')}
+                  renderButton={(onPress, displayText) => (
+                    <DatePickerButton onPress={onPress}>
+                      <CalendarBlank size={22} color="#41245c" />
+                      <DatePickerText hasValue={!!birthday}>
+                        {birthday ? displayText : t('editPet.selectDateOfBirth')}
+                      </DatePickerText>
+                    </DatePickerButton>
+                  )}
+                />
+                {birthday && <AgeDisplay>{calculateAge(birthday, t)}</AgeDisplay>}
+              </InputGroup>
+
+              <InputGroup>
+                <InputLabel>{t('editPet.weight')}</InputLabel>
+                <InputWithIcon>
+                  <Scales size={22} color="#41245c" />
+                  <IconInput
+                    value={weight}
+                    onChangeText={handleWeightInput}
+                    placeholder={t('editPet.weightPlaceholder')}
+                    placeholderTextColor="#ccc"
+                    keyboardType="decimal-pad"
+                    returnKeyType="done"
+                    blurOnSubmit
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                  <UnitText>kg</UnitText>
+                </InputWithIcon>
+              </InputGroup>
+
+              <InputGroup>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <InputLabel>{t('editPet.colorCoat')}</InputLabel>
+                  <OptionalBadge>{t('editPet.optional')}</OptionalBadge>
+                </View>
+                <InputWithIcon>
+                  <Palette size={22} color="#41245c" />
+                  <IconInput
+                    value={color}
+                    onChangeText={setColor}
+                    placeholder={t('editPet.colorPlaceholder')}
+                    placeholderTextColor="#ccc"
+                    returnKeyType="done"
+                    blurOnSubmit
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                </InputWithIcon>
+              </InputGroup>
+
+              <InputGroup>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <InputLabel>{t('editPet.microchip')}</InputLabel>
+                  <OptionalBadge>{t('editPet.optional')}</OptionalBadge>
+                </View>
+                <InputWithIcon>
+                  <Barcode size={22} color="#41245c" />
+                  <IconInput
+                    value={microchip}
+                    onChangeText={setMicrochip}
+                    placeholder={t('editPet.microchipPlaceholder')}
+                    placeholderTextColor="#ccc"
+                    returnKeyType="done"
+                    blurOnSubmit
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                </InputWithIcon>
+              </InputGroup>
+            </FormCard>
+
+            <SaveButton onPress={handleSave} disabled={uploading}>
+              {uploading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <ButtonText>
+                  {isNewProfile ? t('editPet.createProfile') : t('editPet.saveChanges')}
+                </ButtonText>
+              )}
+            </SaveButton>
+
+            {!isNewProfile && (
+              <DeleteButton onPress={handleDelete}>
+                <ButtonText>{t('editPet.deleteProfile')}</ButtonText>
+              </DeleteButton>
+            )}
+          </ContentContainer>
         </ScrollContainer>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
