@@ -4,40 +4,76 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Switch,
 } from 'react-native';
+import { CalendarBlank, ArrowsClockwise } from 'phosphor-react-native';
 import {
-  Container,
-  Title,
-  Input,
-  CustomButton,
-  ButtonText,
-  DatePickerButton,
-  DatePickerText,
   KeyboardAvoidingContainer,
+  Container,
+  ContentContainer,
+  SectionTitle,
+  TypeGrid,
+  TypeChip,
+  TypeChipText,
+  FormCard,
+  InputGroup,
+  InputLabel,
+  StyledInput,
+  DateButton,
+  DateButtonText,
+  RecurringRow,
+  RecurringLabel,
+  FrequencyChipsRow,
+  FrequencyChip,
+  FrequencyChipText,
+  SaveButton,
+  SaveButtonText,
 } from './styles';
-
-import {
-  TypeSelector,
-  TypeOption,
-  TypeText,
-} from '../../styles/shared';
-
 import { DogProfileContext } from '../../context/DogProfileContext';
 import { db } from '../../firebase/Firestore';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import DatePickerField from '../../components/DatePickerField';
 import { EXPENSE_TYPES } from '../../constants/typeOptions';
+import { getExpenseIcon } from '../../utils/iconMappings';
+import { LanguageContext } from '../../context/LanguageContext';
+
+const TYPE_COLOR: Record<string, string> = {
+  Food: '#27ae60',
+  Medical: '#3498db',
+  Grooming: '#e91e63',
+  Toys: '#e67e22',
+  Other: '#9b59b6',
+};
+
+const TYPE_BG: Record<string, string> = {
+  Food: '#e8f5e9',
+  Medical: '#e3f2fd',
+  Grooming: '#fce4ec',
+  Toys: '#fff3e0',
+  Other: '#f3e5f5',
+};
+
+const FREQUENCY_OPTIONS = [
+  { key: 'add.weekly', value: 'weekly' },
+  { key: 'add.monthly', value: 'monthly' },
+  { key: 'add.yearly', value: 'yearly' },
+] as const;
 
 export default function AddExpenseScreen({ navigation, route }: any) {
   const { expense } = route.params || {};
+  const { selectedDog } = useContext(DogProfileContext);
+  const { t } = useContext(LanguageContext);
 
   const [expenseTitle, setExpenseTitle] = useState(expense?.title || '');
   const [amount, setAmount] = useState(expense?.amount ? String(expense.amount) : '');
-  const [date, setDate] = useState( expense?.date ? new Date(expense.date) : new Date());
-  const [type, setType] = useState( expense?.type || '');
-  const { selectedDog } = useContext(DogProfileContext);
+  const [date, setDate] = useState(expense?.date ? new Date(expense.date) : new Date());
+  const [type, setType] = useState(expense?.type || '');
+  const [recurring, setRecurring] = useState(expense?.recurring || false);
+  const [recurringFrequency, setRecurringFrequency] = useState<'weekly' | 'monthly' | 'yearly'>(
+    expense?.recurringFrequency || 'monthly'
+  );
 
-  const handleAmountChange = (value) => {
+  const handleAmountChange = (value: string) => {
     let cleaned = value.replace(/[^0-9.]/g, '');
 
     const [integerPart, decimalPart] = cleaned.split('.');
@@ -64,90 +100,158 @@ export default function AddExpenseScreen({ navigation, route }: any) {
     }
   };
 
+  const handleSave = async () => {
+    if (!type) {
+      Alert.alert(t('common.error'), t('alert.selectType'));
+      return;
+    }
+    if (!expenseTitle.trim()) {
+      Alert.alert(t('common.error'), t('alert.addTitle'));
+      return;
+    }
+    if (!amount) {
+      Alert.alert(t('common.error'), t('alert.addAmount'));
+      return;
+    }
 
-const handleSave = async () => {
-  if (!expenseTitle || !amount || !date || !type) {
-    Alert.alert('Please fill out all fields');
-    return;
-  }
+    const cleanedAmount = amount.replace(/,/g, '');
 
-  const cleanedAmount = amount.replace(/,/g, '');
+    const newExpense = {
+      title: expenseTitle,
+      amount: parseFloat(cleanedAmount),
+      type,
+      date: date.toISOString(),
+      dogId: selectedDog.id,
+      recurring,
+      recurringFrequency: recurring ? recurringFrequency : null,
+    };
 
-  const newExpense = {
-    title: expenseTitle,
-    amount: parseFloat(cleanedAmount),
-    type,
-    date: date.toISOString(),
-    dogId: selectedDog.id,
+    try {
+      if (expense) {
+        await updateDoc(doc(db, 'expenses', expense.id), newExpense);
+      } else {
+        const docRef = await addDoc(collection(db, 'expenses'), newExpense);
+        const addedExpense = { ...newExpense, id: docRef.id };
+        if (route.params?.addExpense) route.params.addExpense(addedExpense);
+      }
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving expense', error);
+      Alert.alert(t('common.error'), t('alert.failedSaveExpense'));
+    }
   };
 
-  try {
-    if (expense) {
-      await updateDoc(doc(db, 'expenses', expense.id), newExpense);
-    } else {
-      const docRef = await addDoc(collection(db, 'expenses'), newExpense);
-      const addedExpense = { ...newExpense, id: docRef.id };
-      if (route.params?.addExpense) route.params.addExpense(addedExpense);
-    }
-    navigation.goBack();
-  } catch (error) {
-    console.error('Error saving expense', error);
-    Alert.alert('Error', 'Unable to save the expense.');
-  }
-};
   return (
     <KeyboardAvoidingContainer
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
-        <Title>{expense ? 'Edit Expense' : 'Add Expense'}</Title>
+          <ContentContainer>
+            <SectionTitle>{t('add.selectType')}</SectionTitle>
+            <TypeGrid>
+              {EXPENSE_TYPES.map((item) => {
+                const isSelected = type === item.label;
+                const color = TYPE_COLOR[item.label] || '#41245c';
+                const bg = TYPE_BG[item.label] || '#f0eff4';
+                return (
+                  <TypeChip
+                    key={item.label}
+                    selected={isSelected}
+                    selectedBg={bg}
+                    onPress={() => setType(item.label)}
+                  >
+                    {getExpenseIcon(item.label, 20, color)}
+                    <TypeChipText selected={isSelected} selectedColor={color}>
+                      {item.label}
+                    </TypeChipText>
+                  </TypeChip>
+                );
+              })}
+            </TypeGrid>
 
-          <TypeSelector>
-            {EXPENSE_TYPES.map((item) => (
-              <TypeOption
-                key={item.label}
-                onPress={() => setType(item.label)}
-                selected={type === item.label}
-              >
-                {item.icon}
-                <TypeText selected={type === item.label}>{item.label}</TypeText>
-              </TypeOption>
-            ))}
-          </TypeSelector>
+            {type ? (
+              <>
+                <FormCard>
+                  <InputGroup>
+                    <InputLabel>{t('add.title')}</InputLabel>
+                    <StyledInput
+                      value={expenseTitle}
+                      onChangeText={setExpenseTitle}
+                      placeholder={t('add.titlePlaceholder')}
+                      placeholderTextColor="#ccc"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
+                    />
+                  </InputGroup>
 
-          <Input
-            value={expenseTitle}
-            onChangeText={setExpenseTitle}
-            placeholder="Expense title"
-            returnKeyType="done"
-            onSubmitEditing={() => Keyboard.dismiss()}
-          />
+                  <InputGroup>
+                    <InputLabel>{t('add.amount')}</InputLabel>
+                    <StyledInput
+                      value={amount}
+                      onChangeText={handleAmountChange}
+                      placeholder="0.00"
+                      placeholderTextColor="#ccc"
+                      keyboardType="numeric"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
+                    />
+                  </InputGroup>
 
-          <Input
-            value={amount}
-            onChangeText={handleAmountChange}
-            placeholder="Amount ($): Example: 10.99"
-            keyboardType="numeric"
-            returnKeyType="done"
-            onSubmitEditing={() => Keyboard.dismiss()}
-          />
+                  <InputGroup>
+                    <InputLabel>{t('add.date')}</InputLabel>
+                    <DatePickerField
+                      value={date}
+                      onChange={setDate}
+                      mode="date"
+                      label={t('add.selectDate')}
+                      renderButton={(onPress, displayText) => (
+                        <DateButton onPress={onPress}>
+                          <CalendarBlank size={20} color="#41245c" />
+                          <DateButtonText hasValue>{displayText}</DateButtonText>
+                        </DateButton>
+                      )}
+                    />
+                  </InputGroup>
 
-          <DatePickerField
-            value={date}
-            onChange={setDate}
-            mode="date"
-            label="Select Date"
-            renderButton={(onPress, displayText) => (
-              <DatePickerButton onPress={onPress}>
-                <DatePickerText>{displayText}</DatePickerText>
-              </DatePickerButton>
-            )}
-          />
+                  <InputGroup>
+                    <InputLabel>{t('add.recurring')}</InputLabel>
+                    <RecurringRow>
+                      <ArrowsClockwise size={20} color="#41245c" />
+                      <RecurringLabel>{t('add.repeatExpense')}</RecurringLabel>
+                      <Switch
+                        value={recurring}
+                        onValueChange={setRecurring}
+                        trackColor={{ false: '#ddd', true: '#7289da' }}
+                        thumbColor={recurring ? '#41245c' : '#f4f3f4'}
+                      />
+                    </RecurringRow>
+                    {recurring && (
+                      <FrequencyChipsRow>
+                        {FREQUENCY_OPTIONS.map((option) => (
+                          <FrequencyChip
+                            key={option.value}
+                            selected={recurringFrequency === option.value}
+                            onPress={() => setRecurringFrequency(option.value)}
+                          >
+                            <FrequencyChipText selected={recurringFrequency === option.value}>
+                              {t(option.key)}
+                            </FrequencyChipText>
+                          </FrequencyChip>
+                        ))}
+                      </FrequencyChipsRow>
+                    )}
+                  </InputGroup>
+                </FormCard>
 
-          <CustomButton onPress={handleSave}>
-          <ButtonText>{expense ? 'Update Expense' : 'Save Expense'}</ButtonText>
-          </CustomButton>
+                <SaveButton onPress={handleSave}>
+                  <SaveButtonText>
+                    {expense ? t('add.updateExpense') : t('add.saveExpense')}
+                  </SaveButtonText>
+                </SaveButton>
+              </>
+            ) : null}
+          </ContentContainer>
         </Container>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingContainer>
