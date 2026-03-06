@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, createUserWithEmailAndPassword } from '@react-native-firebase/auth';
 import { useAlert } from '../../../hooks/useAlert';
@@ -36,6 +36,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CheckBox from '@react-native-community/checkbox';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -47,22 +48,23 @@ export default function SignUpScreen() {
   const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
   const [termsVisible, setTermsVisible] = useState(false);
   const navigation = useNavigation();
+  const { t } = useContext(LanguageContext);
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
-      showAlert('Error', 'All fields are required.');
+      showAlert(t('common.error'), t('signUp.allFieldsRequired'));
       return;
     }
     if (password.length < 6) {
-      showAlert('Error', 'Password must be at least 6 characters long.');
+      showAlert(t('common.error'), t('signUp.passwordMinLength'));
       return;
     }
     if (password !== confirmPassword) {
-      showAlert('Error', 'Passwords must match.');
+      showAlert(t('common.error'), t('signUp.passwordsMustMatch'));
       return;
     }
     if (!agree) {
-      showAlert('Error', 'You must agree to the terms & conditions.');
+      showAlert(t('common.error'), t('signUp.mustAgreeTerms'));
       return;
     }
 
@@ -71,9 +73,9 @@ export default function SignUpScreen() {
       navigation.navigate('Initial'); // Redirect back to initial screen after signing up
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
-        showAlert('Error', 'Email already registered');
+        showAlert(t('common.error'), t('signUp.emailAlreadyRegistered'));
       } else {
-        showAlert('Error', error.message);
+        showAlert(t('common.error'), error.message);
       }
     }
   };
@@ -85,14 +87,14 @@ export default function SignUpScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
           <HeaderWrapper>
-            <HeaderTitle>Welcome</HeaderTitle>
-            <HeaderSubtitle>Please enter your account here</HeaderSubtitle>
+            <HeaderTitle>{t('signUp.welcome')}</HeaderTitle>
+            <HeaderSubtitle>{t('signUp.subtitle')}</HeaderSubtitle>
           </HeaderWrapper>
 
           <InputContainer>
-            <Label>Email</Label>
+            <Label>{t('signUp.email')}</Label>
             <Input
-              placeholder="Enter your email"
+              placeholder={t('signUp.emailPlaceholder')}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -102,9 +104,9 @@ export default function SignUpScreen() {
           </InputContainer>
 
           <InputContainer>
-            <Label>Password</Label>
+            <Label>{t('signUp.password')}</Label>
             <Input
-              placeholder="Enter your password"
+              placeholder={t('signUp.passwordPlaceholder')}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -120,9 +122,9 @@ export default function SignUpScreen() {
           </InputContainer>
 
           <InputContainer>
-            <Label>Confirm Password</Label>
+            <Label>{t('signUp.confirmPassword')}</Label>
             <Input
-              placeholder="Confirm your password"
+              placeholder={t('signUp.confirmPlaceholder')}
               secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -146,22 +148,22 @@ export default function SignUpScreen() {
               tintColors={{ true: '#41245C', false: '#7C7C7C' }}
             />
             <CheckboxLabel>
-              I agree with{' '}
+              {t('signUp.agreeWith')}{' '}
             </CheckboxLabel>
             <TouchableOpacity onPress={() => setTermsVisible(true)}>
-              <TermsLink>terms & conditions</TermsLink>
+              <TermsLink>{t('signUp.termsConditions')}</TermsLink>
             </TouchableOpacity>
           </CheckboxContainer>
 
           <CustomButton onPress={handleSignUp}>
-            <ButtonText>Register</ButtonText>
+            <ButtonText>{t('signUp.register')}</ButtonText>
           </CustomButton>
 
           <SignInLinkContainer>
             <SignInText>
-              Already have an account?{' '}
+              {t('signUp.hasAccount')}{' '}
               <SignInLink onPress={() => navigation.navigate('SignIn')}>
-                Login
+                {t('signUp.login')}
               </SignInLink>
             </SignInText>
           </SignInLinkContainer>
@@ -175,45 +177,19 @@ export default function SignUpScreen() {
           >
             <TermsModalOverlay>
               <TermsModalContent>
-                <TermsTitle>Terms and Conditions</TermsTitle>
+                <TermsTitle>{t('signUp.termsTitle')}</TermsTitle>
                 <TermsScrollView>
                   <TermsBodyText>
-                    Welcome to our application. Please read the following terms
-                    and conditions carefully.
-                    {'\n\n'}1. **Acceptance of Terms** By accessing and using
-                    this application, you accept and agree to be bound by these
-                    terms and conditions. If you do not agree, you may not use
-                    the application. The company reserves the right to modify
-                    these terms at any time, and continued use of the app
-                    implies acceptance of the new terms.
-                    {'\n\n'}2. **User Responsibilities** Users agree to use the
-                    application in compliance with all applicable laws and not
-                    to engage in any activity that disrupts or harms the
-                    functionality of the app, other users, or third parties.
-                    Misuse of the application, including unauthorized access,
-                    data tampering, or sharing of false information, may result
-                    in suspension or termination of your account.
-                    {'\n\n'}3. **Account Security** You are responsible for
-                    maintaining the confidentiality of your account information,
-                    including your password. Any activity conducted under your
-                    account is your responsibility. Notify us immediately of any
-                    unauthorized access to your account or breach of security.
-                    {'\n\n'}4. **Intellectual Property** All content, features,
-                    and functionality (including text, graphics, logos, and
-                    images) are the exclusive property of the company and are
-                    protected by copyright, trademark, and other laws.
-                    Unauthorized use, reproduction, or distribution of any part
-                    of this application is prohibited.
-                    {'\n\n'}5. **Limitation of Liability** The company is not
-                    liable for any damages resulting from the use or inability
-                    to use the application, including, but not limited to,
-                    indirect or consequential damages. The app is provided "as
-                    is" and "as available" without any warranties, either
-                    express or implied.
+                    {t('terms.signUpIntro')}
+                    {'\n\n'}{t('terms.signUp1')}
+                    {'\n\n'}{t('terms.signUp2')}
+                    {'\n\n'}{t('terms.signUp3')}
+                    {'\n\n'}{t('terms.signUp4')}
+                    {'\n\n'}{t('terms.signUp5')}
                   </TermsBodyText>
                 </TermsScrollView>
                 <CustomButton onPress={() => setTermsVisible(false)}>
-                  <ButtonText>Close</ButtonText>
+                  <ButtonText>{t('common.close')}</ButtonText>
                 </CustomButton>
               </TermsModalContent>
             </TermsModalOverlay>
