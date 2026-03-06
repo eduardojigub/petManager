@@ -125,3 +125,40 @@ export const SmallText = styled.Text`
   margin: 6px 0;
   font-family: 'Poppins_400Regular';
 `;
+
+export const LanguagePill = styled.View`
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  flex-direction: row;
+  align-items: center;
+  background-color: #f5f3f8;
+  border-radius: 20px;
+  padding: 3px;
+`;
+
+export const FlagButton = styled.TouchableOpacity<{ selected: boolean }>`
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ selected }) => (selected ? '#fff' : 'transparent')};
+  shadow-color: ${({ selected }) => (selected ? '#000' : 'transparent')};
+  shadow-offset: 0px 1px;
+  shadow-opacity: ${({ selected }) => (selected ? 0.15 : 0)};
+  shadow-radius: 2px;
+  elevation: ${({ selected }) => (selected ? 2 : 0)};
+`;
+
+export const FlagText = styled.Text`
+  font-size: 16px;
+`;
+
+export const VersionText = styled.Text`
+  position: absolute;
+  bottom: 12px;
+  font-size: 11px;
+  color: #C0C0C0;
+  font-family: 'Poppins_400Regular';
+`;
