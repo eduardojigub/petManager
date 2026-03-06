@@ -9,7 +9,8 @@ import {
   View,
 } from 'react-native';
 import { db } from '../../firebase/Firestore';
-import { collection, addDoc, doc, updateDoc, deleteDoc } from '@react-native-firebase/firestore';
+import { collection, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs } from '@react-native-firebase/firestore';
+import * as Notifications from 'expo-notifications';
 import { getAuth } from '@react-native-firebase/auth';
 import {
   ScrollContainer,
@@ -168,6 +169,29 @@ export default function EditProfileScreen({ navigation, route }: Props) {
       cancelable: false,
       onConfirm: async () => {
         try {
+          // Cancel all notifications for this dog's schedules and health records
+          const [schedulesSnap, recordsSnap] = await Promise.all([
+            getDocs(query(collection(db, 'schedules'), where('dogId', '==', id))),
+            getDocs(query(collection(db, 'healthRecords'), where('dogId', '==', id))),
+          ]);
+
+          const cancelAndDelete = async (snap: any, collectionName: string) => {
+            await Promise.allSettled(
+              snap.docs.map(async (d: any) => {
+                const data = d.data();
+                if (data.notificationId) {
+                  await Notifications.cancelScheduledNotificationAsync(data.notificationId).catch(() => {});
+                }
+                await deleteDoc(doc(db, collectionName, d.id));
+              })
+            );
+          };
+
+          await Promise.all([
+            cancelAndDelete(schedulesSnap, 'schedules'),
+            cancelAndDelete(recordsSnap, 'healthRecords'),
+          ]);
+
           await deleteDoc(doc(db, 'dogProfiles', id));
           setSelectedDog(null);
           Alert.alert(t('editPet.profileDeleted'), t('editPet.profileDeletedMsg'));

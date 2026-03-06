@@ -64,16 +64,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const askNotificationPermission = async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(
-          'Atenção',
-          'Você precisa habilitar as permissões de notificações para receber lembretes.'
-        );
-      }
-    };
-    askNotificationPermission();
+    Notifications.requestPermissionsAsync();
   }, []);
 
   useEffect(() => {
@@ -82,6 +73,8 @@ export default function App() {
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
       }),
     });
   }, []);
