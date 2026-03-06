@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function isNotificationsEnabled(): Promise<boolean> {
@@ -31,7 +32,7 @@ export async function scheduleReminder(
       body: config.body,
       sound: true,
     },
-    trigger: { date: config.triggerDate },
+    trigger: { type: SchedulableTriggerInputTypes.DATE, date: config.triggerDate },
   });
 
   return notificationId;

@@ -1,9 +1,6 @@
-type TranslateFn = (key: string, params?: Record<string, string>) => string;
+import { DogProfile } from '../types/dogProfile';
 
-interface DogProfile {
-  birthday?: string;
-  age?: number;
-}
+type TranslateFn = (key: string, params?: Record<string, string>) => string;
 
 export function calculateAge(birthday: Date, t: TranslateFn): string {
   const now = new Date();
