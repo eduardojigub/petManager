@@ -1,11 +1,23 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Linking, Modal, Share, Alert } from 'react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { SettingsStackParamList } from '../../types/navigation';
 import Constants from 'expo-constants';
-import { CaretRight, User, Bell, Question, SignOut, Star, ShareNetwork, FileText, DownloadSimple } from 'phosphor-react-native';
+import {
+  CaretRight,
+  User,
+  Bell,
+  Question,
+  SignOut,
+  Star,
+  FileText,
+  DownloadSimple,
+  GlobeSimple,
+} from 'phosphor-react-native';
 import { exportUserData } from '../../utils/exportData';
+import { LanguageContext } from '../../context/LanguageContext';
+import { Locale } from '../../i18n/translations';
 import {
   Container,
   ContentContainer,
@@ -37,16 +49,22 @@ import {
   SectionTitle,
   CloseButton,
   CloseButtonText,
+  ModalOptionButton,
+  ModalOptionText,
+  ModalOptionCheck,
 } from './styles';
 
 const appVersion = Constants.expoConfig?.version || 'Version not available';
 
 export default function SettingsScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showRateShareModal, setShowRateShareModal] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [, forceUpdate] = useState(0);
   const navigation = useNavigation<NavigationProp<SettingsStackParamList>>();
   const auth = getAuth();
   const user = auth.currentUser;
+  const { locale, setLocale, t } = useContext(LanguageContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,14 +89,16 @@ export default function SettingsScreen() {
 
   const handleRateApp = () => {
     Linking.openURL(APP_STORE_URL).catch(() =>
-      Alert.alert('Error', 'Could not open the App Store')
+      Alert.alert(t('common.error'), t('settings.couldNotOpenStore'))
     );
+    setShowRateShareModal(false);
   };
 
   const handleShareApp = async () => {
+    setShowRateShareModal(false);
     try {
       await Share.share({
-        message: `Check out Pet Life - the best app to manage your pet's health, schedules and expenses! ${APP_STORE_URL}`,
+        message: `${t('rateShare.shareMessage')} ${APP_STORE_URL}`,
       });
     } catch (error) {
       // user cancelled
@@ -92,60 +112,65 @@ export default function SettingsScreen() {
     try {
       await exportUserData();
     } catch (error) {
-      Alert.alert('Error', 'Failed to export data. Please try again.');
+      Alert.alert(t('common.error'), t('settings.exportFailed'));
     } finally {
       setExporting(false);
     }
+  };
+
+  const handleSelectLanguage = (lang: Locale) => {
+    setLocale(lang);
+    setShowLanguageModal(false);
   };
 
   const menuItems = [
     {
       icon: <User size={20} color="#41245c" weight="bold" />,
       bgColor: '#ede8f5',
-      title: 'Account',
-      subtitle: 'Profile and security',
+      title: t('settings.account'),
+      subtitle: t('settings.accountSub'),
       onPress: () => navigation.navigate('Account'),
     },
     {
       icon: <Bell size={20} color="#e67e22" weight="bold" />,
       bgColor: '#fdf0e0',
-      title: 'Notifications',
-      subtitle: 'Alerts and reminders',
+      title: t('settings.notifications'),
+      subtitle: t('settings.notificationsSub'),
       onPress: () => navigation.navigate('ManageNotifications'),
     },
     {
       icon: <DownloadSimple size={20} color="#2ecc71" weight="bold" />,
       bgColor: '#e0f5e9',
-      title: exporting ? 'Exporting...' : 'Export Data',
-      subtitle: 'Download your data as PDF',
+      title: exporting ? t('settings.exporting') : t('settings.exportData'),
+      subtitle: t('settings.exportDataSub'),
       onPress: handleExportData,
     },
     {
-      icon: <Question size={20} color="#3498db" weight="bold" />,
+      icon: <GlobeSimple size={20} color="#3498db" weight="bold" />,
       bgColor: '#e0eef9',
-      title: 'Help & FAQ',
-      subtitle: 'Frequently asked questions',
+      title: t('settings.language'),
+      subtitle: locale === 'pt' ? t('language.portuguese') : t('language.english'),
+      onPress: () => setShowLanguageModal(true),
+    },
+    {
+      icon: <Question size={20} color="#9b59b6" weight="bold" />,
+      bgColor: '#f0e6f6',
+      title: t('settings.help'),
+      subtitle: t('settings.helpSub'),
       onPress: () => navigation.navigate('Help'),
     },
     {
       icon: <Star size={20} color="#f1c40f" weight="bold" />,
       bgColor: '#fdf8e0',
-      title: 'Rate the App',
-      subtitle: 'Leave a review on the App Store',
-      onPress: handleRateApp,
-    },
-    {
-      icon: <ShareNetwork size={20} color="#9b59b6" weight="bold" />,
-      bgColor: '#f0e6f6',
-      title: 'Share the App',
-      subtitle: 'Tell your friends about Pet Life',
-      onPress: handleShareApp,
+      title: t('settings.rateShare'),
+      subtitle: t('settings.rateShareSub'),
+      onPress: () => setShowRateShareModal(true),
     },
     {
       icon: <FileText size={20} color="#7289da" weight="bold" />,
       bgColor: '#e8ecf7',
-      title: 'Terms & Privacy',
-      subtitle: 'Terms of use and policy',
+      title: t('settings.terms'),
+      subtitle: t('settings.termsSub'),
       onPress: () => setShowTermsModal(true),
     },
   ];
@@ -153,8 +178,8 @@ export default function SettingsScreen() {
   return (
     <Container>
       <ContentContainer>
-        <HeaderTitle>Settings</HeaderTitle>
-        <HeaderSubtitle>Manage your preferences</HeaderSubtitle>
+        <HeaderTitle>{t('settings.title')}</HeaderTitle>
+        <HeaderSubtitle>{t('settings.subtitle')}</HeaderSubtitle>
 
         <ProfileCard>
           {userPhoto ? (
@@ -194,17 +219,18 @@ export default function SettingsScreen() {
               <SignOut size={20} color="#e74c3c" weight="bold" />
             </MenuIconContainer>
             <MenuTextContainer>
-              <LogoutTitle>Log Out</LogoutTitle>
-              <LogoutSubtitle>Sign out of your account</LogoutSubtitle>
+              <LogoutTitle>{t('settings.logout')}</LogoutTitle>
+              <LogoutSubtitle>{t('settings.logoutSub')}</LogoutSubtitle>
             </MenuTextContainer>
             <CaretRight size={18} color="#e74c3c" weight="bold" />
           </MenuItem>
         </MenuCard>
 
         <FooterText>Pet Life v{appVersion}</FooterText>
-        <FooterSubtext>Made with love for pet lovers</FooterSubtext>
+        <FooterSubtext>{t('settings.footer')}</FooterSubtext>
       </ContentContainer>
 
+      {/* Terms Modal */}
       <Modal
         visible={showTermsModal}
         transparent
@@ -213,39 +239,73 @@ export default function SettingsScreen() {
       >
         <ModalOverlay>
           <ModalContainer>
-            <ModalTitle>Terms of Use & Privacy Policy</ModalTitle>
+            <ModalTitle>{t('terms.title')}</ModalTitle>
             <ScrollModalContent>
-              <ModalText>
-                Welcome to our application. By using this app, you agree to the
-                following terms and conditions. We reserve the right to update
-                these terms at any time.
-              </ModalText>
+              <ModalText>{t('terms.intro')}</ModalText>
 
-              <SectionTitle>1. Data Collection</SectionTitle>
-              <ModalText>
-                We collect data to improve user experience. We respect your
-                privacy and ensure your data is secure.
-              </ModalText>
+              <SectionTitle>{t('terms.section1Title')}</SectionTitle>
+              <ModalText>{t('terms.section1')}</ModalText>
 
-              <SectionTitle>2. Usage</SectionTitle>
-              <ModalText>
-                You agree not to misuse our services, including unlawful or
-                unauthorized activities.
-              </ModalText>
+              <SectionTitle>{t('terms.section2Title')}</SectionTitle>
+              <ModalText>{t('terms.section2')}</ModalText>
 
-              <SectionTitle>3. Disclaimer</SectionTitle>
-              <ModalText>
-                We are not liable for any losses or damages arising from your
-                use of this app.
-              </ModalText>
+              <SectionTitle>{t('terms.section3Title')}</SectionTitle>
+              <ModalText>{t('terms.section3')}</ModalText>
 
-              <ModalText>
-                For more details, please contact support@catapp.com. Thank you
-                for choosing us.
-              </ModalText>
+              <ModalText>{t('terms.contact')}</ModalText>
             </ScrollModalContent>
             <CloseButton onPress={() => setShowTermsModal(false)}>
-              <CloseButtonText>Close</CloseButtonText>
+              <CloseButtonText>{t('common.close')}</CloseButtonText>
+            </CloseButton>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+
+      {/* Rate & Share Modal */}
+      <Modal
+        visible={showRateShareModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRateShareModal(false)}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalTitle>{t('rateShare.title')}</ModalTitle>
+            <ModalOptionButton onPress={handleRateApp}>
+              <Star size={20} color="#f1c40f" weight="fill" />
+              <ModalOptionText>{t('rateShare.rate')}</ModalOptionText>
+            </ModalOptionButton>
+            <ModalOptionButton onPress={handleShareApp}>
+              <Star size={20} color="#9b59b6" weight="bold" />
+              <ModalOptionText>{t('rateShare.share')}</ModalOptionText>
+            </ModalOptionButton>
+            <CloseButton onPress={() => setShowRateShareModal(false)}>
+              <CloseButtonText>{t('rateShare.cancel')}</CloseButtonText>
+            </CloseButton>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+
+      {/* Language Modal */}
+      <Modal
+        visible={showLanguageModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalTitle>{t('language.title')}</ModalTitle>
+            <ModalOptionButton onPress={() => handleSelectLanguage('en')}>
+              <ModalOptionText>{t('language.english')}</ModalOptionText>
+              {locale === 'en' && <ModalOptionCheck>✓</ModalOptionCheck>}
+            </ModalOptionButton>
+            <ModalOptionButton onPress={() => handleSelectLanguage('pt')}>
+              <ModalOptionText>{t('language.portuguese')}</ModalOptionText>
+              {locale === 'pt' && <ModalOptionCheck>✓</ModalOptionCheck>}
+            </ModalOptionButton>
+            <CloseButton onPress={() => setShowLanguageModal(false)}>
+              <CloseButtonText>{t('common.close')}</CloseButtonText>
             </CloseButton>
           </ModalContainer>
         </ModalOverlay>
