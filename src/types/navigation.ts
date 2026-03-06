@@ -8,6 +8,22 @@ export interface HealthRecord {
   image?: string | null;
   dogId: string;
   extraInfo?: string;
+  dueDate?: string | null;
+  reminder?: boolean;
+  reminderDays?: number | null;
+  // Vet Appointment
+  vetName?: string | null;
+  clinicName?: string | null;
+  visitWeight?: string | null;
+  // Vaccine
+  batchNumber?: string | null;
+  // Medication
+  dosage?: string | null;
+  frequency?: string | null;
+  // Pet Groomer
+  services?: string | null;
+  // Notification
+  notificationId?: string | null;
 }
 
 export interface Schedule {
@@ -20,6 +36,7 @@ export interface Schedule {
   notificationId?: string;
   type: string;
   pushNotification?: boolean;
+  reminderMinutes?: number | null;
   isUpcoming?: boolean;
   isPast?: boolean;
 }
@@ -31,6 +48,8 @@ export interface Expense {
   type: string;
   date: string;
   dogId: string;
+  recurring?: boolean;
+  recurringFrequency?: 'weekly' | 'monthly' | 'yearly' | null;
 }
 
 export type AuthStackParamList = {
@@ -47,12 +66,13 @@ export type ProfileStackParamList = {
 
 export type HealthStackParamList = {
   HealthRecords: { onGoBack?: () => void } | undefined;
-  HealthRecordDetails: { record: HealthRecord; setIsFilterApplied: (value: boolean) => void };
+  HealthRecordDetails: { record: HealthRecord };
   AddHealthRecord: {
     record?: HealthRecord;
     isEditMode?: boolean;
     addRecord?: (record: any) => void;
     onGoBack?: () => void;
+    fromProfile?: boolean;
   };
 };
 
@@ -61,6 +81,7 @@ export type ScheduleStackParamList = {
   AddSchedule: {
     schedule?: Schedule;
     isEditMode?: boolean;
+    fromProfile?: boolean;
   } | undefined;
 };
 
