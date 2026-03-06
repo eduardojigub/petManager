@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Alert, Linking } from 'react-native';
+import { LanguageContext } from '../../context/LanguageContext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { SettingsStackParamList } from '../../types/navigation';
 import { CaretRight, ShieldCheck, Trash, UserCircle, PencilSimple } from 'phosphor-react-native';
@@ -18,11 +19,12 @@ import {
 
 export default function AccountScreen() {
   const navigation = useNavigation<NavigationProp<SettingsStackParamList>>();
+  const { t } = useContext(LanguageContext);
 
   const handleDeleteAccount = () => {
     const url = 'https://jp7dc7wdnld.typeform.com/to/UukaGjeR';
     Linking.openURL(url).catch(() =>
-      Alert.alert('Error', 'Failed to open the link')
+      Alert.alert(t('common.error'), t('alert.failedOpenLink'))
     );
   };
 
@@ -30,15 +32,15 @@ export default function AccountScreen() {
     {
       icon: <PencilSimple size={20} color="#41245c" weight="bold" />,
       bgColor: '#ede8f5',
-      title: 'Edit Profile',
-      subtitle: 'Update your name and photo',
+      title: t('account.editProfile'),
+      subtitle: t('account.editProfileSub'),
       onPress: () => navigation.navigate('EditUserProfile'),
     },
     {
       icon: <ShieldCheck size={20} color="#27ae60" weight="bold" />,
       bgColor: '#e0f5e9',
-      title: 'Update Password',
-      subtitle: 'Change your password',
+      title: t('account.updatePassword'),
+      subtitle: t('account.updatePasswordSub'),
       onPress: () => navigation.navigate('AccountSettings'),
     },
   ];
@@ -69,8 +71,8 @@ export default function AccountScreen() {
             <Trash size={20} color="#e74c3c" weight="bold" />
           </MenuIconContainer>
           <MenuTextContainer>
-            <DeleteTitle>Delete my account</DeleteTitle>
-            <DeleteSubtitle>Permanently remove your data</DeleteSubtitle>
+            <DeleteTitle>{t('account.deleteAccount')}</DeleteTitle>
+            <DeleteSubtitle>{t('account.deleteAccountSub')}</DeleteSubtitle>
           </MenuTextContainer>
           <CaretRight size={18} color="#e74c3c" weight="bold" />
         </MenuItem>
