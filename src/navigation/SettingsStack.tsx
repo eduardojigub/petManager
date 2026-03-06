@@ -7,8 +7,9 @@ import AccountScreen from '../screens/AccountScreen';
 import HelpScreen from '../screens/HelpScreen';
 import EditUserProfileScreen from '../screens/EditUserProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
+import TranslatedHeaderTitle from '../components/TranslatedHeaderTitle';
 import { SettingsStackParamList } from '../types/navigation';
-import { headerStyle, headerTitleStyle } from './styles';
+import { headerStyle } from './styles';
 
 const Stack = createStackNavigator<SettingsStackParamList>();
 
@@ -18,15 +19,14 @@ export default function SettingsStack() {
       <Stack.Screen
         name="SettingsMain"
         component={SettingsScreen}
-        options={{ headerTitle: 'Settings', headerShown: false }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Account"
         component={AccountScreen}
         options={{
           headerStyle,
-          headerTitle: 'Account',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.account" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -35,8 +35,7 @@ export default function SettingsStack() {
         component={EditUserProfileScreen}
         options={{
           headerStyle,
-          headerTitle: 'Edit Profile',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.editProfile" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -45,8 +44,7 @@ export default function SettingsStack() {
         component={ManageNotificationsScreen}
         options={{
           headerStyle,
-          headerTitle: 'Manage notifications',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.manageNotifications" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -55,8 +53,7 @@ export default function SettingsStack() {
         component={ManageAccountScreen}
         options={{
           headerStyle,
-          headerTitle: 'Update Password',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.updatePassword" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />
@@ -65,8 +62,7 @@ export default function SettingsStack() {
         component={HelpScreen}
         options={{
           headerStyle,
-          headerTitle: 'Help & FAQ',
-          headerTitleStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.helpFaq" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />

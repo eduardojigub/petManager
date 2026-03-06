@@ -9,9 +9,11 @@ export const Container = styled.View`
 `;
 
 export const EmptyImage = styled.Image`
-  width: 200px;
-  height: 200px;
-  margin-bottom: 20px;
+  width: 280px;
+  height: 280px;
+  margin-bottom: 24px;
+  border-radius: 24px;
+  background-color: #fff;
 `;
 
 export const EmptyText = styled.Text`

@@ -5,15 +5,14 @@ import ProfileStack from './ProfileStack';
 import HealthStack from './HealthStack';
 import ScheduleStack from './ScheduleStack';
 import SettingsStack from './SettingsStack';
-import ExpenseScreen from '../screens/ExpenseScreen';
-import { DogProfileContext } from '../context/DogProfileContext';
+import ExpenseStack from './ExpenseStack';
 import { AppTabsParamList } from '../types/navigation';
-import { headerStyle, headerTitleStyle } from './styles';
+import { LanguageContext } from '../context/LanguageContext';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
 export default function AppTabs() {
-  const { selectedDog } = useContext(DogProfileContext);
+  const { t } = useContext(LanguageContext);
 
   return (
     <Tab.Navigator
@@ -28,7 +27,7 @@ export default function AppTabs() {
         name="ProfileTab"
         component={ProfileStack}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: t('tab.profile'),
           tabBarIcon: ({ color, size }) => (
             <Icon name="dog" color={color} size={size} />
           ),
@@ -38,9 +37,9 @@ export default function AppTabs() {
         name="Health"
         component={HealthStack}
         options={{
-          tabBarLabel: 'Health',
+          tabBarLabel: t('tab.records'),
           tabBarIcon: ({ color, size }) => (
-            <Icon name="medical-bag" color={color} size={size} />
+            <Icon name="clipboard-text-outline" color={color} size={size} />
           ),
         }}
       />
@@ -48,7 +47,7 @@ export default function AppTabs() {
         name="Schedule"
         component={ScheduleStack}
         options={{
-          tabBarLabel: 'Schedule',
+          tabBarLabel: t('tab.schedule'),
           tabBarIcon: ({ color, size }) => (
             <Icon name="calendar" color={color} size={size} />
           ),
@@ -56,25 +55,19 @@ export default function AppTabs() {
       />
       <Tab.Screen
         name="Expenses"
-        component={ExpenseScreen}
+        component={ExpenseStack}
         options={{
-          tabBarLabel: 'Expenses',
+          tabBarLabel: t('tab.expenses'),
           tabBarIcon: ({ color, size }) => (
             <Icon name="currency-usd" color={color} size={size} />
           ),
-          headerShown: true,
-          headerStyle,
-          headerTitle: selectedDog
-            ? `Expenses for ${selectedDog.name}`
-            : 'Expenses',
-          headerTitleStyle,
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsStack}
         options={{
-          tabBarLabel: 'Settings',
+          tabBarLabel: t('tab.settings'),
           tabBarIcon: ({ color, size }) => (
             <Icon name="cog" color={color} size={size} />
           ),

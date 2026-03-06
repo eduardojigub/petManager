@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Modal,
   TouchableOpacity,
@@ -12,6 +12,7 @@ import {
   ButtonRow,
   ActionText,
 } from './styles';
+import { LanguageContext } from '../../context/LanguageContext';
 
 interface DatePickerFieldProps {
   value: Date;
@@ -25,20 +26,22 @@ export default function DatePickerField({
   value,
   onChange,
   mode = 'date',
-  label = 'Select Date',
+  label,
   renderButton,
 }: DatePickerFieldProps) {
+  const { t, locale } = useContext(LanguageContext);
   const [showModal, setShowModal] = useState(false);
   const [tempValue, setTempValue] = useState(value);
 
+  const dateLocale = locale === 'pt' ? 'pt-BR' : 'en-US';
   const displayText =
     mode === 'date'
-      ? value.toLocaleDateString('en-US', {
+      ? value.toLocaleDateString(dateLocale, {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         })
-      : value.toLocaleTimeString();
+      : value.toLocaleTimeString(dateLocale);
 
   const handleOpen = () => {
     setTempValue(value);
@@ -57,7 +60,7 @@ export default function DatePickerField({
         >
           <ModalOverlay>
             <ModalContent>
-              <ModalTitle>{label}</ModalTitle>
+              <ModalTitle>{label || t('datePicker.selectDate')}</ModalTitle>
               <DateTimePicker
                 value={tempValue}
                 mode={mode}
@@ -68,7 +71,7 @@ export default function DatePickerField({
               />
               <ButtonRow>
                 <TouchableOpacity onPress={() => setShowModal(false)}>
-                  <ActionText>Cancel</ActionText>
+                  <ActionText>{t('datePicker.cancel')}</ActionText>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
@@ -76,7 +79,7 @@ export default function DatePickerField({
                     setShowModal(false);
                   }}
                 >
-                  <ActionText>Confirm</ActionText>
+                  <ActionText>{t('datePicker.confirm')}</ActionText>
                 </TouchableOpacity>
               </ButtonRow>
             </ModalContent>
