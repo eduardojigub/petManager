@@ -55,6 +55,8 @@ import {
   FirstAid,
 } from 'phosphor-react-native';
 import * as Notifications from 'expo-notifications';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import useImageUpload from '../../hooks/useImageUpload';
 import DatePickerField from '../../components/DatePickerField';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -179,24 +181,32 @@ export default function AddHealthRecordScreen({ navigation, route }: Props) {
 
     // Schedule notification if reminder is enabled
     let notificationId: string | null = null;
+    let reminderScheduled = false;
     const shouldRemind = hasDueDate && dueDate && reminder;
     if (shouldRemind) {
-      const reminderDate = new Date(dueDate.getTime() - reminderDays * 24 * 60 * 60 * 1000);
-      reminderDate.setHours(9, 0, 0, 0); // notify at 9 AM
+      const globalEnabled = await AsyncStorage.getItem('notificationsEnabled');
+      if (globalEnabled !== 'false') {
+        const reminderDate = new Date(dueDate.getTime() - reminderDays * 24 * 60 * 60 * 1000);
+        reminderDate.setHours(9, 0, 0, 0); // notify at 9 AM
 
-      // Only schedule if the reminder date is at least 1 minute in the future
-      if (reminderDate.getTime() > Date.now() + 60000) {
-        try {
-          notificationId = await Notifications.scheduleNotificationAsync({
-            content: {
-              title: t('notification.reminder', { type }),
-              body: t('notification.body', { description: extraInfo || description || type, name: selectedDog?.name || '', count: String(reminderDays) }),
-              sound: true,
-            },
-            trigger: { date: reminderDate },
-          });
-        } catch (err) {
-          console.warn('Failed to schedule notification:', err);
+        // Only schedule if the reminder date is at least 1 minute in the future
+        if (reminderDate.getTime() > Date.now() + 60000) {
+          try {
+            notificationId = await Notifications.scheduleNotificationAsync({
+              content: {
+                title: t('notification.reminder', { type: t(`type.${type}`) }),
+                body: t('notification.body', { description: extraInfo || description || type, name: selectedDog?.name || '', count: String(reminderDays) }),
+                sound: true,
+              },
+              trigger: { type: SchedulableTriggerInputTypes.DATE, date: reminderDate.getTime() },
+            });
+            reminderScheduled = true;
+          } catch (err) {
+            console.warn('Failed to schedule notification:', err);
+            Alert.alert(t('notification.scheduleFailedTitle'), t('notification.scheduleFailedMsg'));
+          }
+        } else {
+          Alert.alert(t('notification.pastReminderTitle'), t('notification.pastReminderMsg'));
         }
       }
     }
@@ -209,8 +219,8 @@ export default function AddHealthRecordScreen({ navigation, route }: Props) {
       dogId: selectedDog.id,
       extraInfo,
       dueDate: dueDate ? dueDate.toISOString() : null,
-      reminder: shouldRemind || false,
-      reminderDays: shouldRemind ? reminderDays : null,
+      reminder: reminderScheduled,
+      reminderDays: reminderScheduled ? reminderDays : null,
       notificationId,
       vetName: vetName || null,
       clinicName: clinicName || null,

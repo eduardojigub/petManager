@@ -60,3 +60,9 @@ src/
 - **Firebase queries**: Always scope by userId (from Firebase Auth) or dogId. Use FirestoreService utilities when possible.
 - **Android package**: `com.petmanager.cat`
 - **TypeScript**: strict mode enabled, extends `expo/tsconfig.base`
+
+## Git Workflow
+
+- All feature/fix branches must be created from `staging`
+- PRs go to `staging` first, then `staging → main` for releases
+- Never commit directly to `main`

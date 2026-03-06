@@ -214,7 +214,7 @@ export default function ScheduleScreen({ navigation }: Props) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await Promise.all(
+              const results = await Promise.allSettled(
                 schedules.map(async (s) => {
                   if (s.notificationId) {
                     await Notifications.cancelScheduledNotificationAsync(s.notificationId).catch(() => {});
@@ -222,8 +222,15 @@ export default function ScheduleScreen({ navigation }: Props) {
                   await deleteDoc(doc(db, 'schedules', s.id));
                 })
               );
-              setSchedules([]);
-              Alert.alert(t('common.success'), t('alert.allSchedulesDeleted'));
+              const failed = results.filter((r) => r.status === 'rejected');
+              if (failed.length > 0) {
+                console.error('Some schedule deletes failed:', failed);
+                await loadSchedules();
+                Alert.alert(t('common.error'), t('alert.someDeletesFailed'));
+              } else {
+                setSchedules([]);
+                Alert.alert(t('common.success'), t('alert.allSchedulesDeleted'));
+              }
             } catch (error) {
               console.error('Error deleting all schedules', error);
               Alert.alert(t('common.error'), t('alert.failedDeleteAllSchedules'));

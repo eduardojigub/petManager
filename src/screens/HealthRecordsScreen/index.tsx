@@ -210,7 +210,7 @@ export default function HealthRecordsScreen({ navigation }: Props) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await Promise.all(
+              const results = await Promise.allSettled(
                 healthRecords.map(async (r) => {
                   if (r.notificationId) {
                     await Notifications.cancelScheduledNotificationAsync(r.notificationId).catch(() => {});
@@ -218,8 +218,15 @@ export default function HealthRecordsScreen({ navigation }: Props) {
                   await deleteDoc(doc(db, 'healthRecords', r.id));
                 })
               );
-              setHealthRecords([]);
-              Alert.alert(t('common.success'), t('alert.allRecordsDeleted'));
+              const failed = results.filter((r) => r.status === 'rejected');
+              if (failed.length > 0) {
+                console.error('Some record deletes failed:', failed);
+                await loadRecords();
+                Alert.alert(t('common.error'), t('alert.someDeletesFailed'));
+              } else {
+                setHealthRecords([]);
+                Alert.alert(t('common.success'), t('alert.allRecordsDeleted'));
+              }
             } catch (error) {
               console.error('Error deleting all records', error);
               Alert.alert(t('common.error'), t('alert.failedDeleteAllRecords'));

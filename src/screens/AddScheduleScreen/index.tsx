@@ -7,6 +7,8 @@ import {
   Switch,
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CalendarBlank, Clock, Bell } from 'phosphor-react-native';
 import {
   KeyboardAvoidingContainer,
@@ -149,24 +151,31 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
       }
 
       let notificationId: string | null = null;
+      let reminderScheduled = false;
 
       if (reminder) {
-        const notifyAt = new Date(selectedDateTime.getTime() - reminderMinutes * 60 * 1000);
-        const reminderLabel = REMINDER_OPTION_KEYS.find((o) => o.minutes === reminderMinutes);
-        const reminderText = reminderLabel ? t(reminderLabel.key) : '';
-        const bodyText = reminderMinutes === 0
-          ? `${t('add.atTime')}: ${description}`
-          : `${description} - ${reminderText}`;
+        const globalEnabled = await AsyncStorage.getItem('notificationsEnabled');
+        if (globalEnabled !== 'false') {
+          const notifyAt = new Date(selectedDateTime.getTime() - reminderMinutes * 60 * 1000);
+          const reminderLabel = REMINDER_OPTION_KEYS.find((o) => o.minutes === reminderMinutes);
+          const reminderText = reminderLabel ? t(reminderLabel.key) : '';
+          const bodyText = reminderMinutes === 0
+            ? `${t('add.atTime')}: ${description}`
+            : `${description} - ${reminderText}`;
 
-        if (notifyAt.getTime() > Date.now() + 60000) {
-          notificationId = await Notifications.scheduleNotificationAsync({
-            content: {
-              title: `${type} ${t('add.reminder')}`,
-              body: bodyText,
-              sound: true,
-            },
-            trigger: { date: notifyAt },
-          });
+          if (notifyAt.getTime() > Date.now() + 60000) {
+            notificationId = await Notifications.scheduleNotificationAsync({
+              content: {
+                title: `${t(`type.${type}`)} - ${t('add.reminder')}`,
+                body: bodyText,
+                sound: true,
+              },
+              trigger: { type: SchedulableTriggerInputTypes.DATE, date: notifyAt.getTime() },
+            });
+            reminderScheduled = true;
+          } else {
+            Alert.alert(t('notification.pastReminderTitle'), t('notification.pastReminderMsg'));
+          }
         }
       }
 
@@ -182,8 +191,8 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
         notificationId,
         type,
         emailReminder: false,
-        pushNotification: reminder,
-        reminderMinutes: reminder ? reminderMinutes : null,
+        pushNotification: reminderScheduled,
+        reminderMinutes: reminderScheduled ? reminderMinutes : null,
       };
 
       if (isEditMode && schedule) {

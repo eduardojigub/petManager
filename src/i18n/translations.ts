@@ -479,6 +479,20 @@ const translations: Record<Locale, Record<string, string>> = {
     // Notification content
     'notification.reminder': '{type} Reminder',
     'notification.body': '{description} for {name} is due in {count} day(s)',
+    'notification.pastReminderTitle': 'Reminder Not Scheduled',
+    'notification.pastReminderMsg': 'The reminder time has already passed. The record was saved without a notification.',
+    'notifications.disabledTitle': 'Notifications Disabled',
+    'notifications.disabledMsg': 'All pending notifications have been canceled.',
+    'notification.scheduleFailedTitle': 'Reminder Not Scheduled',
+    'notification.scheduleFailedMsg': 'The reminder could not be scheduled, but the record was saved.',
+    'alert.someDeletesFailed': 'Some items could not be deleted. Please try again.',
+
+    // Type labels
+    'type.Vaccine': 'Vaccine',
+    'type.Vet Appointment': 'Vet Appointment',
+    'type.Medication': 'Medication',
+    'type.Pet Groomer': 'Pet Groomer',
+    'type.Other': 'Other',
 
     // Edit Profile - age display
     'editPet.ageMonthsOld': '{count} month(s) old',
@@ -977,6 +991,20 @@ const translations: Record<Locale, Record<string, string>> = {
     // Notification content
     'notification.reminder': 'Lembrete de {type}',
     'notification.body': '{description} para {name} vence em {count} dia(s)',
+    'notification.pastReminderTitle': 'Lembrete nao agendado',
+    'notification.pastReminderMsg': 'O horario do lembrete ja passou. O registro foi salvo sem notificacao.',
+    'notifications.disabledTitle': 'Notificacoes desativadas',
+    'notifications.disabledMsg': 'Todas as notificacoes pendentes foram canceladas.',
+    'notification.scheduleFailedTitle': 'Lembrete nao agendado',
+    'notification.scheduleFailedMsg': 'O lembrete nao pode ser agendado, mas o registro foi salvo.',
+    'alert.someDeletesFailed': 'Alguns itens nao puderam ser deletados. Tente novamente.',
+
+    // Type labels
+    'type.Vaccine': 'Vacina',
+    'type.Vet Appointment': 'Consulta Veterinaria',
+    'type.Medication': 'Medicamento',
+    'type.Pet Groomer': 'Pet Shop',
+    'type.Other': 'Outro',
 
     // Edit Profile - age display
     'editPet.ageMonthsOld': '{count} mes(es)',

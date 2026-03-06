@@ -12,24 +12,33 @@ export default function ManageNotificationsScreen() {
 
   useEffect(() => {
     const loadSettings = async () => {
-      const savedSettings = await AsyncStorage.getItem('notificationsEnabled');
-      if (savedSettings !== null) {
-        setNotificationsEnabled(JSON.parse(savedSettings));
+      try {
+        const savedSettings = await AsyncStorage.getItem('notificationsEnabled');
+        if (savedSettings !== null) {
+          setNotificationsEnabled(JSON.parse(savedSettings));
+        }
+      } catch {
+        setNotificationsEnabled(true);
       }
     };
     loadSettings();
   }, []);
 
   const toggleNotifications = async () => {
-    setNotificationsEnabled((prev) => !prev);
-    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(!notificationsEnabled));
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
 
-    if (!notificationsEnabled) {
-      // Request notification permissions
+    if (newValue) {
+      // Request notification permissions when enabling
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(t('notifications.permissionRequired'), t('notifications.enableInSettings'));
       }
+    } else {
+      // Cancel all pending notifications when disabling
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      Alert.alert(t('notifications.disabledTitle'), t('notifications.disabledMsg'));
     }
   };
 
