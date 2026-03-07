@@ -73,7 +73,7 @@ export default function ExpenseScreen({ navigation }: Props) {
       }
       loadProfiles();
       return () => setIsManualMonthChange(false);
-    }, [userId])
+    }, [userId, loadProfiles])
   );
 
   useEffect(() => {

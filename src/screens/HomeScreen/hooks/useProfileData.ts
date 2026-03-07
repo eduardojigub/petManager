@@ -12,12 +12,18 @@ export function useProfileData() {
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const loadIdRef = useRef(0);
+  const prevUserIdRef = useRef<string | undefined>(undefined);
 
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user?.uid;
 
-  useEffect(() => { setSelectedDog(null); }, [userId]);
+  useEffect(() => {
+    if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
+      setSelectedDog(null);
+    }
+    prevUserIdRef.current = userId;
+  }, [userId]);
 
   const loadDogData = useCallback(async () => {
     if (!selectedDog || !userId) return;

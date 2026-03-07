@@ -57,7 +57,7 @@ export default function HealthRecordsScreen({ navigation }: Props) {
   useFocusEffect(
     React.useCallback(() => {
       loadProfiles();
-    }, [userId])
+    }, [userId, loadProfiles])
   );
 
   useEffect(() => {
@@ -65,8 +65,8 @@ export default function HealthRecordsScreen({ navigation }: Props) {
   }, [selectedDog]);
 
   const filteredRecords = healthRecords.filter((r) => {
-    const matchesStatus = !statusFilter ||
-      (statusFilter === 'scheduled' ? r.status === 'scheduled' : r.status !== 'scheduled');
+    const recordStatus = r.status || 'completed';
+    const matchesStatus = !statusFilter || recordStatus === statusFilter;
     const matchesType = !typeFilter || r.type === typeFilter;
     return matchesStatus && matchesType;
   });

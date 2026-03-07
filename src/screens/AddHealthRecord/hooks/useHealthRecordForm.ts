@@ -69,6 +69,11 @@ export function useHealthRecordForm(record: any) {
   };
 
   const handleSave = async (isEditMode: boolean, onSuccess: () => void) => {
+    if (!selectedDog) {
+      Alert.alert(t('common.error'), t('health.subtitleEmpty'));
+      return;
+    }
+
     if (!type || (!description && type !== 'Medication' && type !== 'Vaccine') ||
         (!extraInfo && (type === 'Medication' || type === 'Vaccine')) || !date) {
       Alert.alert(t('add.fillRequired'));
@@ -151,7 +156,7 @@ export function useHealthRecordForm(record: any) {
 
     const newRecord: any = {
       type, description, date: date.toISOString(), image: imageUrl,
-      dogId: selectedDog!.id, extraInfo,
+      dogId: selectedDog.id, extraInfo,
       dueDate: dueDate ? dueDate.toISOString() : null,
       reminder: (!isScheduled && hasDueDate && dueDate && reminder) || false,
       reminderDays: (!isScheduled && hasDueDate && dueDate && reminder) ? reminderDays : null,

@@ -1,4 +1,4 @@
-// Health & Schedule type colors (Vaccine, Vet Appointment, Medication, Pet Groomer, Other)
+// Health type colors (Vaccine, Vet Appointment, Medication, Pet Groomer, Other)
 export const HEALTH_TYPE_COLOR: Record<string, string> = {
   Vaccine: '#27ae60',
   'Vet Appointment': '#3498db',
@@ -16,15 +16,6 @@ export const HEALTH_TYPE_BG: Record<string, string> = {
 };
 
 export const HEALTH_BORDER_COLOR: Record<string, string> = {
-  Vaccine: '#7289da',
-  'Vet Appointment': '#3498db',
-  Medication: '#e67e22',
-  'Pet Groomer': '#e91e63',
-  Other: '#9b59b6',
-};
-
-// Schedule screen uses same color for border as icon
-export const SCHEDULE_BORDER_COLOR: Record<string, string> = {
   Vaccine: '#27ae60',
   'Vet Appointment': '#3498db',
   Medication: '#e67e22',
