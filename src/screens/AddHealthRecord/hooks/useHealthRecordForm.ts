@@ -8,7 +8,7 @@ import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import useImageUpload from '../../../hooks/useImageUpload';
 
-const TYPES_WITH_DUE_DATE = ['Vaccine', 'Medication', 'Pet Groomer', 'Vet Appointment'];
+const TYPES_WITH_DUE_DATE = ['Vaccine', 'Medication'];
 
 const REMINDER_OPTION_KEYS = [
   { key: 'add.atTime', minutes: 0 },
