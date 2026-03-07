@@ -44,10 +44,6 @@ export default function SignInScreen() {
 
     try {
       await signInWithEmailAndPassword(getAuth(), email, password);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'AppTabs' }],
-      });
     } catch (error) {
       showAlert(t('signIn.loginError'), error.message);
     }

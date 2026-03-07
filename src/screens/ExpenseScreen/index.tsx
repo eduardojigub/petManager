@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Container,
   ContentContainer,
@@ -58,7 +58,7 @@ const formatCurrency = (value: number) =>
 export default function ExpenseScreen({ navigation }: Props) {
   const { t } = useContext(LanguageContext);
   const { dogProfiles, selectedDog, userId, loadProfiles, handleSelectDog } = useDogProfiles();
-  const { expenses, allExpenses, fetchExpenses, handleConfirmDelete, handleDeleteAll } = useExpenses();
+  const { expenses, allExpenses, isLoading, fetchExpenses, handleConfirmDelete, handleDeleteAll } = useExpenses();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -72,10 +72,13 @@ export default function ExpenseScreen({ navigation }: Props) {
         setSelectedYear(now.getFullYear());
       }
       loadProfiles();
-      fetchExpenses(selectedMonthIndex, selectedYear);
       return () => setIsManualMonthChange(false);
-    }, [selectedDog, selectedMonthIndex, selectedYear, userId])
+    }, [userId])
   );
+
+  useEffect(() => {
+    fetchExpenses(selectedMonthIndex, selectedYear);
+  }, [selectedDog, selectedMonthIndex, selectedYear]);
 
   const handleMonthChange = (monthIndex: number, year: number) => {
     setSelectedMonthIndex(monthIndex);
@@ -155,7 +158,9 @@ export default function ExpenseScreen({ navigation }: Props) {
                 <AddButtonText>{t('expenses.addExpense')}</AddButtonText>
               </AddButton>
 
-              {filteredExpenses.length > 0 ? (
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#41245c" style={{ marginVertical: 32 }} />
+              ) : filteredExpenses.length > 0 ? (
                 filteredExpenses.map((item) => (
                   <ExpenseCardItem
                     key={item.id}

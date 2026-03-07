@@ -1,4 +1,4 @@
-import { useState, useContext, useCallback } from 'react';
+import { useState, useContext, useCallback, useRef } from 'react';
 import { collection, query, where, getDocs } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,8 @@ export function useDogProfiles() {
   const [dogProfiles, setDogProfiles] = useState<DogProfile[]>([]);
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
   const userId = getAuth().currentUser?.uid;
+  const selectedDogIdRef = useRef(selectedDog?.id);
+  selectedDogIdRef.current = selectedDog?.id;
 
   const loadProfiles = useCallback(async () => {
     if (!userId) return;
@@ -25,11 +27,10 @@ export function useDogProfiles() {
 
       const storedDogId = await AsyncStorage.getItem('selectedDogId');
       const savedDog = profiles.find((dog) => dog.id === storedDogId);
+      const targetDog = savedDog || profiles[0];
 
-      if (savedDog) {
-        setSelectedDog(savedDog);
-      } else if (profiles.length > 0) {
-        setSelectedDog(profiles[0]);
+      if (targetDog && targetDog.id !== selectedDogIdRef.current) {
+        setSelectedDog(targetDog);
       }
     } catch (error) {
       console.error('Failed to load dog profiles:', error);

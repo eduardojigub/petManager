@@ -9,6 +9,7 @@ import { confirmDelete } from '../../../utils/confirmDelete';
 export function useExpenses() {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [allExpenses, setAllExpenses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { selectedDog } = useContext(DogProfileContext);
   const { t } = useContext(LanguageContext);
 
@@ -85,6 +86,7 @@ export function useExpenses() {
       setAllExpenses([]);
       return;
     }
+    setIsLoading(true);
     try {
       const snapshot = await getDocs(
         query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
@@ -97,6 +99,8 @@ export function useExpenses() {
       updateFilteredExpenses(sorted, monthIndex, year);
     } catch (error) {
       console.error('Error fetching expenses:', error);
+    } finally {
+      setIsLoading(false);
     }
   }, [selectedDog, updateFilteredExpenses]);
 
@@ -149,7 +153,7 @@ export function useExpenses() {
   };
 
   return {
-    expenses, allExpenses, fetchExpenses, updateFilteredExpenses,
+    expenses, allExpenses, isLoading, fetchExpenses, updateFilteredExpenses,
     handleConfirmDelete, handleDeleteAll,
   };
 }
