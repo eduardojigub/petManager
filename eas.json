@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 12.5.1"
+    "version": ">= 12.5.1",
+    "appVersionSource": "remote"
   },
   "build": {
     "preview": {
@@ -20,11 +21,11 @@
   },
   "submit": {
     "production": {
-        "ios": {
-          "appleId": "eduardobrunoit@gmail.com",
-          "ascAppId": "6737129802",
-          "appleTeamId": "BV4VDJR9GL"
-        }
+      "ios": {
+        "appleId": "eduardobrunoit@gmail.com",
+        "ascAppId": "6737129802",
+        "appleTeamId": "BV4VDJR9GL"
+      }
     }
   }
 }
