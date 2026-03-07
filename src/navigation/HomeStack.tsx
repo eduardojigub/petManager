@@ -1,20 +1,20 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import ProfileScreen from '../screens/ProfileScreen';
+import HomeScreen from '../screens/HomeScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import TranslatedHeaderTitle from '../components/TranslatedHeaderTitle';
-import { ProfileStackParamList } from '../types/navigation';
+import { HomeStackParamList } from '../types/navigation';
 import { headerStyle } from './styles';
 
-const Stack = createStackNavigator<ProfileStackParamList>();
+const Stack = createStackNavigator<HomeStackParamList>();
 
-export default function ProfileStack() {
+export default function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Home"
+        component={HomeScreen}
         options={{
           headerShown: false,
         }}

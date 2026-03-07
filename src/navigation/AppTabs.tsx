@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ProfileStack from './ProfileStack';
+import HomeStack from './HomeStack';
 import HealthStack from './HealthStack';
-import ScheduleStack from './ScheduleStack';
 import SettingsStack from './SettingsStack';
 import ExpenseStack from './ExpenseStack';
 import { AppTabsParamList } from '../types/navigation';
@@ -16,7 +15,7 @@ export default function AppTabs() {
 
   return (
     <Tab.Navigator
-      initialRouteName="ProfileTab"
+      initialRouteName="HomeTab"
       screenOptions={{
         tabBarActiveTintColor: '#41245C',
         tabBarInactiveTintColor: '#888',
@@ -24,12 +23,12 @@ export default function AppTabs() {
       }}
     >
       <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStack}
+        name="HomeTab"
+        component={HomeStack}
         options={{
-          tabBarLabel: t('tab.profile'),
+          tabBarLabel: t('tab.home'),
           tabBarIcon: ({ color, size }) => (
-            <Icon name="dog" color={color} size={size} />
+            <Icon name="home" color={color} size={size} />
           ),
         }}
       />
@@ -37,19 +36,9 @@ export default function AppTabs() {
         name="Health"
         component={HealthStack}
         options={{
-          tabBarLabel: t('tab.records'),
+          tabBarLabel: t('tab.health'),
           tabBarIcon: ({ color, size }) => (
-            <Icon name="clipboard-text-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Schedule"
-        component={ScheduleStack}
-        options={{
-          tabBarLabel: t('tab.schedule'),
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="calendar" color={color} size={size} />
+            <Icon name="heart" color={color} size={size} />
           ),
         }}
       />

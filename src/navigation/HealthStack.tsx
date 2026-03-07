@@ -41,7 +41,7 @@ export default function HealthStack() {
             <CustomBackButton
               onPress={() => {
                 if (route.params?.fromProfile) {
-                  navigation.navigate('ProfileTab');
+                  navigation.navigate('HomeTab');
                 } else {
                   navigation.goBack();
                 }

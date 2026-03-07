@@ -11,6 +11,12 @@ export interface HealthRecord {
   dueDate?: string | null;
   reminder?: boolean;
   reminderDays?: number | null;
+  // Status: scheduled (future appointment) or completed (past record)
+  status?: 'scheduled' | 'completed';
+  // Scheduling fields (migrated from Schedule)
+  time?: string | null;
+  reminderMinutes?: number | null;
+  pushNotification?: boolean;
   // Vet Appointment
   vetName?: string | null;
   clinicName?: string | null;
@@ -59,8 +65,8 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
-export type ProfileStackParamList = {
-  Profile: undefined;
+export type HomeStackParamList = {
+  Home: undefined;
   EditProfile: DogProfile | undefined;
 };
 
@@ -76,28 +82,16 @@ export type HealthStackParamList = {
   };
 };
 
-export type ScheduleStackParamList = {
-  ScheduleScreen: undefined;
-  AddSchedule: {
-    schedule?: Schedule;
-    isEditMode?: boolean;
-    fromProfile?: boolean;
-  } | undefined;
-};
-
 export type SettingsStackParamList = {
   SettingsMain: undefined;
-  Account: undefined;
   EditUserProfile: undefined;
-  ManageNotifications: undefined;
   AccountSettings: undefined;
   Help: undefined;
 };
 
 export type AppTabsParamList = {
-  ProfileTab: undefined;
+  HomeTab: undefined;
   Health: undefined;
-  Schedule: undefined;
   Expenses: {
     expense?: Expense;
   } | undefined;

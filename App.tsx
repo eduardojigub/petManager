@@ -21,7 +21,6 @@ import {
 } from '@expo-google-fonts/poppins';
 import AppTabs from './src/navigation/AppTabs';
 import AuthStack from './src/navigation/AuthStack';
-import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
 import TranslatedHeaderTitle from './src/components/TranslatedHeaderTitle';
@@ -109,21 +108,6 @@ export default function App() {
                   name="AppTabs"
                   component={AppTabs}
                   options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="AddSchedule"
-                  component={AddScheduleScreen}
-                  options={({ route }) => ({
-                    headerStyle,
-                    headerTitle: () => (
-                      <TranslatedHeaderTitle
-                        translationKey={route.params?.isEditMode ? 'nav.editSchedule' : 'nav.addSchedule'}
-                      />
-                    ),
-                    headerLeft: ({ onPress }) => (
-                      <CustomBackButton onPress={onPress} />
-                    ),
-                  })}
                 />
                 <Stack.Screen
                   name="AddExpense"
