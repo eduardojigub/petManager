@@ -8,9 +8,10 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CaretRight, User, Bell, Question, SignOut, Star, FileText, DownloadSimple, GlobeSimple,
-  PencilSimple, ShieldCheck, Trash,
+  PencilSimple, ShieldCheck, Trash, Database,
 } from 'phosphor-react-native';
 import { exportUserData } from '../../utils/exportData';
+import { seedMockData } from '../../utils/seedMockData';
 import { LanguageContext } from '../../context/LanguageContext';
 import { Locale } from '../../i18n/translations';
 import SettingsModals from './components/SettingsModals';
@@ -92,6 +93,15 @@ export default function SettingsScreen() {
     } else {
       await Notifications.cancelAllScheduledNotificationsAsync();
       Alert.alert(t('notifications.disabledTitle'), t('notifications.disabledMsg'));
+    }
+  };
+
+  const handleSeedMockData = async () => {
+    try {
+      const result = await seedMockData();
+      Alert.alert('Mock Data Added', `${result.healthRecords} health records + ${result.expenses} expenses created.`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
     }
   };
 
@@ -185,6 +195,20 @@ export default function SettingsScreen() {
               <LogoutSubtitle>{t('settings.logoutSub')}</LogoutSubtitle>
             </MenuTextContainer>
             <CaretRight size={18} color="#e74c3c" weight="bold" />
+          </MenuItem>
+        </MenuCard>
+
+        {/* DEV ONLY - Remove before release */}
+        <MenuCard>
+          <MenuItem onPress={handleSeedMockData}>
+            <MenuIconContainer bgColor="#e8f5e9">
+              <Database size={20} color="#2e7d32" weight="bold" />
+            </MenuIconContainer>
+            <MenuTextContainer>
+              <MenuItemTitle>Seed Mock Data</MenuItemTitle>
+              <MenuItemSubtitle>Add sample records & expenses (DEV)</MenuItemSubtitle>
+            </MenuTextContainer>
+            <CaretRight size={18} color="#ccc" weight="bold" />
           </MenuItem>
         </MenuCard>
 
