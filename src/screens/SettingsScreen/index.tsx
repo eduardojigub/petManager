@@ -1,11 +1,14 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { Linking, Share, Alert } from 'react-native';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
+import { Linking, Share, Alert, Switch } from 'react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { SettingsStackParamList } from '../../types/navigation';
 import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CaretRight, User, Bell, Question, SignOut, Star, FileText, DownloadSimple, GlobeSimple,
+  PencilSimple, ShieldCheck, Trash,
 } from 'phosphor-react-native';
 import { exportUserData } from '../../utils/exportData';
 import { LanguageContext } from '../../context/LanguageContext';
@@ -28,6 +31,7 @@ export default function SettingsScreen() {
   const [showRateShareModal, setShowRateShareModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [, forceUpdate] = useState(0);
   const navigation = useNavigation<NavigationProp<SettingsStackParamList>>();
   const auth = getAuth();
@@ -35,6 +39,18 @@ export default function SettingsScreen() {
   const { locale, setLocale, t } = useContext(LanguageContext);
 
   useFocusEffect(useCallback(() => { forceUpdate((n) => n + 1); }, []));
+
+  useEffect(() => {
+    const loadNotificationSetting = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('notificationsEnabled');
+        if (saved !== null) setNotificationsEnabled(JSON.parse(saved));
+      } catch {
+        setNotificationsEnabled(true);
+      }
+    };
+    loadNotificationSetting();
+  }, []);
 
   const userEmail = user?.email || '';
   const userName = user?.displayName || userEmail.split('@')[0] || 'User';
@@ -63,9 +79,32 @@ export default function SettingsScreen() {
 
   const handleSelectLanguage = (lang: Locale) => { setLocale(lang); setShowLanguageModal(false); };
 
+  const toggleNotifications = async () => {
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
+
+    if (newValue) {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(t('notifications.permissionRequired'), t('notifications.enableInSettings'));
+      }
+    } else {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      Alert.alert(t('notifications.disabledTitle'), t('notifications.disabledMsg'));
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    const url = 'https://jp7dc7wdnld.typeform.com/to/UukaGjeR';
+    Linking.openURL(url).catch(() =>
+      Alert.alert(t('common.error'), t('alert.failedOpenLink'))
+    );
+  };
+
   const menuItems = [
-    { icon: <User size={20} color="#41245c" weight="bold" />, bgColor: '#ede8f5', title: t('settings.account'), subtitle: t('settings.accountSub'), onPress: () => navigation.navigate('Account') },
-    { icon: <Bell size={20} color="#e67e22" weight="bold" />, bgColor: '#fdf0e0', title: t('settings.notifications'), subtitle: t('settings.notificationsSub'), onPress: () => navigation.navigate('ManageNotifications') },
+    { icon: <PencilSimple size={20} color="#41245c" weight="bold" />, bgColor: '#ede8f5', title: t('settings.editProfile'), subtitle: t('settings.editProfileSub'), onPress: () => navigation.navigate('EditUserProfile') },
+    { icon: <ShieldCheck size={20} color="#27ae60" weight="bold" />, bgColor: '#e0f5e9', title: t('settings.updatePassword'), subtitle: t('settings.updatePasswordSub'), onPress: () => navigation.navigate('AccountSettings') },
     { icon: <DownloadSimple size={20} color="#2ecc71" weight="bold" />, bgColor: '#e0f5e9', title: exporting ? t('settings.exporting') : t('settings.exportData'), subtitle: t('settings.exportDataSub'), onPress: handleExportData },
     { icon: <GlobeSimple size={20} color="#3498db" weight="bold" />, bgColor: '#e0eef9', title: t('settings.language'), subtitle: locale === 'pt' ? t('language.portuguese') : t('language.english'), onPress: () => setShowLanguageModal(true) },
     { icon: <Question size={20} color="#9b59b6" weight="bold" />, bgColor: '#f0e6f6', title: t('settings.help'), subtitle: t('settings.helpSub'), onPress: () => navigation.navigate('Help') },
@@ -89,6 +128,25 @@ export default function SettingsScreen() {
           </ProfileInfo>
         </ProfileCard>
 
+        {/* Notifications toggle inline */}
+        <MenuCard>
+          <MenuItem onPress={toggleNotifications}>
+            <MenuIconContainer bgColor="#fdf0e0">
+              <Bell size={20} color="#e67e22" weight="bold" />
+            </MenuIconContainer>
+            <MenuTextContainer>
+              <MenuItemTitle>{t('settings.notifications')}</MenuItemTitle>
+              <MenuItemSubtitle>{t('settings.notificationsSub')}</MenuItemSubtitle>
+            </MenuTextContainer>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={toggleNotifications}
+              trackColor={{ false: '#ddd', true: '#7289da' }}
+              thumbColor={notificationsEnabled ? '#41245c' : '#f4f3f4'}
+            />
+          </MenuItem>
+        </MenuCard>
+
         <MenuCard>
           {menuItems.map((item, index) => (
             <React.Fragment key={item.title}>
@@ -105,7 +163,19 @@ export default function SettingsScreen() {
           ))}
         </MenuCard>
 
+        {/* Delete account + logout */}
         <MenuCard>
+          <MenuItem onPress={handleDeleteAccount}>
+            <MenuIconContainer bgColor="#fde8e8">
+              <Trash size={20} color="#e74c3c" weight="bold" />
+            </MenuIconContainer>
+            <MenuTextContainer>
+              <LogoutTitle>{t('settings.deleteAccount')}</LogoutTitle>
+              <LogoutSubtitle>{t('settings.deleteAccountSub')}</LogoutSubtitle>
+            </MenuTextContainer>
+            <CaretRight size={18} color="#e74c3c" weight="bold" />
+          </MenuItem>
+          <MenuDivider />
           <MenuItem onPress={handleLogout}>
             <MenuIconContainer bgColor="#fde8e8">
               <SignOut size={20} color="#e74c3c" weight="bold" />
