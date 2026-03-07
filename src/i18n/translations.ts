@@ -58,6 +58,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'health.expired': 'Expired',
     'health.expiringSoon': 'Expiring Soon',
     'health.active': 'Active',
+    'health.scheduled': 'Scheduled',
+    'health.completed': 'Completed',
+    'health.allStatus': 'All',
+    'health.scheduledFilter': 'Scheduled',
+    'health.completedFilter': 'Completed',
+    'health.scheduledCount': 'Scheduled',
+    'health.noScheduled': 'No scheduled appointments',
+    'health.noScheduledSub': 'Tap "+ Add Record" and enable scheduling',
 
     // Schedule
     'schedule.title': 'Schedule',
@@ -165,6 +173,17 @@ const translations: Record<Locale, Record<string, string>> = {
     'add.whenNextGrooming': 'When is the next grooming?',
     'add.whenNextVisit': 'When is the next visit?',
     'add.selectDueDate': 'Select due date',
+    'add.scheduleToggle': 'Schedule appointment',
+    'add.scheduledFor': 'Scheduled for',
+    'add.markCompleted': 'Mark as Completed',
+
+    // Home - Weight Chart & Emergency Card
+    'home.emergencyCard': 'Emergency Card',
+    'home.emergencyCardTitle': 'Pet Emergency Card',
+    'home.vaccinesUpToDate': 'Vaccines up to date',
+    'home.noVaccinesRecorded': 'No vaccines recorded',
+    'home.contactVet': 'Contact Vet',
+    'home.shareCard': 'Share Card',
 
     // Health Record Details
     'detail.date': 'Date',
@@ -184,6 +203,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'detail.frequency': 'Frequency',
     'detail.services': 'Services',
     'detail.image': 'Image',
+    'detail.time': 'Time',
+    'detail.status': 'Status',
     'detail.editRecord': 'Edit Record',
     'detail.goBack': 'Go Back',
 
@@ -366,9 +387,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.helpFaq': 'Help & FAQ',
 
     // Tab labels
-    'tab.profile': 'Profile',
-    'tab.records': 'Records',
-    'tab.schedule': 'Schedule',
+    'tab.home': 'Home',
+    'tab.health': 'Health',
     'tab.expenses': 'Expenses',
     'tab.settings': 'Settings',
 
@@ -456,6 +476,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'profile.years': '{count} years',
 
     // Settings - extra
+    'settings.editProfile': 'Edit Profile',
+    'settings.editProfileSub': 'Update your name and photo',
+    'settings.updatePassword': 'Update Password',
+    'settings.updatePasswordSub': 'Change your password',
+    'settings.deleteAccount': 'Delete Account',
+    'settings.deleteAccountSub': 'Permanently remove your data',
     'settings.couldNotOpenStore': 'Could not open the App Store',
     'settings.exportFailed': 'Failed to export data. Please try again.',
 
@@ -570,6 +596,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'health.expired': 'Expirado',
     'health.expiringSoon': 'Expirando',
     'health.active': 'Ativo',
+    'health.scheduled': 'Agendado',
+    'health.completed': 'Concluido',
+    'health.allStatus': 'Todos',
+    'health.scheduledFilter': 'Agendados',
+    'health.completedFilter': 'Concluidos',
+    'health.scheduledCount': 'Agendados',
+    'health.noScheduled': 'Nenhum agendamento',
+    'health.noScheduledSub': 'Toque em "+ Adicionar Registro" e ative o agendamento',
 
     // Schedule
     'schedule.title': 'Agenda',
@@ -677,6 +711,17 @@ const translations: Record<Locale, Record<string, string>> = {
     'add.whenNextGrooming': 'Quando e o proximo banho/tosa?',
     'add.whenNextVisit': 'Quando e a proxima consulta?',
     'add.selectDueDate': 'Selecionar data de vencimento',
+    'add.scheduleToggle': 'Agendar compromisso',
+    'add.scheduledFor': 'Agendado para',
+    'add.markCompleted': 'Marcar como Concluido',
+
+    // Home - Weight Chart & Emergency Card
+    'home.emergencyCard': 'Cartao de Emergencia',
+    'home.emergencyCardTitle': 'Cartao de Emergencia do Pet',
+    'home.vaccinesUpToDate': 'Vacinas em dia',
+    'home.noVaccinesRecorded': 'Nenhuma vacina registrada',
+    'home.contactVet': 'Veterinario de contato',
+    'home.shareCard': 'Compartilhar Cartao',
 
     // Health Record Details
     'detail.date': 'Data',
@@ -696,6 +741,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'detail.frequency': 'Frequencia',
     'detail.services': 'Servicos',
     'detail.image': 'Imagem',
+    'detail.time': 'Horario',
+    'detail.status': 'Status',
     'detail.editRecord': 'Editar Registro',
     'detail.goBack': 'Voltar',
 
@@ -878,9 +925,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.helpFaq': 'Ajuda & FAQ',
 
     // Tab labels
-    'tab.profile': 'Perfil',
-    'tab.records': 'Registros',
-    'tab.schedule': 'Agenda',
+    'tab.home': 'Inicio',
+    'tab.health': 'Saude',
     'tab.expenses': 'Despesas',
     'tab.settings': 'Ajustes',
 
@@ -968,6 +1014,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'profile.years': '{count} anos',
 
     // Settings - extra
+    'settings.editProfile': 'Editar Perfil',
+    'settings.editProfileSub': 'Atualize seu nome e foto',
+    'settings.updatePassword': 'Atualizar Senha',
+    'settings.updatePasswordSub': 'Altere sua senha',
+    'settings.deleteAccount': 'Excluir Conta',
+    'settings.deleteAccountSub': 'Remover seus dados permanentemente',
     'settings.couldNotOpenStore': 'Nao foi possivel abrir a App Store',
     'settings.exportFailed': 'Falha ao exportar dados. Tente novamente.',
 

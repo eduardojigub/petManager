@@ -121,6 +121,13 @@ export const RecordDate = styled.Text`
   font-family: 'Poppins_400Regular';
 `;
 
+export const RecordTime = styled.Text`
+  font-size: 11px;
+  color: #7289da;
+  font-family: 'Poppins_500Medium';
+  margin-top: 2px;
+`;
+
 export const RecordBadge = styled.View<{ bgColor?: string }>`
   padding: 3px 10px;
   border-radius: 10px;

@@ -9,6 +9,7 @@ import { cancelNotification } from '../../../utils/notificationHelper';
 
 export function useHealthRecords() {
   const [healthRecords, setHealthRecords] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { selectedDog } = useContext(DogProfileContext);
   const { t } = useContext(LanguageContext);
 
@@ -17,6 +18,7 @@ export function useHealthRecords() {
       setHealthRecords([]);
       return;
     }
+    setIsLoading(true);
     try {
       const snapshot = await getDocs(
         query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id))
@@ -29,6 +31,8 @@ export function useHealthRecords() {
       setHealthRecords(records);
     } catch (error) {
       console.error('Error loading health records', error);
+    } finally {
+      setIsLoading(false);
     }
   }, [selectedDog]);
 
@@ -90,13 +94,15 @@ export function useHealthRecords() {
   const totalRecords = healthRecords.length;
   const vaccineCount = healthRecords.filter((r) => r.type === 'Vaccine').length;
   const vetVisitCount = healthRecords.filter((r) => r.type === 'Vet Appointment').length;
-  const otherCount = healthRecords.filter((r) => r.type === 'Medication' || r.type === 'Other').length;
+  const scheduledCount = healthRecords.filter((r) => r.status === 'scheduled').length;
+  const completedCount = healthRecords.filter((r) => r.status !== 'scheduled').length;
 
   return {
     healthRecords,
+    isLoading,
     loadRecords,
     handleConfirmDelete,
     handleDeleteAll,
-    stats: { totalRecords, vaccineCount, vetVisitCount, otherCount },
+    stats: { totalRecords, vaccineCount, vetVisitCount, scheduledCount, completedCount },
   };
 }

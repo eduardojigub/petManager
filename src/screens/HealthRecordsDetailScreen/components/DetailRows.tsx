@@ -1,9 +1,10 @@
 import React from 'react';
 import {
   FileText, Calendar, CalendarCheck, Stethoscope, FirstAid,
-  Scales, Barcode, Pill, Scissors, Bell, ImageSquare,
+  Scales, Barcode, Pill, Scissors, Bell, ImageSquare, Clock, CheckCircle,
 } from 'phosphor-react-native';
 import { formatLongDate } from '../../../utils/dateFormarter';
+import { formatTime } from '../../../utils/timeFormatting';
 import { DetailRow, DetailIconContainer, DetailInfo, DetailLabel, DetailValue, DetailImage } from '../styles';
 
 interface DetailRowsProps {
@@ -24,6 +25,7 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
 }
 
 export default function DetailRows({ record, t }: DetailRowsProps) {
+  const isScheduled = record.status === 'scheduled';
   const dueDateLabel =
     record.type === 'Vaccine' ? t('detail.nextDoseDue') :
     record.type === 'Medication' ? t('detail.endDate') :
@@ -31,8 +33,18 @@ export default function DetailRows({ record, t }: DetailRowsProps) {
 
   return (
     <>
+      {isScheduled && (
+        <Row icon={<CheckCircle size={18} color="#7289da" />}
+          label={t('detail.status')} value={t('health.scheduled')} />
+      )}
+
       <Row icon={<Calendar size={18} color="#41245c" />}
         label={t('detail.date')} value={formatLongDate(record.date)} />
+
+      {isScheduled && record.time && (
+        <Row icon={<Clock size={18} color="#7289da" />}
+          label={t('detail.time')} value={formatTime(record.time)} />
+      )}
 
       {record.dueDate && (
         <Row icon={<CalendarCheck size={18} color="#e67e22" />}

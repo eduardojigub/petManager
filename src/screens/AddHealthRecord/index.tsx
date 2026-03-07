@@ -1,20 +1,22 @@
 import React from 'react';
-import { Platform, Keyboard, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
-import { Question, CalendarBlank, Camera } from 'phosphor-react-native';
+import { Platform, Keyboard, TouchableWithoutFeedback, ActivityIndicator, Switch } from 'react-native';
+import { Question, CalendarBlank, Camera, Clock } from 'phosphor-react-native';
 import {
   KeyboardAvoidingContainer, Container, ContentContainer, SectionTitle,
   FormCard, InputGroup, InputLabel, MultilineInput, DateButton, DateButtonText,
   ImageSection, ImagePreview, ImageButton, ImageButtonText,
   PlaceholderContainer, PlaceholderText, SaveButton, SaveButtonText,
+  ReminderRow, ReminderLabel,
 } from './styles';
 import TypeChipGrid from '../../components/TypeChipGrid';
 import DatePickerField from '../../components/DatePickerField';
 import TypeSpecificFields from './components/TypeSpecificFields';
 import DueDateSection from './components/DueDateSection';
+import ReminderSection from '../../components/ReminderSection';
 import { HEALTH_SCHEDULE_TYPES } from '../../constants/typeOptions';
 import { getHealthScheduleIcon } from '../../utils/iconMappings';
 import { HEALTH_TYPE_COLOR, HEALTH_TYPE_BG } from '../../constants/colors';
-import { useHealthRecordForm } from './hooks/useHealthRecordForm';
+import { useHealthRecordForm, REMINDER_OPTION_KEYS } from './hooks/useHealthRecordForm';
 import { StackScreenProps } from '@react-navigation/stack';
 import { HealthStackParamList } from '../../types/navigation';
 
@@ -97,7 +99,58 @@ export default function AddHealthRecordScreen({ navigation, route }: Props) {
                     />
                   </InputGroup>
 
-                  {form.hasDueDate && (
+                  {/* Schedule toggle */}
+                  <InputGroup>
+                    <InputLabel>{form.t('add.scheduleToggle')}</InputLabel>
+                    <ReminderRow>
+                      <Clock size={20} color="#7289da" />
+                      <ReminderLabel>{form.t('add.scheduleToggle')}</ReminderLabel>
+                      <Switch
+                        value={form.isScheduled}
+                        onValueChange={form.setIsScheduled}
+                        trackColor={{ false: '#ddd', true: '#7289da' }}
+                        thumbColor={form.isScheduled ? '#41245c' : '#f4f3f4'}
+                      />
+                    </ReminderRow>
+                  </InputGroup>
+
+                  {/* Scheduling fields */}
+                  {form.isScheduled && (
+                    <>
+                      <InputGroup>
+                        <InputLabel>{form.t('add.time')}</InputLabel>
+                        <DatePickerField
+                          value={form.time}
+                          onChange={form.setTime}
+                          mode="time"
+                          label={form.t('add.selectTime')}
+                          renderButton={(onPress, displayText) => (
+                            <DateButton onPress={onPress}>
+                              <Clock size={20} color="#41245c" />
+                              <DateButtonText hasValue>{displayText}</DateButtonText>
+                            </DateButton>
+                          )}
+                        />
+                      </InputGroup>
+
+                      <InputGroup>
+                        <InputLabel>{form.t('add.reminder')}</InputLabel>
+                        <ReminderSection
+                          reminder={form.scheduleReminder}
+                          onReminderChange={form.setScheduleReminder}
+                          options={REMINDER_OPTION_KEYS}
+                          selectedMinutes={form.reminderMinutes}
+                          onOptionSelect={form.setReminderMinutes}
+                          label={form.t('add.remindBefore')}
+                          howEarlyLabel={form.t('add.howEarly')}
+                          renderOptionLabel={(opt) => form.t(opt.key)}
+                        />
+                      </InputGroup>
+                    </>
+                  )}
+
+                  {/* Due date section (only for completed records) */}
+                  {!form.isScheduled && form.hasDueDate && (
                     <DueDateSection
                       type={form.type} dueDate={form.dueDate} setDueDate={form.setDueDate}
                       reminder={form.reminder} setReminder={form.setReminder}

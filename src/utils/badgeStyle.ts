@@ -7,6 +7,10 @@ interface BadgeStyle {
 }
 
 export function getBadgeStyle(record: any, t: TranslateFn): BadgeStyle {
+  if (record.status === 'scheduled') {
+    return { bg: '#e8ecf7', color: '#7289da', label: t('health.scheduled') };
+  }
+
   if (!record.dueDate) {
     return { bg: '#e0f5e9', color: '#27ae60', label: t('health.complete') };
   }

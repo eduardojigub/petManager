@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { ScrollView, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Container,
@@ -33,7 +33,13 @@ import { HealthStackParamList } from '../../types/navigation';
 
 type Props = StackScreenProps<HealthStackParamList, 'HealthRecords'>;
 
-const FILTER_TAB_KEYS = [
+const STATUS_FILTER_KEYS = [
+  { key: 'health.allStatus', value: null },
+  { key: 'health.scheduledFilter', value: 'scheduled' },
+  { key: 'health.completedFilter', value: 'completed' },
+];
+
+const TYPE_FILTER_KEYS = [
   { key: 'health.allRecords', value: null },
   { key: 'health.vaccines', value: 'Vaccine' },
   { key: 'health.vetVisits', value: 'Vet Appointment' },
@@ -44,19 +50,26 @@ const FILTER_TAB_KEYS = [
 export default function HealthRecordsScreen({ navigation }: Props) {
   const { t } = useContext(LanguageContext);
   const { dogProfiles, selectedDog, userId, loadProfiles, handleSelectDog } = useDogProfiles();
-  const { healthRecords, loadRecords, handleConfirmDelete, handleDeleteAll, stats } = useHealthRecords();
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const { healthRecords, isLoading, loadRecords, handleConfirmDelete, handleDeleteAll, stats } = useHealthRecords();
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
       loadProfiles();
-      loadRecords();
-    }, [selectedDog, userId])
+    }, [userId])
   );
 
-  const filteredRecords = activeFilter
-    ? healthRecords.filter((r) => r.type === activeFilter)
-    : healthRecords;
+  useEffect(() => {
+    loadRecords();
+  }, [selectedDog]);
+
+  const filteredRecords = healthRecords.filter((r) => {
+    const matchesStatus = !statusFilter ||
+      (statusFilter === 'scheduled' ? r.status === 'scheduled' : r.status !== 'scheduled');
+    const matchesType = !typeFilter || r.type === typeFilter;
+    return matchesStatus && matchesType;
+  });
 
   return (
     <Container>
@@ -89,6 +102,10 @@ export default function HealthRecordsScreen({ navigation }: Props) {
                     <StatLabel>{t('health.total')}</StatLabel>
                   </StatCard>
                   <StatCard>
+                    <StatValue color="#7289da">{stats.scheduledCount}</StatValue>
+                    <StatLabel>{t('health.scheduledCount')}</StatLabel>
+                  </StatCard>
+                  <StatCard>
                     <StatValue color="#27ae60">{stats.vaccineCount}</StatValue>
                     <StatLabel>{t('health.vaccines')}</StatLabel>
                   </StatCard>
@@ -96,17 +113,22 @@ export default function HealthRecordsScreen({ navigation }: Props) {
                     <StatValue color="#3498db">{stats.vetVisitCount}</StatValue>
                     <StatLabel>{t('health.visits')}</StatLabel>
                   </StatCard>
-                  <StatCard>
-                    <StatValue color="#e67e22">{stats.otherCount}</StatValue>
-                    <StatLabel>{t('health.other')}</StatLabel>
-                  </StatCard>
                 </StatsRow>
               </StatsCard>
 
+              {/* Status filters */}
               <FilterTabs
-                tabs={FILTER_TAB_KEYS}
-                activeValue={activeFilter}
-                onSelect={setActiveFilter}
+                tabs={STATUS_FILTER_KEYS}
+                activeValue={statusFilter}
+                onSelect={setStatusFilter}
+                renderLabel={(tab) => t(tab.key)}
+              />
+
+              {/* Type filters */}
+              <FilterTabs
+                tabs={TYPE_FILTER_KEYS}
+                activeValue={typeFilter}
+                onSelect={setTypeFilter}
                 showScrollHint
                 renderLabel={(tab) => t(tab.key)}
               />
@@ -117,7 +139,9 @@ export default function HealthRecordsScreen({ navigation }: Props) {
                 <AddButtonText>{t('health.addRecord')}</AddButtonText>
               </AddButton>
 
-              {filteredRecords.length > 0 ? (
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#41245c" style={{ marginVertical: 32 }} />
+              ) : filteredRecords.length > 0 ? (
                 filteredRecords.map((item) => (
                   <HealthRecordCard
                     key={item.id}
@@ -129,8 +153,12 @@ export default function HealthRecordsScreen({ navigation }: Props) {
                 ))
               ) : (
                 <EmptyContainer>
-                  <EmptyText>{t('health.noRecords')}</EmptyText>
-                  <EmptySubtext>{t('health.noRecordsSub')}</EmptySubtext>
+                  <EmptyText>
+                    {statusFilter === 'scheduled' ? t('health.noScheduled') : t('health.noRecords')}
+                  </EmptyText>
+                  <EmptySubtext>
+                    {statusFilter === 'scheduled' ? t('health.noScheduledSub') : t('health.noRecordsSub')}
+                  </EmptySubtext>
                 </EmptyContainer>
               )}
             </>
