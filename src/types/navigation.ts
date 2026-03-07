@@ -32,21 +32,6 @@ export interface HealthRecord {
   notificationId?: string | null;
 }
 
-export interface Schedule {
-  id: string;
-  description: string;
-  date: string;
-  time: string;
-  dogId: string;
-  userId: string;
-  notificationId?: string;
-  type: string;
-  pushNotification?: boolean;
-  reminderMinutes?: number | null;
-  isUpcoming?: boolean;
-  isPast?: boolean;
-}
-
 export interface Expense {
   id: string;
   title: string;

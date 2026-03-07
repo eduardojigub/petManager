@@ -2,7 +2,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { getUserDocuments } from '../firebase/FirestoreService';
 import { DogProfile } from '../types/dogProfile';
-import { HealthRecord, Schedule, Expense } from '../types/navigation';
+import { HealthRecord, Expense } from '../types/navigation';
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '-';
@@ -25,7 +25,6 @@ function formatCurrency(amount: number): string {
 function generateHTML(
   dogs: DogProfile[],
   healthRecords: HealthRecord[],
-  schedules: Schedule[],
   expenses: Expense[]
 ): string {
   const today = new Date().toLocaleDateString('en-US', {
@@ -37,7 +36,6 @@ function generateHTML(
   const dogSections = dogs
     .map((dog) => {
       const dogHealth = healthRecords.filter((r) => r.dogId === dog.id);
-      const dogSchedules = schedules.filter((s) => s.dogId === dog.id);
       const dogExpenses = expenses.filter((e) => e.dogId === dog.id);
       const totalExpenses = dogExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
@@ -54,20 +52,6 @@ function generateHTML(
             )
             .join('')
         : '<tr><td colspan="4" class="empty">No health records</td></tr>';
-
-      const scheduleRows = dogSchedules.length
-        ? dogSchedules
-            .map(
-              (s) => `
-            <tr>
-              <td>${formatDate(s.date)}</td>
-              <td>${s.time || '-'}</td>
-              <td><span class="badge badge-schedule">${s.type}</span></td>
-              <td>${s.description || '-'}</td>
-            </tr>`
-            )
-            .join('')
-        : '<tr><td colspan="4" class="empty">No schedules</td></tr>';
 
       const expenseRows = dogExpenses.length
         ? dogExpenses
@@ -105,19 +89,6 @@ function generateHTML(
               </tr>
             </thead>
             <tbody>${healthRows}</tbody>
-          </table>
-
-          <h3>Schedules</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>${scheduleRows}</tbody>
           </table>
 
           <h3>Expenses</h3>
@@ -242,7 +213,6 @@ function generateHTML(
           text-transform: capitalize;
         }
         .badge-health { background: #ede8f5; color: #41245C; }
-        .badge-schedule { background: #e0eef9; color: #2980b9; }
         .badge-expense { background: #fdf0e0; color: #e67e22; }
         .footer {
           text-align: center;
@@ -271,10 +241,9 @@ function generateHTML(
 export async function exportUserData(): Promise<void> {
   const dogs = (await getUserDocuments('dogProfiles')) as DogProfile[];
   const healthRecords = (await getUserDocuments('healthRecords')) as HealthRecord[];
-  const schedules = (await getUserDocuments('schedules')) as Schedule[];
   const expenses = (await getUserDocuments('expenses')) as Expense[];
 
-  const html = generateHTML(dogs, healthRecords, schedules, expenses);
+  const html = generateHTML(dogs, healthRecords, expenses);
 
   const { uri } = await Print.printToFileAsync({ html });
   await Sharing.shareAsync(uri, {
