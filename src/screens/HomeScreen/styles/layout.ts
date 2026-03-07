@@ -13,7 +13,7 @@ export const ContentContainer = styled.View`
 export const TopCard = styled.View`
   background-color: #fff;
   border-radius: 20px;
-  padding: 20px;
+  padding: 20px 20px 4px 20px;
   margin-bottom: 20px;
   shadow-color: #000;
   shadow-offset: 0px 2px;

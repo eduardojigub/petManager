@@ -12,18 +12,17 @@ import {
 interface DogDetailSectionProps {
   dog: DogProfile;
   healthCount: number;
-  upcomingCount: number;
+  scheduledCount: number;
   monthExpenses: number;
   onEdit: () => void;
   onNavHealth: () => void;
-  onNavSchedule: () => void;
   onNavExpenses: () => void;
   t: (key: string, params?: Record<string, string>) => string;
 }
 
 export default function DogDetailSection({
-  dog, healthCount, upcomingCount, monthExpenses,
-  onEdit, onNavHealth, onNavSchedule, onNavExpenses, t,
+  dog, healthCount, scheduledCount, monthExpenses,
+  onEdit, onNavHealth, onNavExpenses, t,
 }: DogDetailSectionProps) {
   return (
     <DogDetailCard>
@@ -57,12 +56,12 @@ export default function DogDetailSection({
           <StatValue color="#41245c">{healthCount}</StatValue>
           <StatLabel>{t('profile.petRecords')}</StatLabel>
         </StatCard>
-        <StatCard bgColor="#edf2fb" onPress={onNavSchedule}>
-          <StatValue color="#7289da">{upcomingCount}</StatValue>
+        <StatCard bgColor="#e8ecf7" onPress={onNavHealth}>
+          <StatValue color="#7289da">{scheduledCount}</StatValue>
           <StatLabel>{t('profile.upcoming')}</StatLabel>
         </StatCard>
-        <StatCard bgColor="#f5f0eb" onPress={onNavExpenses}>
-          <StatValue color="#c0792a">${monthExpenses.toFixed(0)}</StatValue>
+        <StatCard bgColor="#e8f5e9" onPress={onNavExpenses}>
+          <StatValue color="#2e7d32">${monthExpenses.toFixed(0)}</StatValue>
           <StatLabel>{t('profile.thisMonth')}</StatLabel>
         </StatCard>
       </StatsRow>

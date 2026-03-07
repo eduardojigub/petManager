@@ -6,7 +6,7 @@ import { getAuth } from '@react-native-firebase/auth';
 
 export function useProfileData() {
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
-  const [upcomingSchedules, setUpcomingSchedules] = useState<any[]>([]);
+  const [scheduledCount, setScheduledCount] = useState(0);
   const [healthCount, setHealthCount] = useState(0);
   const [monthExpenses, setMonthExpenses] = useState(0);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
@@ -25,50 +25,35 @@ export function useProfileData() {
     setIsLoading(true);
 
     try {
-      const schedulesSnapshot = await getDocs(
-        query(collection(db, 'schedules'), where('dogId', '==', selectedDog.id), where('userId', '==', userId))
-      );
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const schedules = schedulesSnapshot.docs
-        .map((d: any) => {
-          const data = d.data();
-          const [year, month, day] = data.date.split('-').map(Number);
-          const [hours, minutes] = data.time.split(':').map(Number);
-          return { id: d.id, ...data, isUpcoming: new Date(year, month - 1, day, hours, minutes) >= today };
-        })
-        .filter((s: any) => s.isUpcoming);
-
       const healthSnapshot = await getDocs(
         query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id))
       );
+      const allHealthRecords = healthSnapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+      const scheduled = allHealthRecords.filter((r: any) => r.status === 'scheduled');
 
       const expensesSnapshot = await getDocs(
         query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
       );
       const allExpenses = expensesSnapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+      const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
       const thisMonthTotal = allExpenses
         .filter((e: any) => e.date >= startOfMonth)
         .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
 
       const activities: any[] = [];
-      healthSnapshot.docs.forEach((d: any) => {
-        const data = d.data();
-        activities.push({ id: d.id, title: `${data.type} — ${data.description || 'Record added'}`, date: data.date, icon: 'health', type: data.type });
+      allHealthRecords.forEach((r: any) => {
+        const label = r.status === 'scheduled' ? 'Scheduled' : 'Record added';
+        activities.push({ id: r.id, title: `${r.type} — ${r.description || label}`, date: r.date, icon: r.status === 'scheduled' ? 'schedule' : 'health', type: r.type });
       });
       allExpenses.forEach((e: any) => {
         activities.push({ id: e.id, title: `${e.title || e.type} — $${(e.amount || 0).toFixed(2)}`, date: e.date, icon: 'expense', type: e.type });
       });
-      schedulesSnapshot.docs.forEach((d: any) => {
-        const data = d.data();
-        activities.push({ id: d.id, title: `${data.type} — ${data.description || 'Scheduled'}`, date: data.date, icon: 'schedule', type: data.type });
-      });
       activities.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
       if (currentLoadId === loadIdRef.current) {
-        setUpcomingSchedules(schedules);
-        setHealthCount(healthSnapshot.docs.length);
+        setScheduledCount(scheduled.length);
+        setHealthCount(allHealthRecords.length);
         setMonthExpenses(thisMonthTotal);
         setRecentActivity(activities.slice(0, 5));
       }
@@ -80,7 +65,7 @@ export function useProfileData() {
   }, [selectedDog, userId]);
 
   return {
-    user, userId, upcomingSchedules, healthCount, monthExpenses,
+    user, userId, scheduledCount, healthCount, monthExpenses,
     recentActivity, isLoading, loadDogData,
   };
 }

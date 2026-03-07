@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LanguageContext } from '../../context/LanguageContext';
-import { Plus, PawPrint } from 'phosphor-react-native';
+import { Plus, PawPrint, FirstAidKit } from 'phosphor-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDogProfiles } from '../../hooks/useDogProfiles';
 import { useProfileData } from './hooks/useProfileData';
@@ -10,10 +10,12 @@ import DogChipSelector from '../../components/DogChipSelector';
 import DogDetailSection from './components/DogDetailSection';
 import QuickActions from './components/QuickActions';
 import RecentActivitySection from './components/RecentActivity';
+import EmergencyCard from './components/EmergencyCard';
 import {
   Container, ContentContainer, TopCard, HeaderRow,
   GreetingText, GreetingSubtext, UserAvatar, UserAvatarImage, UserAvatarText,
   SectionTitle, AddDogChip, NoDogsContainer, NoDogsText, AddProfileCircle,
+  QuickActionButton, QuickActionText,
 } from './styles';
 
 function getGreeting(t: (key: string) => string): string {
@@ -23,14 +25,15 @@ function getGreeting(t: (key: string) => string): string {
   return t('profile.goodEvening');
 }
 
-export default function ProfileScreen() {
+export default function HomeScreen() {
   const { t } = useContext(LanguageContext);
   const navigation = useNavigation<any>();
   const { dogProfiles, selectedDog, userId, loadProfiles, handleSelectDog } = useDogProfiles();
   const {
-    user, upcomingSchedules, healthCount, monthExpenses,
+    user, scheduledCount, healthCount, monthExpenses,
     recentActivity, isLoading, loadDogData,
   } = useProfileData();
+  const [showEmergencyCard, setShowEmergencyCard] = useState(false);
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Human';
   const userPhoto = user?.photoURL || null;
@@ -92,11 +95,10 @@ export default function ProfileScreen() {
             <DogDetailSection
               dog={selectedDog}
               healthCount={healthCount}
-              upcomingCount={upcomingSchedules.length}
+              scheduledCount={scheduledCount}
               monthExpenses={monthExpenses}
               onEdit={() => navigation.navigate('EditProfile', selectedDog)}
               onNavHealth={() => navigation.navigate('Health' as any)}
-              onNavSchedule={() => navigation.navigate('Schedule' as any)}
               onNavExpenses={() => navigation.navigate('Expenses' as any)}
               t={t}
             />
@@ -106,22 +108,29 @@ export default function ProfileScreen() {
                 screen: 'AddHealthRecord',
                 params: {
                   fromProfile: true,
-                  onGoBack: () => { loadDogData(); navigation.navigate('ProfileTab'); },
+                  onGoBack: () => { loadDogData(); navigation.navigate('HomeTab'); },
                 },
-              })}
-              onAddSchedule={() => navigation.navigate('Schedule', {
-                screen: 'AddSchedule',
-                params: { fromProfile: true },
               })}
               onAddExpense={() => navigation.navigate('AddExpense')}
               t={t}
             />
+
+            {/* Emergency Card action */}
+            <QuickActionButton bgColor="#e74c3c" onPress={() => setShowEmergencyCard(true)}>
+              <FirstAidKit size={20} color="#fff" weight="bold" />
+              <QuickActionText>{t('home.emergencyCard')}</QuickActionText>
+            </QuickActionButton>
 
             <RecentActivitySection
               recentActivity={recentActivity}
               isLoading={isLoading}
               onViewAll={() => navigation.navigate('Health')}
               t={t}
+            />
+
+            <EmergencyCard
+              visible={showEmergencyCard}
+              onClose={() => setShowEmergencyCard(false)}
             />
           </>
         )}

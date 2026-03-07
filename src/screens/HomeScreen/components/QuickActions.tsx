@@ -1,15 +1,14 @@
 import React from 'react';
-import { FirstAidKit, CalendarPlus, CurrencyDollar } from 'phosphor-react-native';
+import { FirstAidKit, CurrencyDollar } from 'phosphor-react-native';
 import { QuickActionsTitle, QuickActionButton, QuickActionText } from '../styles';
 
 interface QuickActionsProps {
   onAddRecord: () => void;
-  onAddSchedule: () => void;
   onAddExpense: () => void;
   t: (key: string) => string;
 }
 
-export default function QuickActions({ onAddRecord, onAddSchedule, onAddExpense, t }: QuickActionsProps) {
+export default function QuickActions({ onAddRecord, onAddExpense, t }: QuickActionsProps) {
   return (
     <>
       <QuickActionsTitle>{t('profile.quickActions')}</QuickActionsTitle>
@@ -17,11 +16,7 @@ export default function QuickActions({ onAddRecord, onAddSchedule, onAddExpense,
         <FirstAidKit size={20} color="#fff" weight="bold" />
         <QuickActionText>{t('profile.addRecord')}</QuickActionText>
       </QuickActionButton>
-      <QuickActionButton bgColor="#7289da" onPress={onAddSchedule}>
-        <CalendarPlus size={20} color="#fff" weight="bold" />
-        <QuickActionText>{t('profile.addAppointment')}</QuickActionText>
-      </QuickActionButton>
-      <QuickActionButton bgColor="#e67e22" onPress={onAddExpense}>
+      <QuickActionButton bgColor="#7289da" onPress={onAddExpense}>
         <CurrencyDollar size={20} color="#fff" weight="bold" />
         <QuickActionText>{t('profile.addExpense')}</QuickActionText>
       </QuickActionButton>

@@ -3,7 +3,7 @@ import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Act
 import { Camera } from 'phosphor-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackScreenProps } from '@react-navigation/stack';
-import { ProfileStackParamList } from '../../types/navigation';
+import { HomeStackParamList } from '../../types/navigation';
 import { useProfileForm } from './hooks/useProfileForm';
 import ProfileFormFields from './components/ProfileFormFields';
 import {
@@ -11,7 +11,7 @@ import {
   AvatarPlaceholder, CameraIconBadge, SaveButton, ButtonText, DeleteButton,
 } from './styles';
 
-type Props = StackScreenProps<ProfileStackParamList, 'EditProfile'>;
+type Props = StackScreenProps<HomeStackParamList, 'EditProfile'>;
 
 export default function EditProfileScreen({ navigation, route }: Props) {
   const form = useProfileForm(route.params);
@@ -36,7 +36,7 @@ export default function EditProfileScreen({ navigation, route }: Props) {
 
             <ProfileFormFields form={form} />
 
-            <SaveButton onPress={() => form.handleSave(() => navigation.navigate('Profile'))} disabled={form.uploading}>
+            <SaveButton onPress={() => form.handleSave(() => navigation.navigate('Home'))} disabled={form.uploading}>
               {form.uploading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
@@ -47,7 +47,7 @@ export default function EditProfileScreen({ navigation, route }: Props) {
             </SaveButton>
 
             {!form.isNewProfile && (
-              <DeleteButton onPress={() => form.handleDelete(() => navigation.navigate('Profile'))}>
+              <DeleteButton onPress={() => form.handleDelete(() => navigation.navigate('Home'))}>
                 <ButtonText>{form.t('editPet.deleteProfile')}</ButtonText>
               </DeleteButton>
             )}
