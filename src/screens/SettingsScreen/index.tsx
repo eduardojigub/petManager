@@ -11,7 +11,7 @@ import {
   PencilSimple, ShieldCheck, Trash, Database,
 } from 'phosphor-react-native';
 import { exportUserData } from '../../utils/exportData';
-import { seedMockData } from '../../utils/seedMockData';
+import { seedMockData, seedDogProfile, seedHealthRecords, seedScheduledRecords, seedExpenses } from '../../utils/seedMockData';
 import { LanguageContext } from '../../context/LanguageContext';
 import { Locale } from '../../i18n/translations';
 import SettingsModals from './components/SettingsModals';
@@ -96,13 +96,24 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleSeedMockData = async () => {
-    try {
-      const result = await seedMockData();
-      Alert.alert('Mock Data Added', `${result.healthRecords} health records + ${result.expenses} expenses created.`);
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
-    }
+  const handleSeedMenu = () => {
+    const runSeed = async (fn: () => Promise<any>, label: string) => {
+      try {
+        const result = await fn();
+        Alert.alert('Done', `${label}: ${JSON.stringify(result)}`);
+      } catch (error: any) {
+        Alert.alert('Error', error.message);
+      }
+    };
+
+    Alert.alert('Seed Mock Data', 'What do you want to add?', [
+      { text: 'Everything', onPress: () => runSeed(seedMockData, 'All') },
+      { text: 'Dog Profile', onPress: () => runSeed(seedDogProfile, 'Dog') },
+      { text: 'Health Records', onPress: () => runSeed(seedHealthRecords, 'Health') },
+      { text: 'Scheduled', onPress: () => runSeed(seedScheduledRecords, 'Scheduled') },
+      { text: 'Expenses', onPress: () => runSeed(seedExpenses, 'Expenses') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleDeleteAccount = () => {
@@ -198,19 +209,20 @@ export default function SettingsScreen() {
           </MenuItem>
         </MenuCard>
 
-        {/* DEV ONLY - Remove before release */}
-        <MenuCard>
-          <MenuItem onPress={handleSeedMockData}>
-            <MenuIconContainer bgColor="#e8f5e9">
-              <Database size={20} color="#2e7d32" weight="bold" />
-            </MenuIconContainer>
-            <MenuTextContainer>
-              <MenuItemTitle>Seed Mock Data</MenuItemTitle>
-              <MenuItemSubtitle>Add sample records & expenses (DEV)</MenuItemSubtitle>
-            </MenuTextContainer>
-            <CaretRight size={18} color="#ccc" weight="bold" />
-          </MenuItem>
-        </MenuCard>
+        {__DEV__ && (
+          <MenuCard>
+            <MenuItem onPress={handleSeedMenu}>
+              <MenuIconContainer bgColor="#e8f5e9">
+                <Database size={20} color="#2e7d32" weight="bold" />
+              </MenuIconContainer>
+              <MenuTextContainer>
+                <MenuItemTitle>Seed Mock Data</MenuItemTitle>
+                <MenuItemSubtitle>Add sample data (DEV only)</MenuItemSubtitle>
+              </MenuTextContainer>
+              <CaretRight size={18} color="#ccc" weight="bold" />
+            </MenuItem>
+          </MenuCard>
+        )}
 
         <FooterText>Pet Life v{appVersion}</FooterText>
         <FooterSubtext>{t('settings.footer')}</FooterSubtext>

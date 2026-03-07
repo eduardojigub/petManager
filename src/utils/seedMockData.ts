@@ -2,191 +2,294 @@ import { collection, addDoc, getDocs, query, where } from '@react-native-firebas
 import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../firebase/Firestore';
 
-const today = new Date();
+let callCount = 0;
+
+async function getRandomDogId(): Promise<string> {
+  const userId = getAuth().currentUser?.uid;
+  if (!userId) throw new Error('Not authenticated');
+  const snapshot = await getDocs(
+    query(collection(db, 'dogProfiles'), where('userId', '==', userId))
+  );
+  if (snapshot.empty) throw new Error('No dog profiles found. Create one first.');
+  const docs = snapshot.docs;
+  return docs[Math.floor(Math.random() * docs.length)].id;
+}
+
+const randomFrom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+const randomBetween = (min: number, max: number) => Math.round((Math.random() * (max - min) + min) * 100) / 100;
+
 const daysAgo = (n: number) => {
-  const d = new Date(today);
+  const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString();
 };
 const daysFromNow = (n: number) => {
-  const d = new Date(today);
+  const d = new Date();
   d.setDate(d.getDate() + n);
   return d.toISOString();
 };
+
+// --- Dog profile pools ---
+const DOG_NAMES = ['Luna', 'Max', 'Bella', 'Charlie', 'Milo', 'Daisy', 'Rocky', 'Coco', 'Buddy', 'Lola', 'Thor', 'Nala', 'Simba', 'Toby', 'Zoe'];
+const DOG_BREEDS = ['Golden Retriever', 'Labrador', 'Poodle', 'French Bulldog', 'German Shepherd', 'Beagle', 'Shih Tzu', 'Dachshund', 'Pomeranian', 'Border Collie', 'Husky', 'Corgi', 'Maltese', 'Boxer', 'Rottweiler'];
+const DOG_GENDERS = ['Male', 'Female'];
+const DOG_COLORS = ['White', 'Black', 'Brown', 'Golden', 'Gray', 'Cream', 'Brindle', 'Spotted'];
+
+// --- Health record pools ---
+const VACCINE_NAMES = ['Rabies', 'DHPP', 'Bordetella', 'Leptospirosis', 'Canine Influenza', 'Lyme Disease', 'Parvovirus', 'Distemper'];
+const VET_NAMES = ['Dr. Maria Santos', 'Dr. João Silva', 'Dr. Ana Costa', 'Dr. Pedro Lima', 'Dr. Carolina Mendes'];
+const CLINIC_NAMES = ['Pet Care Clinic', 'Happy Paws Vet', 'Animal Health Center', 'VetLife Clinic', 'Paws & Claws Hospital'];
+const MEDICATION_NAMES = ['NexGard', 'Apoquel', 'Simparica', 'Bravecto', 'Heartgard', 'Rimadyl', 'Cerenia', 'Prednisone'];
+const GROOMING_SERVICES = [
+  'Bath, haircut, nail trim, ear cleaning',
+  'Full grooming + teeth brushing',
+  'Bath and blow dry',
+  'Nail trim and ear cleaning',
+  'De-shedding treatment + bath',
+  'Puppy cut + nail trim',
+];
+const VET_DESCRIPTIONS = [
+  'Annual checkup - all clear',
+  'Skin allergy follow-up',
+  'Limping on front left paw',
+  'Ear infection treatment',
+  'Blood work results review',
+  'Dental examination',
+  'Eye discharge checkup',
+  'Digestive issues consultation',
+];
+
+// --- Expense pools ---
+const FOOD_ITEMS = ['Premium dog food', 'Dog treats & chews', 'Grain-free kibble', 'Wet food cans', 'Dental sticks', 'Training treats', 'Puppy formula', 'Raw food mix'];
+const MEDICAL_ITEMS = ['Vet checkup', 'Blood work', 'X-ray scan', 'Dental cleaning', 'Allergy medication', 'Flea prevention', 'Eye drops', 'Ear treatment'];
+const GROOMING_ITEMS = ['Full grooming session', 'Bath & blow dry', 'Nail trim', 'De-shedding treatment', 'Puppy spa day'];
+const TOY_ITEMS = ['Chew toy', 'Interactive puzzle', 'Rope toy', 'Squeaky ball', 'Kong toy', 'Plush toy', 'Fetch frisbee'];
+const OTHER_ITEMS = ['Pee pads', 'Dog bed', 'Leash & collar', 'Dog carrier', 'Crate', 'Poop bags', 'Shampoo', 'Harness'];
+
+function generateDogProfile(userId: string) {
+  const name = randomFrom(DOG_NAMES);
+  const years = Math.floor(Math.random() * 12) + 1;
+  const months = Math.floor(Math.random() * 12);
+  const birthday = new Date();
+  birthday.setFullYear(birthday.getFullYear() - years);
+  birthday.setMonth(birthday.getMonth() - months);
+
+  return {
+    name,
+    breed: randomFrom(DOG_BREEDS),
+    age: `${years}`,
+    weight: String(randomBetween(3, 40)),
+    image: null,
+    userId,
+    birthday: birthday.toISOString(),
+    gender: randomFrom(DOG_GENDERS),
+    color: randomFrom(DOG_COLORS),
+    microchip: Math.random() > 0.5 ? `MC-${Math.random().toString(36).substring(2, 10).toUpperCase()}` : '',
+  };
+}
+
+function generateHealthRecords(dogId: string, count: number) {
+  const records: any[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const typeRoll = Math.random();
+    let record: any;
+
+    if (typeRoll < 0.3) {
+      // Vaccine
+      const vaccine = randomFrom(VACCINE_NAMES);
+      record = {
+        type: 'Vaccine',
+        description: `${vaccine} vaccination`,
+        extraInfo: vaccine,
+        date: daysAgo(Math.floor(Math.random() * 90) + 1),
+        dueDate: daysFromNow(Math.floor(Math.random() * 365) + 30),
+        status: 'completed',
+        batchNumber: `${vaccine.substring(0, 2).toUpperCase()}-${2026}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`,
+        dogId,
+      };
+    } else if (typeRoll < 0.55) {
+      // Vet Appointment
+      record = {
+        type: 'Vet Appointment',
+        description: randomFrom(VET_DESCRIPTIONS),
+        date: daysAgo(Math.floor(Math.random() * 60) + 1),
+        status: 'completed',
+        vetName: randomFrom(VET_NAMES),
+        clinicName: randomFrom(CLINIC_NAMES),
+        visitWeight: String(randomBetween(3, 40)),
+        dogId,
+      };
+    } else if (typeRoll < 0.8) {
+      // Medication
+      const med = randomFrom(MEDICATION_NAMES);
+      record = {
+        type: 'Medication',
+        description: `${med} treatment`,
+        extraInfo: med,
+        date: daysAgo(Math.floor(Math.random() * 30) + 1),
+        status: 'completed',
+        dosage: randomFrom(['1 tablet', '5mg', '10mg', '0.5ml', '1ml']),
+        frequency: randomFrom(['Daily', 'Twice daily', 'Monthly', 'Weekly', 'Every 3 months']),
+        dogId,
+      };
+    } else {
+      // Pet Groomer
+      record = {
+        type: 'Pet Groomer',
+        description: 'Grooming session',
+        date: daysAgo(Math.floor(Math.random() * 45) + 1),
+        status: 'completed',
+        services: randomFrom(GROOMING_SERVICES),
+        dogId,
+      };
+    }
+
+    records.push(record);
+  }
+
+  return records;
+}
+
+function generateScheduledRecords(dogId: string, count: number) {
+  const records: any[] = [];
+  const times = ['08:00', '09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '14:30', '15:00', '16:00'];
+
+  for (let i = 0; i < count; i++) {
+    const typeRoll = Math.random();
+    let record: any;
+    const base = {
+      date: daysFromNow(Math.floor(Math.random() * 30) + 1),
+      time: randomFrom(times),
+      status: 'scheduled' as const,
+      reminderMinutes: randomFrom([0, 15, 60, 180, 1440]),
+      pushNotification: true,
+      dogId,
+    };
+
+    if (typeRoll < 0.35) {
+      const vaccine = randomFrom(VACCINE_NAMES);
+      record = { ...base, type: 'Vaccine', description: `${vaccine} vaccine`, extraInfo: vaccine };
+    } else if (typeRoll < 0.65) {
+      record = { ...base, type: 'Vet Appointment', description: randomFrom(VET_DESCRIPTIONS), vetName: randomFrom(VET_NAMES), clinicName: randomFrom(CLINIC_NAMES) };
+    } else if (typeRoll < 0.85) {
+      const med = randomFrom(MEDICATION_NAMES);
+      record = { ...base, type: 'Medication', description: `${med} - next dose`, extraInfo: med, dosage: '1 tablet', frequency: 'Monthly' };
+    } else {
+      record = { ...base, type: 'Pet Groomer', description: 'Grooming appointment', services: randomFrom(GROOMING_SERVICES) };
+    }
+
+    records.push(record);
+  }
+
+  return records;
+}
+
+function generateExpenses(dogId: string, count: number) {
+  const expenses: any[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const typeRoll = Math.random();
+    let expense: any;
+
+    if (typeRoll < 0.3) {
+      expense = { title: randomFrom(FOOD_ITEMS), amount: randomBetween(10, 90), type: 'Food' };
+    } else if (typeRoll < 0.55) {
+      expense = { title: randomFrom(MEDICAL_ITEMS), amount: randomBetween(30, 200), type: 'Medical' };
+    } else if (typeRoll < 0.75) {
+      expense = { title: randomFrom(GROOMING_ITEMS), amount: randomBetween(30, 80), type: 'Grooming' };
+    } else if (typeRoll < 0.9) {
+      expense = { title: randomFrom(TOY_ITEMS), amount: randomBetween(8, 35), type: 'Toys' };
+    } else {
+      expense = { title: randomFrom(OTHER_ITEMS), amount: randomBetween(10, 60), type: 'Other' };
+    }
+
+    // Spread across current and last month
+    const daysBack = Math.floor(Math.random() * 60);
+    expense.date = daysAgo(daysBack);
+    expense.dogId = dogId;
+    expense.recurring = Math.random() > 0.85;
+    expense.recurringFrequency = expense.recurring ? randomFrom(['weekly', 'monthly', 'yearly']) : null;
+
+    expenses.push(expense);
+  }
+
+  return expenses;
+}
+
+// --- Individual seed functions ---
+
+export async function seedDogProfile() {
+  const userId = getAuth().currentUser?.uid;
+  if (!userId) throw new Error('Not authenticated');
+  const profile = generateDogProfile(userId);
+  await addDoc(collection(db, 'dogProfiles'), profile);
+  return { created: profile.name };
+}
+
+export async function seedHealthRecords() {
+  const dogId = await getRandomDogId();
+  const count = Math.floor(Math.random() * 4) + 3;
+  const records = generateHealthRecords(dogId, count);
+  await Promise.all(records.map((r) => addDoc(collection(db, 'healthRecords'), r)));
+  return { added: records.length };
+}
+
+export async function seedScheduledRecords() {
+  const dogId = await getRandomDogId();
+  const count = Math.floor(Math.random() * 3) + 2;
+  const records = generateScheduledRecords(dogId, count);
+  await Promise.all(records.map((r) => addDoc(collection(db, 'healthRecords'), r)));
+  return { added: records.length };
+}
+
+export async function seedExpenses() {
+  const dogId = await getRandomDogId();
+  const count = Math.floor(Math.random() * 5) + 3;
+  const expenses = generateExpenses(dogId, count);
+  await Promise.all(expenses.map((e) => addDoc(collection(db, 'expenses'), e)));
+  return { added: expenses.length };
+}
+
+// --- Seed everything ---
 
 export async function seedMockData() {
   const userId = getAuth().currentUser?.uid;
   if (!userId) throw new Error('Not authenticated');
 
-  // Get existing dog profile
-  const dogSnapshot = await getDocs(
-    query(collection(db, 'dogProfiles'), where('userId', '==', userId))
-  );
-  if (dogSnapshot.empty) throw new Error('No dog profiles found. Create one first.');
+  callCount++;
+  let dogsCreated = 0;
 
-  const dog = { id: dogSnapshot.docs[0].id, ...dogSnapshot.docs[0].data() };
-  const dogId = dog.id;
+  let dogId: string;
+  if (callCount % 2 === 0) {
+    const profile = generateDogProfile(userId);
+    const docRef = await addDoc(collection(db, 'dogProfiles'), profile);
+    dogId = docRef.id;
+    dogsCreated = 1;
+  } else {
+    try {
+      dogId = await getRandomDogId();
+    } catch {
+      const profile = generateDogProfile(userId);
+      const docRef = await addDoc(collection(db, 'dogProfiles'), profile);
+      dogId = docRef.id;
+      dogsCreated = 1;
+    }
+  }
 
-  // --- Health Records (completed) ---
-  const completedRecords = [
-    {
-      type: 'Vaccine',
-      description: 'Annual rabies vaccination',
-      extraInfo: 'Rabies',
-      date: daysAgo(60),
-      dueDate: daysFromNow(305),
-      status: 'completed',
-      batchNumber: 'RB-2026-4421',
-      dogId,
-    },
-    {
-      type: 'Vaccine',
-      description: 'DHPP booster shot',
-      extraInfo: 'DHPP',
-      date: daysAgo(45),
-      dueDate: daysFromNow(320),
-      status: 'completed',
-      batchNumber: 'DH-2026-1187',
-      dogId,
-    },
-    {
-      type: 'Vaccine',
-      description: 'Bordetella vaccine',
-      extraInfo: 'Bordetella',
-      date: daysAgo(30),
-      dueDate: daysFromNow(335),
-      status: 'completed',
-      batchNumber: 'BD-2026-0093',
-      dogId,
-    },
-    {
-      type: 'Vet Appointment',
-      description: 'Annual checkup - all clear',
-      date: daysAgo(30),
-      status: 'completed',
-      vetName: 'Dr. Maria Santos',
-      clinicName: 'Pet Care Clinic',
-      visitWeight: '10.2',
-      dogId,
-    },
-    {
-      type: 'Vet Appointment',
-      description: 'Skin allergy follow-up',
-      date: daysAgo(14),
-      status: 'completed',
-      vetName: 'Dr. Maria Santos',
-      clinicName: 'Pet Care Clinic',
-      visitWeight: '10.0',
-      dogId,
-    },
-    {
-      type: 'Medication',
-      description: 'Flea & tick prevention - NexGard',
-      date: daysAgo(7),
-      status: 'completed',
-      dosage: '1 tablet',
-      frequency: 'Monthly',
-      dogId,
-    },
-    {
-      type: 'Medication',
-      description: 'Allergy medication - Apoquel',
-      date: daysAgo(14),
-      status: 'completed',
-      dosage: '5.4mg',
-      frequency: 'Daily for 14 days',
-      dogId,
-    },
-    {
-      type: 'Pet Groomer',
-      description: 'Full grooming session',
-      date: daysAgo(10),
-      status: 'completed',
-      services: 'Bath, haircut, nail trim, ear cleaning',
-      dogId,
-    },
-  ];
+  const healthCount = Math.floor(Math.random() * 4) + 3;
+  const scheduledCount = Math.floor(Math.random() * 3) + 1;
+  const expenseCount = Math.floor(Math.random() * 5) + 3;
 
-  // --- Health Records (scheduled) ---
-  const scheduledRecords = [
-    {
-      type: 'Vet Appointment',
-      description: 'Dental cleaning',
-      date: daysFromNow(5),
-      time: '10:30',
-      status: 'scheduled',
-      vetName: 'Dr. Maria Santos',
-      clinicName: 'Pet Care Clinic',
-      reminderMinutes: 60,
-      pushNotification: true,
-      dogId,
-    },
-    {
-      type: 'Vaccine',
-      description: 'Leptospirosis vaccine',
-      extraInfo: 'Leptospirosis',
-      date: daysFromNow(15),
-      time: '14:00',
-      status: 'scheduled',
-      reminderMinutes: 1440,
-      pushNotification: true,
-      dogId,
-    },
-    {
-      type: 'Pet Groomer',
-      description: 'Monthly grooming',
-      date: daysFromNow(20),
-      time: '09:00',
-      status: 'scheduled',
-      services: 'Bath, haircut, nail trim',
-      reminderMinutes: 120,
-      pushNotification: true,
-      dogId,
-    },
-    {
-      type: 'Medication',
-      description: 'NexGard - next dose',
-      date: daysFromNow(23),
-      time: '08:00',
-      status: 'scheduled',
-      dosage: '1 tablet',
-      frequency: 'Monthly',
-      reminderMinutes: 60,
-      pushNotification: true,
-      dogId,
-    },
-  ];
+  const healthRecords = generateHealthRecords(dogId, healthCount);
+  const scheduledRecords = generateScheduledRecords(dogId, scheduledCount);
+  const expenses = generateExpenses(dogId, expenseCount);
+  const allRecords = [...healthRecords, ...scheduledRecords];
 
-  // --- Expenses (current month) ---
-  const currentMonthExpenses = [
-    { title: 'Premium dog food', amount: 45.99, type: 'Food', date: daysAgo(2), dogId },
-    { title: 'Dog treats & chews', amount: 12.50, type: 'Food', date: daysAgo(5), dogId },
-    { title: 'Vet checkup', amount: 85.00, type: 'Medical', date: daysAgo(14), dogId },
-    { title: 'Allergy medication', amount: 32.00, type: 'Medical', date: daysAgo(14), dogId },
-    { title: 'Grooming session', amount: 55.00, type: 'Grooming', date: daysAgo(10), dogId },
-    { title: 'New chew toy', amount: 15.99, type: 'Toys', date: daysAgo(8), dogId },
-    { title: 'Pee pads', amount: 18.00, type: 'Other', date: daysAgo(3), dogId },
-  ];
+  await Promise.all([
+    ...allRecords.map((r) => addDoc(collection(db, 'healthRecords'), r)),
+    ...expenses.map((e) => addDoc(collection(db, 'expenses'), e)),
+  ]);
 
-  // --- Expenses (last month) ---
-  const lastMonthExpenses = [
-    { title: 'Dog food (bulk)', amount: 89.99, type: 'Food', date: daysAgo(35), dogId },
-    { title: 'Annual vaccines', amount: 120.00, type: 'Medical', date: daysAgo(45), dogId },
-    { title: 'Grooming', amount: 50.00, type: 'Grooming', date: daysAgo(40), dogId },
-    { title: 'Interactive puzzle toy', amount: 24.99, type: 'Toys', date: daysAgo(38), dogId },
-  ];
-
-  // Write all to Firestore
-  const allRecords = [...completedRecords, ...scheduledRecords];
-  const allExpenses = [...currentMonthExpenses, ...lastMonthExpenses];
-
-  const recordPromises = allRecords.map((r) => addDoc(collection(db, 'healthRecords'), r));
-  const expensePromises = allExpenses.map((e) => addDoc(collection(db, 'expenses'), e));
-
-  await Promise.all([...recordPromises, ...expensePromises]);
-
-  return {
-    healthRecords: allRecords.length,
-    expenses: allExpenses.length,
-  };
+  return { dogsCreated, healthRecords: allRecords.length, expenses: expenses.length };
 }
