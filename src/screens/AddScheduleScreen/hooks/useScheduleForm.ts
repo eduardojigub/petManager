@@ -1,12 +1,12 @@
 import { useState, useContext } from 'react';
-import { Alert, Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import { Alert } from 'react-native';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { parseTimeString } from '../../../utils/timeFormatting';
+import { scheduleReminder, cancelNotification } from '../../../utils/notificationHelper';
 
 const REMINDER_OPTION_KEYS = [
   { key: 'add.atTime', minutes: 0 },
@@ -42,26 +42,38 @@ export function useScheduleForm(schedule: any, isEditMode: boolean) {
     const userId = getAuth().currentUser?.uid;
     if (!userId) { Alert.alert(t('common.error'), t('alert.userNotLogged')); return; }
 
-    const now = new Date();
     const selectedDateTime = new Date(date);
     selectedDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
 
-    if (Platform.OS === 'android') {
-      if (new Date(selectedDateTime.getTime() + 120000) <= now) {
-        Alert.alert(t('alert.invalidDateTime'), t('alert.invalidDateTimeMsg'));
-        return;
-      }
-    } else if (selectedDateTime <= now) {
+    if (selectedDateTime.getTime() <= Date.now()) {
       Alert.alert(t('alert.invalidDateTime'), t('alert.invalidDateTimeMsg'));
       return;
     }
 
     try {
-      if (isEditMode && schedule?.notificationId) {
-        await Notifications.cancelScheduledNotificationAsync(schedule.notificationId).catch(() => {});
+      // Cancel old notification first using the helper (safe if null/already fired)
+      if (isEditMode) {
+        await cancelNotification(schedule?.notificationId);
       }
 
-      let notificationId: string | null = null;
+      // Save to Firestore first, then schedule notification to avoid orphaned notifications
+      const savedTime = `${String(selectedDateTime.getHours()).padStart(2, '0')}:${String(selectedDateTime.getMinutes()).padStart(2, '0')}`;
+      const scheduleData: any = {
+        description, date: date.toLocaleDateString('en-CA'), time: savedTime,
+        dogId: selectedDog!.id, userId, notificationId: null, type,
+        emailReminder: false, pushNotification: reminder,
+        reminderMinutes: reminder ? reminderMinutes : null,
+      };
+
+      let docRef: any;
+      if (isEditMode && schedule) {
+        await updateDoc(doc(db, 'schedules', schedule.id), scheduleData);
+        docRef = doc(db, 'schedules', schedule.id);
+      } else {
+        docRef = await addDoc(collection(db, 'schedules'), scheduleData);
+      }
+
+      // Schedule notification after Firestore save succeeds (uses helper with correct trigger + global toggle check)
       if (reminder) {
         const notifyAt = new Date(selectedDateTime.getTime() - reminderMinutes * 60 * 1000);
         const reminderLabel = REMINDER_OPTION_KEYS.find((o) => o.minutes === reminderMinutes);
@@ -70,29 +82,19 @@ export function useScheduleForm(schedule: any, isEditMode: boolean) {
           ? `${t('add.atTime')}: ${description}`
           : `${description} - ${reminderText}`;
 
-        if (notifyAt.getTime() > Date.now() + 60000) {
-          notificationId = await Notifications.scheduleNotificationAsync({
-            content: { title: `${type} ${t('add.reminder')}`, body: bodyText, sound: true },
-            trigger: { date: notifyAt },
-          });
+        const notificationId = await scheduleReminder({
+          title: `${type} ${t('add.reminder')}`,
+          body: bodyText,
+          triggerDate: notifyAt,
+        });
+
+        if (notificationId) {
+          const docId = isEditMode ? schedule.id : docRef.id;
+          await updateDoc(doc(db, 'schedules', docId), { notificationId });
         }
       }
 
-      const savedTime = `${String(selectedDateTime.getHours()).padStart(2, '0')}:${String(selectedDateTime.getMinutes()).padStart(2, '0')}`;
-      const scheduleData = {
-        description, date: date.toLocaleDateString('en-CA'), time: savedTime,
-        dogId: selectedDog!.id, userId, notificationId, type,
-        emailReminder: false, pushNotification: reminder,
-        reminderMinutes: reminder ? reminderMinutes : null,
-      };
-
-      if (isEditMode && schedule) {
-        await updateDoc(doc(db, 'schedules', schedule.id), scheduleData);
-        Alert.alert(t('common.success'), t('alert.scheduleUpdated'));
-      } else {
-        await addDoc(collection(db, 'schedules'), scheduleData);
-        Alert.alert(t('common.success'), t('alert.scheduleSaved'));
-      }
+      Alert.alert(t('common.success'), isEditMode ? t('alert.scheduleUpdated') : t('alert.scheduleSaved'));
       onSuccess();
     } catch (error) {
       console.error('Error saving schedule', error);
