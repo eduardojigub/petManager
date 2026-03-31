@@ -26,19 +26,35 @@ export default function ManageNotificationsScreen() {
 
   const toggleNotifications = async () => {
     const newValue = !notificationsEnabled;
-    setNotificationsEnabled(newValue);
-    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
 
-    if (newValue) {
-      // Request notification permissions when enabling
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(t('notifications.permissionRequired'), t('notifications.enableInSettings'));
-      }
-    } else {
-      // Cancel all pending notifications when disabling
-      await Notifications.cancelAllScheduledNotificationsAsync();
-      Alert.alert(t('notifications.disabledTitle'), t('notifications.disabledMsg'));
+    if (!newValue) {
+      // Confirm before disabling — all pending reminders will be permanently lost
+      Alert.alert(
+        t('notifications.disabledTitle'),
+        t('notifications.disableConfirmMsg'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('common.confirm'),
+            style: 'destructive',
+            onPress: async () => {
+              setNotificationsEnabled(false);
+              await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(false));
+              await Notifications.cancelAllScheduledNotificationsAsync();
+              Alert.alert(t('notifications.disabledTitle'), t('notifications.disabledMsg'));
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    setNotificationsEnabled(true);
+    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(true));
+
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(t('notifications.permissionRequired'), t('notifications.enableInSettings'));
     }
   };
 

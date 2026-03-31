@@ -6,6 +6,7 @@ import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { confirmDelete } from '../../../utils/confirmDelete';
 import { cancelNotification } from '../../../utils/notificationHelper';
+import { parseTimeString } from '../../../utils/timeFormatting';
 
 export function useSchedules() {
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -24,12 +25,8 @@ export function useSchedules() {
       const loaded = snapshot.docs.map((d: any) => {
         const data = d.data();
         const [year, month, day] = data.date.split('-').map(Number);
-        const timeParts = data.time.trim().split(' ');
-        let [hours, minutes] = timeParts[0].split(':').map(Number);
-        const modifier = timeParts[1]?.toUpperCase();
-        if (modifier === 'PM' && hours < 12) hours += 12;
-        if (modifier === 'AM' && hours === 12) hours = 0;
-        const scheduleDateTime = new Date(year, month - 1, day, hours, minutes);
+        const parsedTime = parseTimeString(data.time);
+        const scheduleDateTime = new Date(year, month - 1, day, parsedTime.getHours(), parsedTime.getMinutes());
         const isPast = scheduleDateTime < new Date();
         return { id: d.id, ...data, isPast };
       });
