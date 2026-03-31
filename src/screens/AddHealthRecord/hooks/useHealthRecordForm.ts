@@ -1,11 +1,11 @@
 import { useState, useContext } from 'react';
 import { Alert } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import { db } from '../../../firebase/Firestore';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import useImageUpload from '../../../hooks/useImageUpload';
+import { scheduleReminder, cancelNotification } from '../../../utils/notificationHelper';
 
 const TYPES_WITH_DUE_DATE = ['Vaccine', 'Medication', 'Pet Groomer', 'Vet Appointment'];
 
@@ -57,45 +57,50 @@ export function useHealthRecordForm(record: any) {
       if (!imageUrl) { Alert.alert(t('common.error'), t('add.imageUploadFailed')); return; }
     }
 
-    if (isEditMode && record?.notificationId) {
-      try { await Notifications.cancelScheduledNotificationAsync(record.notificationId); } catch (_) {}
+    // Cancel old notification using the helper (safe if null/already fired)
+    if (isEditMode) {
+      await cancelNotification(record?.notificationId);
     }
 
-    let notificationId: string | null = null;
     const shouldRemind = hasDueDate && dueDate && reminder;
-    if (shouldRemind) {
-      const reminderDate = new Date(dueDate.getTime() - reminderDays * 24 * 60 * 60 * 1000);
-      reminderDate.setHours(9, 0, 0, 0);
-      if (reminderDate.getTime() > Date.now() + 60000) {
-        try {
-          notificationId = await Notifications.scheduleNotificationAsync({
-            content: {
-              title: t('notification.reminder', { type }),
-              body: t('notification.body', { description: extraInfo || description || type, name: selectedDog?.name || '', count: String(reminderDays) }),
-              sound: true,
-            },
-            trigger: { date: reminderDate },
-          });
-        } catch (err) { console.warn('Failed to schedule notification:', err); }
-      }
-    }
 
+    // Save to Firestore first, then schedule notification to avoid orphaned notifications
     const newRecord: any = {
       type, description, date: date.toISOString(), image: imageUrl,
       dogId: selectedDog!.id, extraInfo,
       dueDate: dueDate ? dueDate.toISOString() : null,
       reminder: shouldRemind || false, reminderDays: shouldRemind ? reminderDays : null,
-      notificationId, vetName: vetName || null, clinicName: clinicName || null,
+      notificationId: null, vetName: vetName || null, clinicName: clinicName || null,
       visitWeight: visitWeight || null, batchNumber: batchNumber || null,
       dosage: dosage || null, frequency: frequency || null, services: services || null,
     };
 
     try {
+      let docRef: any;
       if (isEditMode) {
         await updateDoc(doc(db, 'healthRecords', record.id), newRecord);
+        docRef = doc(db, 'healthRecords', record.id);
       } else {
-        await addDoc(collection(db, 'healthRecords'), newRecord);
+        docRef = await addDoc(collection(db, 'healthRecords'), newRecord);
       }
+
+      // Schedule notification after Firestore save succeeds (uses helper with correct trigger + global toggle check)
+      if (shouldRemind) {
+        const reminderDate = new Date(dueDate.getTime() - reminderDays * 24 * 60 * 60 * 1000);
+        reminderDate.setHours(9, 0, 0, 0);
+
+        const notificationId = await scheduleReminder({
+          title: t('notification.reminder', { type }),
+          body: t('notification.body', { description: extraInfo || description || type, name: selectedDog?.name || '', count: String(reminderDays) }),
+          triggerDate: reminderDate,
+        });
+
+        if (notificationId) {
+          const docId = isEditMode ? record.id : docRef.id;
+          await updateDoc(doc(db, 'healthRecords', docId), { notificationId });
+        }
+      }
+
       onSuccess();
     } catch (error) {
       console.error('Error saving record', error);
