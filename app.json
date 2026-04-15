@@ -15,10 +15,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.petmanager.cat",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "203"
+      "buildNumber": "204"
     },
     "android": {
-      "versionCode": 202,
+      "versionCode": 203,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
