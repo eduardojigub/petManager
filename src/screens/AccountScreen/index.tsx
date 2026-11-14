@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Alert, Linking } from 'react-native';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { SettingsStackParamList } from '../../types/navigation';
@@ -22,10 +21,7 @@ export default function AccountScreen() {
   const { t } = useContext(LanguageContext);
 
   const handleDeleteAccount = () => {
-    const url = 'https://jp7dc7wdnld.typeform.com/to/UukaGjeR';
-    Linking.openURL(url).catch(() =>
-      Alert.alert(t('common.error'), t('alert.failedOpenLink'))
-    );
+    navigation.navigate('DeleteAccount');
   };
 
   const menuItems = [

@@ -14,13 +14,13 @@ export const LanguageContext = createContext<LanguageContextType>({
   t: (key) => key,
 });
 
-const STORAGE_KEY = '@petlife_language';
+export const LANGUAGE_STORAGE_KEY = '@petlife_language';
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
+    AsyncStorage.getItem(LANGUAGE_STORAGE_KEY).then((saved) => {
       if (saved === 'en' || saved === 'pt') {
         setLocaleState(saved);
       }
@@ -29,7 +29,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
-    AsyncStorage.setItem(STORAGE_KEY, newLocale);
+    AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, newLocale);
   }, []);
 
   const t = useCallback(
