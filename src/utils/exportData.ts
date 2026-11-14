@@ -268,6 +268,7 @@ function generateHTML(
   `;
 }
 
+/** PDF export reads every collection with `where('userId', '==', uid)`. Documents still missing userId are omitted until the backfill stamps them. */
 export async function exportUserData(): Promise<void> {
   const dogs = (await getUserDocuments('dogProfiles')) as DogProfile[];
   const healthRecords = (await getUserDocuments('healthRecords')) as HealthRecord[];

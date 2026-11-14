@@ -7,6 +7,7 @@ export interface HealthRecord {
   date: string;
   image?: string | null;
   dogId: string;
+  userId?: string;
   extraInfo?: string;
   dueDate?: string | null;
   reminder?: boolean;
@@ -48,6 +49,7 @@ export interface Expense {
   type: string;
   date: string;
   dogId: string;
+  userId?: string;
   recurring?: boolean;
   recurringFrequency?: 'weekly' | 'monthly' | 'yearly' | null;
 }

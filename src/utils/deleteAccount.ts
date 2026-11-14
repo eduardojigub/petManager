@@ -12,6 +12,11 @@ import { deleteObject, getStorage, refFromURL } from '@react-native-firebase/sto
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { db } from '../firebase/Firestore';
+import {
+  DOG_SCOPED_COLLECTIONS,
+  ensureUserIdBackfill,
+  USER_MIGRATION_COLLECTION,
+} from '../firebase/userIdBackfill';
 import { LANGUAGE_STORAGE_KEY } from '../context/LanguageContext';
 import {
   FIRESTORE_BATCH_LIMIT,
@@ -24,8 +29,7 @@ import {
   unique,
 } from './accountDeletionPlan';
 
-const DOG_SCOPED_COLLECTIONS = ['schedules', 'healthRecords', 'expenses'] as const;
-const USER_SCOPED_COLLECTIONS = ['schedules', 'healthRecords', 'expenses'] as const;
+const USER_SCOPED_COLLECTIONS = DOG_SCOPED_COLLECTIONS;
 const STORAGE_DELETE_CONCURRENCY = 5;
 const REMOTE_CALL_TIMEOUT_MS = 20000;
 
@@ -73,8 +77,12 @@ interface DeleteAccountOptions {
  * so a failure leaves the account signed in and able to retry.
  *
  * This repo has no Cloud Function. Deletion runs as the signed-in user and
- * needs security rules that already allow that user to read and delete these
- * documents and their Storage files.
+ * needs security rules that allow that user to read and delete documents
+ * whose userId is their uid, plus the Storage files those documents point at.
+ * Owner rules reject a list filtered only by dogId. That lookup is best-effort
+ * so a legacy document can still be removed before the rules are deployed;
+ * after deploy, permission-denied is ignored and the userId query is enough
+ * for documents the backfill already stamped.
  */
 export async function deleteCurrentAccount(
   password: string,
@@ -99,6 +107,14 @@ export async function deleteCurrentAccount(
   }
 
   const photoUrl = user.photoURL;
+  try {
+    await ensureUserIdBackfill(user.uid);
+  } catch (error) {
+    if (isNetworkError(error)) throw new DeleteAccountError('network');
+    console.warn('Account backfill failed', firebaseCode(error));
+    throw new DeleteAccountError('unknown');
+  }
+
   let documents: OwnedDocument[];
   try {
     documents = await collectUserDocuments(user.uid);
@@ -149,7 +165,12 @@ async function collectUserDocuments(userId: string): Promise<OwnedDocument[]> {
       )
     : [];
 
-  return dedupeDocuments([...dogProfiles, ...byUser.flat(), ...byDog.flat()]);
+  return dedupeDocuments([
+    ...dogProfiles,
+    ...byUser.flat(),
+    ...byDog.flat(),
+    { collectionName: USER_MIGRATION_COLLECTION, id: userId, data: { userId } },
+  ]);
 }
 
 function toOwnedDocuments(
@@ -173,12 +194,25 @@ async function fetchByUserId(collectionName: string, userId: string): Promise<Ow
 async function fetchByDogIds(collectionName: string, dogIds: readonly string[]): Promise<OwnedDocument[]> {
   const documents: OwnedDocument[] = [];
   for (const ids of chunk(dogIds, FIRESTORE_IN_QUERY_LIMIT)) {
-    const snapshot = await withTimeout(
-      getDocsFromServer(query(collection(db, collectionName), where('dogId', 'in', ids))),
-    );
-    documents.push(...toOwnedDocuments(collectionName, snapshot.docs));
+    try {
+      const snapshot = await withTimeout(
+        getDocsFromServer(query(collection(db, collectionName), where('dogId', 'in', ids))),
+      );
+      documents.push(...toOwnedDocuments(collectionName, snapshot.docs));
+    } catch (error) {
+      if (isPermissionDenied(error)) {
+        console.warn(`Legacy ${collectionName} lookup by dogId was denied by security rules`);
+        return documents;
+      }
+      throw error;
+    }
   }
   return documents;
+}
+
+function isPermissionDenied(error: unknown): boolean {
+  const code = firebaseCode(error);
+  return code === 'permission-denied' || code.endsWith('/permission-denied');
 }
 
 async function deleteStorageUrls(urls: readonly string[]): Promise<DeleteProgress> {

@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { Alert } from 'react-native';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
@@ -33,10 +34,13 @@ export function useExpenseForm(expense: any) {
     if (!expenseTitle.trim()) { Alert.alert(t('common.error'), t('alert.addTitle')); return; }
     if (!amount) { Alert.alert(t('common.error'), t('alert.addAmount')); return; }
 
+    const userId = getAuth().currentUser?.uid;
+    if (!userId) { Alert.alert(t('common.error'), t('alert.userNotLogged')); return; }
+
     const newExpense = {
       title: expenseTitle,
       amount: parseFloat(amount.replace(/,/g, '')),
-      type, date: date.toISOString(), dogId: selectedDog!.id,
+      type, date: date.toISOString(), dogId: selectedDog!.id, userId,
       recurring, recurringFrequency: recurring ? recurringFrequency : null,
     };
 

@@ -1,7 +1,9 @@
 import { useState, useContext, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { collection, query, where, getDocs, doc, deleteDoc, addDoc } from '@react-native-firebase/firestore';
+import { collection, addDoc, doc, deleteDoc, getDocs } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
+import { queryOwnedByDog } from '../../../firebase/FirestoreService';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { confirmDelete } from '../../../utils/confirmDelete';
@@ -13,7 +15,7 @@ export function useExpenses() {
   const { t } = useContext(LanguageContext);
 
   const generateRecurringExpenses = async (
-    allData: any[], monthIndex: number, year: number,
+    allData: any[], monthIndex: number, year: number, userId: string,
   ): Promise<any[]> => {
     const recurringExpenses = allData.filter((e) => e.recurring && e.recurringFrequency);
     const newExpenses: any[] = [];
@@ -56,6 +58,7 @@ export function useExpenses() {
         type: expense.type,
         date: targetDate.toISOString(),
         dogId: expense.dogId,
+        userId,
         recurring: false,
         recurringFrequency: null,
         recurringSourceId: expense.id,
@@ -80,17 +83,16 @@ export function useExpenses() {
   }, []);
 
   const fetchExpenses = useCallback(async (monthIndex: number, year: number) => {
-    if (!selectedDog) {
+    const userId = getAuth().currentUser?.uid;
+    if (!selectedDog || !userId) {
       setExpenses([]);
       setAllExpenses([]);
       return;
     }
     try {
-      const snapshot = await getDocs(
-        query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
-      );
+      const snapshot = await getDocs(queryOwnedByDog('expenses', userId, selectedDog.id));
       const expensesData = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-      const generated = await generateRecurringExpenses(expensesData, monthIndex, year);
+      const generated = await generateRecurringExpenses(expensesData, monthIndex, year, userId);
       const allData = [...expensesData, ...generated];
       const sorted = allData.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setAllExpenses(sorted);

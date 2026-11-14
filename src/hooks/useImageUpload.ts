@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref, getDownloadURL, putFile } from '@react-native-firebase/storage';
 
 interface UseImageUploadOptions {
@@ -56,15 +57,25 @@ export default function useImageUpload(
   };
 
   const uploadImage = async (imageUri: string): Promise<string | null> => {
-    const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+    const userId = getAuth().currentUser?.uid;
+    if (!userId) {
+      Alert.alert('Error', 'You must be signed in to upload an image.');
+      return null;
+    }
+
+    const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1).split('?')[0];
+    const safeName = filename.replace(/[^A-Za-z0-9._-]/g, '_') || 'image.jpg';
     const uploadUri =
       Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri;
-    const storageRef = ref(getStorage(), `${storagePath}/${filename}`);
+    const storageRef = ref(
+      getStorage(),
+      `users/${userId}/${storagePath}/${Date.now()}-${safeName}`,
+    );
 
     setUploading(true);
 
     try {
-      await putFile(storageRef, uploadUri);
+      await putFile(storageRef, uploadUri, { contentType: contentTypeForPath(safeName) });
       const downloadURL = await getDownloadURL(storageRef);
       setUploading(false);
       return downloadURL;
@@ -77,4 +88,14 @@ export default function useImageUpload(
   };
 
   return { pickImage, uploadImage, uploading };
+}
+
+function contentTypeForPath(path: string): string {
+  const clean = path.toLowerCase();
+  if (clean.endsWith('.png')) return 'image/png';
+  if (clean.endsWith('.webp')) return 'image/webp';
+  if (clean.endsWith('.gif')) return 'image/gif';
+  if (clean.endsWith('.heic')) return 'image/heic';
+  if (clean.endsWith('.heif')) return 'image/heif';
+  return 'image/jpeg';
 }
