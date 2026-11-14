@@ -5,6 +5,7 @@ import ManageNotificationsScreen from '../screens/ManageNotificationScreen';
 import ManageAccountScreen from '../screens/ManageAccountScreen';
 import AccountScreen from '../screens/AccountScreen';
 import HelpScreen from '../screens/HelpScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen';
 import EditUserProfileScreen from '../screens/EditUserProfileScreen';
 import CustomBackButton from '../components/CustomBackButton';
 import TranslatedHeaderTitle from '../components/TranslatedHeaderTitle';
@@ -54,6 +55,15 @@ export default function SettingsStack() {
         options={{
           headerStyle,
           headerTitle: () => <TranslatedHeaderTitle translationKey="nav.updatePassword" />,
+          headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
+        }}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
+        options={{
+          headerStyle,
+          headerTitle: () => <TranslatedHeaderTitle translationKey="nav.deleteAccount" />,
           headerLeft: ({ onPress }) => <CustomBackButton onPress={onPress} />,
         }}
       />

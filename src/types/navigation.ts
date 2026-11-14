@@ -91,6 +91,7 @@ export type SettingsStackParamList = {
   EditUserProfile: undefined;
   ManageNotifications: undefined;
   AccountSettings: undefined;
+  DeleteAccount: undefined;
   Help: undefined;
 };
 
