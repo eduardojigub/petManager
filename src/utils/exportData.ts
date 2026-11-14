@@ -256,12 +256,12 @@ function generateHTML(
     </head>
     <body>
       <div class="header">
-        <h1>Pet Life Report</h1>
+        <h1>Pet's Life Report</h1>
         <p>Generated on ${today}</p>
       </div>
       ${dogs.length ? dogSections : '<p style="text-align:center;color:#999;">No pets found.</p>'}
       <div class="footer">
-        Pet Life App — Data Export
+        Pet's Life App — Data Export
       </div>
     </body>
     </html>
@@ -279,7 +279,7 @@ export async function exportUserData(): Promise<void> {
   const { uri } = await Print.printToFileAsync({ html });
   await Sharing.shareAsync(uri, {
     mimeType: 'application/pdf',
-    dialogTitle: 'Export Pet Life Data',
+    dialogTitle: "Export Pet's Life Data",
     UTI: 'com.adobe.pdf',
   });
 }

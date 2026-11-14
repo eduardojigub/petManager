@@ -35,7 +35,7 @@ export default function HelpScreen() {
   };
 
   const handleContact = () => {
-    Linking.openURL('mailto:support@catapp.com').catch(() =>
+    Linking.openURL('mailto:eduardobrunoit@gmail.com').catch(() =>
       Alert.alert(t('common.error'), t('help.emailError'))
     );
   };

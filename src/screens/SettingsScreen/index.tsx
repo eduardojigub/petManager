@@ -21,7 +21,7 @@ import {
 } from './styles';
 
 const appVersion = Constants.expoConfig?.version || 'Version not available';
-const APP_STORE_URL = 'https://apps.apple.com/app/id6504808468';
+const APP_STORE_URL = 'https://apps.apple.com/app/id6737129802';
 
 export default function SettingsScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -118,7 +118,7 @@ export default function SettingsScreen() {
           </MenuItem>
         </MenuCard>
 
-        <FooterText>Pet Life v{appVersion}</FooterText>
+        <FooterText>Pet's Life v{appVersion}</FooterText>
         <FooterSubtext>{t('settings.footer')}</FooterSubtext>
       </ContentContainer>
 

@@ -27,6 +27,7 @@ export const Label = styled.Text`
 export const Input = styled.TextInput`
   background-color: #F1F1F1;
   padding: 10px;
+  padding-right: 44px;
   border-radius: 8px;
   font-size: 16px;
   color: #000;
@@ -56,5 +57,5 @@ export const ErrorText = styled.Text`
 export const TogglePasswordIcon = styled.TouchableOpacity`
   position: absolute;
   right: 15px;
-  top: 50%;
+  top: 36px;
 `;
