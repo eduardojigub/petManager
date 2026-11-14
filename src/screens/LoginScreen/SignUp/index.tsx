@@ -186,6 +186,7 @@ export default function SignUpScreen() {
                     {'\n\n'}{t('terms.signUp3')}
                     {'\n\n'}{t('terms.signUp4')}
                     {'\n\n'}{t('terms.signUp5')}
+                    {'\n\n'}{t('terms.copyright')}
                   </TermsBodyText>
                 </TermsScrollView>
                 <CustomButton onPress={() => setTermsVisible(false)}>

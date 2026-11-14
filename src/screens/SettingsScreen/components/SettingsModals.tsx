@@ -44,6 +44,7 @@ export default function SettingsModals({
               <SectionTitle>{t('terms.section3Title')}</SectionTitle>
               <ModalText>{t('terms.section3')}</ModalText>
               <ModalText>{t('terms.contact')}</ModalText>
+              <ModalText>{t('terms.copyright')}</ModalText>
             </ScrollModalContent>
             <CloseButton onPress={() => setShowTermsModal(false)}>
               <CloseButtonText>{t('common.close')}</CloseButtonText>

@@ -29,7 +29,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'rateShare.rate': 'Rate on App Store',
     'rateShare.share': 'Share with Friends',
     'rateShare.cancel': 'Cancel',
-    'rateShare.shareMessage': "Check out Pet Life - the best app to manage your pet's health, schedules and expenses!",
+    'rateShare.shareMessage': "Check out Pet's Life - the best app to manage your pet's health, schedules and expenses!",
 
     // Language
     'language.title': 'Language',
@@ -468,12 +468,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'terms.section2': 'You agree not to misuse our services, including unlawful or unauthorized activities.',
     'terms.section3Title': '3. Disclaimer',
     'terms.section3': 'We are not liable for any losses or damages arising from your use of this app.',
-    'terms.contact': 'For more details, please contact support@catapp.com. Thank you for choosing us.',
+    'terms.contact': 'For more details, please contact eduardobrunoit@gmail.com. Thank you for choosing us.',
+    'terms.copyright': '© Eduardo Sousa',
     'terms.signUpIntro': 'Welcome to our application. Please read the following terms and conditions carefully.',
     'terms.signUp1': '1. **Acceptance of Terms** By accessing and using this application, you accept and agree to be bound by these terms and conditions. If you do not agree, you may not use the application. The company reserves the right to modify these terms at any time, and continued use of the app implies acceptance of the new terms.',
     'terms.signUp2': '2. **User Responsibilities** Users agree to use the application in compliance with all applicable laws and not to engage in any activity that disrupts or harms the functionality of the app, other users, or third parties. Misuse of the application, including unauthorized access, data tampering, or sharing of false information, may result in suspension or termination of your account.',
     'terms.signUp3': '3. **Account Security** You are responsible for maintaining the confidentiality of your account information, including your password. Any activity conducted under your account is your responsibility. Notify us immediately of any unauthorized access to your account or breach of security.',
-    'terms.signUp4': '4. **Intellectual Property** All content, features, and functionality (including text, graphics, logos, and images) are the exclusive property of the company and are protected by copyright, trademark, and other laws. Unauthorized use, reproduction, or distribution of any part of this application is prohibited.',
+    'terms.signUp4': '4. **Intellectual Property** All content, features, and functionality (including text, graphics, logos, and images) are the exclusive property of Eduardo Sousa and are protected by copyright, trademark, and other laws. Unauthorized use, reproduction, or distribution of any part of this application is prohibited.',
     'terms.signUp5': '5. **Limitation of Liability** The company is not liable for any damages resulting from the use or inability to use the application, including, but not limited to, indirect or consequential damages. The app is provided "as is" and "as available" without any warranties, either express or implied.',
 
     // Notification content
@@ -542,7 +543,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'rateShare.rate': 'Avaliar na App Store',
     'rateShare.share': 'Compartilhar com Amigos',
     'rateShare.cancel': 'Cancelar',
-    'rateShare.shareMessage': 'Confira o Pet Life - o melhor app para gerenciar a saude, agenda e gastos do seu pet!',
+    'rateShare.shareMessage': "Confira o Pet's Life - o melhor app para gerenciar a saude, agenda e gastos do seu pet!",
 
     // Language
     'language.title': 'Idioma',
@@ -981,12 +982,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'terms.section2': 'Voce concorda em nao usar indevidamente nossos servicos, incluindo atividades ilegais ou nao autorizadas.',
     'terms.section3Title': '3. Isencao de Responsabilidade',
     'terms.section3': 'Nao somos responsaveis por quaisquer perdas ou danos decorrentes do uso deste aplicativo.',
-    'terms.contact': 'Para mais detalhes, entre em contato com support@catapp.com. Obrigado por nos escolher.',
+    'terms.contact': 'Para mais detalhes, entre em contato com eduardobrunoit@gmail.com. Obrigado por nos escolher.',
+    'terms.copyright': '© Eduardo Sousa',
     'terms.signUpIntro': 'Bem-vindo ao nosso aplicativo. Por favor, leia atentamente os seguintes termos e condicoes.',
     'terms.signUp1': '1. **Aceitacao dos Termos** Ao acessar e usar este aplicativo, voce aceita e concorda em cumprir estes termos e condicoes. Se voce nao concordar, nao podera usar o aplicativo. A empresa reserva-se o direito de modificar estes termos a qualquer momento, e o uso continuado do app implica aceitacao dos novos termos.',
     'terms.signUp2': '2. **Responsabilidades do Usuario** Os usuarios concordam em usar o aplicativo em conformidade com todas as leis aplicaveis e nao se envolver em atividades que perturbem ou prejudiquem a funcionalidade do app, outros usuarios ou terceiros. O uso indevido do aplicativo, incluindo acesso nao autorizado, adulteracao de dados ou compartilhamento de informacoes falsas, pode resultar em suspensao ou encerramento de sua conta.',
     'terms.signUp3': '3. **Seguranca da Conta** Voce e responsavel por manter a confidencialidade das informacoes de sua conta, incluindo sua senha. Qualquer atividade realizada em sua conta e de sua responsabilidade. Notifique-nos imediatamente sobre qualquer acesso nao autorizado a sua conta ou violacao de seguranca.',
-    'terms.signUp4': '4. **Propriedade Intelectual** Todo o conteudo, recursos e funcionalidades (incluindo texto, graficos, logotipos e imagens) sao propriedade exclusiva da empresa e estao protegidos por leis de direitos autorais, marcas registradas e outras leis. O uso nao autorizado, reproducao ou distribuicao de qualquer parte deste aplicativo e proibido.',
+    'terms.signUp4': '4. **Propriedade Intelectual** Todo o conteudo, recursos e funcionalidades (incluindo texto, graficos, logotipos e imagens) sao propriedade exclusiva de Eduardo Sousa e estao protegidos por leis de direitos autorais, marcas registradas e outras leis. O uso nao autorizado, reproducao ou distribuicao de qualquer parte deste aplicativo e proibido.',
     'terms.signUp5': '5. **Limitacao de Responsabilidade** A empresa nao e responsavel por quaisquer danos resultantes do uso ou incapacidade de usar o aplicativo, incluindo, mas nao se limitando a, danos indiretos ou consequentes. O app e fornecido "como esta" e "conforme disponivel" sem quaisquer garantias, expressas ou implicitas.',
 
     // Notification content
