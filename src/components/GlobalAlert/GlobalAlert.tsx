@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Modal } from 'react-native';
+import { edgeToEdgeModalProps } from '../../utils/edgeToEdgeModal';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AlertButton, AlertContainer, AlertIcon, AlertMessage, AlertTitle, ButtonText, Overlay } from './styles';
 import { LanguageContext } from '../../context/LanguageContext';
@@ -13,6 +14,7 @@ export default function CustomAlert({ visible, onClose, iconName = 'alert-circle
       visible={visible}
       animationType="fade"
       onRequestClose={onClose}
+      {...edgeToEdgeModalProps}
     >
       <Overlay>
         <AlertContainer>

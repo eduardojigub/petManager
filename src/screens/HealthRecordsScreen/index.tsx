@@ -28,6 +28,7 @@ import DogChipSelector from '../../components/DogChipSelector';
 import FilterTabs from '../../components/FilterTabs';
 import HealthRecordCard from './components/HealthRecordCard';
 import healthRecordsImage from '../../assets/healthRecords.png';
+import HeaderlessInset from '../../components/HeaderlessInset';
 import { StackScreenProps } from '@react-navigation/stack';
 import { HealthStackParamList } from '../../types/navigation';
 
@@ -59,6 +60,7 @@ export default function HealthRecordsScreen({ navigation }: Props) {
     : healthRecords;
 
   return (
+    <HeaderlessInset>
     <Container>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ContentContainer>
@@ -146,5 +148,6 @@ export default function HealthRecordsScreen({ navigation }: Props) {
         </ContentContainer>
       </ScrollView>
     </Container>
+    </HeaderlessInset>
   );
 }

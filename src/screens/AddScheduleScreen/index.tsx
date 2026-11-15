@@ -1,8 +1,8 @@
 import React from 'react';
-import { Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { CalendarBlank, Clock } from 'phosphor-react-native';
 import {
-  KeyboardAvoidingContainer,
   Container,
   ContentContainer,
   SectionTitle,
@@ -46,7 +46,7 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingContainer behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <FormScreen backgroundColor="#f8f8f8">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
           <ContentContainer>
@@ -134,6 +134,6 @@ export default function AddScheduleScreen({ route, navigation }: Props) {
           </ContentContainer>
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingContainer>
+    </FormScreen>
   );
 }

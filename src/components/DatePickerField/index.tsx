@@ -13,6 +13,7 @@ import {
   ActionText,
 } from './styles';
 import { LanguageContext } from '../../context/LanguageContext';
+import { edgeToEdgeModalProps } from '../../utils/edgeToEdgeModal';
 
 interface DatePickerFieldProps {
   value: Date;
@@ -57,6 +58,7 @@ export default function DatePickerField({
           transparent
           animationType="slide"
           onRequestClose={() => setShowModal(false)}
+          {...edgeToEdgeModalProps}
         >
           <ModalOverlay>
             <ModalContent>

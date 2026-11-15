@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, ActivityIndicator, View } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, ActivityIndicator, View } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { StackActions } from '@react-navigation/native';
 import { Camera } from 'phosphor-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,7 +9,7 @@ import { ProfileStackParamList } from '../../types/navigation';
 import { useProfileForm } from './hooks/useProfileForm';
 import ProfileFormFields from './components/ProfileFormFields';
 import {
-  ScrollContainer, ContentContainer, AvatarContainer, AvatarImage,
+  ContentContainer, AvatarContainer, AvatarImage,
   AvatarPlaceholder, CameraIconBadge, SaveButton, ButtonText, DeleteButton,
 } from './styles';
 
@@ -30,9 +31,8 @@ export default function EditProfileScreen({ navigation, route }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <FormScreen backgroundColor="#f8f8f8">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollContainer>
           <ContentContainer>
             <AvatarContainer onPress={form.handlePickImage}>
               {form.image ? (
@@ -75,9 +75,8 @@ export default function EditProfileScreen({ navigation, route }: Props) {
               </DeleteButton>
             )}
           </ContentContainer>
-        </ScrollContainer>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </FormScreen>
   );
 }
 

@@ -3,8 +3,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import {
   Alert,
   Animated,
+  Platform,
   StyleSheet,
+  View,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { StatusBar } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
 import { DogProfileProvider } from './src/context/DogProfileContext';
@@ -25,7 +32,6 @@ import AddScheduleScreen from './src/screens/AddScheduleScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
 import TranslatedHeaderTitle from './src/components/TranslatedHeaderTitle';
-import { SafeArea } from './src/navigation/styles';
 import { ensureUserIdBackfill } from './src/firebase/userIdBackfill';
 
 // Keep the splash screen visible while we fetch resources
@@ -110,6 +116,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    NavigationBar.setButtonStyleAsync('dark').catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -140,11 +151,17 @@ export default function App() {
     return null;
   }
 
+  const splashOverlayVisible = !appReady || waitingForBackfill;
+
   return (
+    <GestureHandlerRootView style={styles.root}>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+    <KeyboardProvider statusBarTranslucent navigationBarTranslucent preserveEdgeToEdge>
+    <StatusBar style={splashOverlayVisible ? 'light' : 'dark'} />
     <LanguageProvider>
     <DogProfileProvider>
       <NavigationContainer>
-        <SafeArea>
+        <View style={styles.root}>
           <Stack.Navigator>
             {user && ownershipReady ? (
               <>
@@ -198,7 +215,7 @@ export default function App() {
               />
             )}
           </Stack.Navigator>
-        </SafeArea>
+        </View>
       </NavigationContainer>
       {!appReady && (
         <Animated.View
@@ -216,5 +233,14 @@ export default function App() {
       )}
     </DogProfileProvider>
     </LanguageProvider>
+    </KeyboardProvider>
+    </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

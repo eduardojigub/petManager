@@ -34,6 +34,7 @@ import FilterTabs from '../../components/FilterTabs';
 import ExpenseCardItem from './components/ExpenseCardItem';
 import MonthSelector from '../../components/MonthSelector';
 import expensesRecordsImage from '../../assets/expenseScreen.png';
+import HeaderlessInset from '../../components/HeaderlessInset';
 import { StackScreenProps } from '@react-navigation/stack';
 
 type ExpenseStackParamList = {
@@ -98,6 +99,7 @@ export default function ExpenseScreen({ navigation }: Props) {
   const otherTotal = expenses.filter((e: any) => e.type === 'Toys' || e.type === 'Other').reduce((s: number, e: any) => s + e.amount, 0);
 
   return (
+    <HeaderlessInset>
     <Container>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ContentContainer>
@@ -185,5 +187,6 @@ export default function ExpenseScreen({ navigation }: Props) {
         </ContentContainer>
       </ScrollView>
     </Container>
+    </HeaderlessInset>
   );
 }

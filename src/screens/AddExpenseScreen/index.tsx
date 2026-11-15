@@ -1,8 +1,9 @@
 import React from 'react';
-import { Platform, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { CalendarBlank, ArrowsClockwise } from 'phosphor-react-native';
 import {
-  KeyboardAvoidingContainer, Container, ContentContainer, SectionTitle,
+  Container, ContentContainer, SectionTitle,
   FormCard, InputGroup, InputLabel, StyledInput, DateButton, DateButtonText,
   RecurringRow, RecurringLabel, FrequencyChipsRow, FrequencyChip, FrequencyChipText,
   SaveButton, SaveButtonText,
@@ -32,7 +33,7 @@ export default function AddExpenseScreen({ navigation, route }: any) {
   };
 
   return (
-    <KeyboardAvoidingContainer behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <FormScreen backgroundColor="#f8f8f8">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
           <ContentContainer>
@@ -119,6 +120,6 @@ export default function AddExpenseScreen({ navigation, route }: any) {
           </ContentContainer>
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingContainer>
+    </FormScreen>
   );
 }

@@ -13,6 +13,7 @@ import {
   ButtonText
 } from './styles';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
+import FormScreen from '../../../components/FormScreen';
 import { LanguageContext } from '../../../context/LanguageContext';
 
 export default function ForgotPasswordScreen() {
@@ -36,6 +37,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
+    <FormScreen>
     <Container>
       <HeaderWrapper>
         <HeaderTitle>{t('forgot.title')}</HeaderTitle>
@@ -65,5 +67,6 @@ export default function ForgotPasswordScreen() {
         message={alertMessage}
       />
     </Container>
+    </FormScreen>
   );
 }

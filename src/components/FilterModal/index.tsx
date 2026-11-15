@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Modal } from 'react-native';
+import { edgeToEdgeModalProps } from '../../utils/edgeToEdgeModal';
 import { Dropdown } from 'react-native-element-dropdown';
 import { X } from 'phosphor-react-native';
 import {
@@ -87,6 +88,7 @@ export default function FilterModal({
       animationType="fade"
       transparent
       onRequestClose={handleClose}
+      {...edgeToEdgeModalProps}
     >
       <Overlay>
         <ModalContainer>

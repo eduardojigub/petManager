@@ -24,7 +24,6 @@ import {
   TermsTitle,
   TermsScrollView,
   TermsBodyText,
-  KeyboardAvoidingContainer,
 } from './styles';
 import {
   Alert,
@@ -33,8 +32,9 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
 } from 'react-native';
+import FormScreen from '../../../components/FormScreen';
+import { edgeToEdgeModalProps } from '../../../utils/edgeToEdgeModal';
 import { privacyPolicyUrlForLocale } from '../../../constants/privacy';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CheckBox from '@react-native-community/checkbox';
@@ -90,9 +90,7 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingContainer
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <FormScreen>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
           <HeaderWrapper>
@@ -183,6 +181,7 @@ export default function SignUpScreen() {
             animationType="slide"
             transparent={true}
             onRequestClose={() => setTermsVisible(false)}
+            {...edgeToEdgeModalProps}
           >
             <TermsModalOverlay>
               <TermsModalContent>
@@ -218,6 +217,6 @@ export default function SignUpScreen() {
           />
         </Container>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingContainer>
+    </FormScreen>
   );
 }
