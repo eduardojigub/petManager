@@ -1,7 +1,9 @@
 import { useState, useContext, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
+import { doc, deleteDoc, getDocs } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
+import { queryOwnedByDog } from '../../../firebase/FirestoreService';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { confirmDelete } from '../../../utils/confirmDelete';
@@ -13,14 +15,13 @@ export function useHealthRecords() {
   const { t } = useContext(LanguageContext);
 
   const loadRecords = useCallback(async () => {
-    if (!selectedDog) {
+    const userId = getAuth().currentUser?.uid;
+    if (!selectedDog || !userId) {
       setHealthRecords([]);
       return;
     }
     try {
-      const snapshot = await getDocs(
-        query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id))
-      );
+      const snapshot = await getDocs(queryOwnedByDog('healthRecords', userId, selectedDog.id));
       const records = snapshot.docs.map((d: any) => ({
         id: d.id,
         ...d.data(),

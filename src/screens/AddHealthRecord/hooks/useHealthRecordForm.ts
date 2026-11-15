@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { Alert } from 'react-native';
 import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
@@ -51,6 +52,9 @@ export function useHealthRecordForm(record: any) {
       return;
     }
 
+    const userId = getAuth().currentUser?.uid;
+    if (!userId) { Alert.alert(t('common.error'), t('alert.userNotLogged')); return; }
+
     let imageUrl = image;
     if (image && image.startsWith('file://')) {
       imageUrl = await uploadImage(image);
@@ -67,7 +71,7 @@ export function useHealthRecordForm(record: any) {
     // Save to Firestore first, then schedule notification to avoid orphaned notifications
     const newRecord: any = {
       type, description, date: date.toISOString(), image: imageUrl,
-      dogId: selectedDog!.id, extraInfo,
+      dogId: selectedDog!.id, userId, extraInfo,
       dueDate: dueDate ? dueDate.toISOString() : null,
       reminder: shouldRemind || false, reminderDays: shouldRemind ? reminderDays : null,
       notificationId: null, vetName: vetName || null, clinicName: clinicName || null,

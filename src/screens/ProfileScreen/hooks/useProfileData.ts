@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useRef, useCallback } from 'react';
-import { collection, query, where, getDocs } from '@react-native-firebase/firestore';
-import { db } from '../../../firebase/Firestore';
+import { getDocs } from '@react-native-firebase/firestore';
+import { queryOwnedByDog } from '../../../firebase/FirestoreService';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { getAuth } from '@react-native-firebase/auth';
 
@@ -25,9 +25,7 @@ export function useProfileData() {
     setIsLoading(true);
 
     try {
-      const schedulesSnapshot = await getDocs(
-        query(collection(db, 'schedules'), where('dogId', '==', selectedDog.id), where('userId', '==', userId))
-      );
+      const schedulesSnapshot = await getDocs(queryOwnedByDog('schedules', userId, selectedDog.id));
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const schedules = schedulesSnapshot.docs
@@ -39,13 +37,9 @@ export function useProfileData() {
         })
         .filter((s: any) => s.isUpcoming);
 
-      const healthSnapshot = await getDocs(
-        query(collection(db, 'healthRecords'), where('dogId', '==', selectedDog.id))
-      );
+      const healthSnapshot = await getDocs(queryOwnedByDog('healthRecords', userId, selectedDog.id));
 
-      const expensesSnapshot = await getDocs(
-        query(collection(db, 'expenses'), where('dogId', '==', selectedDog.id))
-      );
+      const expensesSnapshot = await getDocs(queryOwnedByDog('expenses', userId, selectedDog.id));
       const allExpenses = expensesSnapshot.docs.map((d: any) => ({ id: d.id, ...d.data() }));
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
       const thisMonthTotal = allExpenses

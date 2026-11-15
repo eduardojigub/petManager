@@ -1,0 +1,116 @@
+rules_version = '2';
+
+// Transição da issue #61. Estas rules só valem depois do deploy manual.
+//
+// Ordem segura, para não trancar quem ainda tem documento sem userId:
+//   1. firebase deploy --only firestore:indexes
+//      Esperar os índices ficarem Enabled. O app novo consulta userId + dogId.
+//   2. Publicar o app que grava userId e roda o backfill no login.
+//   3. Quando as contas antigas já tiverem aberto essa versão (ou depois de
+//      rodar scripts/backfill-user-id.mjs):
+//      firebase deploy --only firestore:rules,storage
+//
+// O Firestore não trata rules como filtro. Uma list só é aceita se a própria
+// query prova a permissão. Por isso list exige userId == request.auth.uid.
+// A list só por dogId, usada pelo backfill para achar documento antigo, passa
+// enquanto estas rules NÃO estiverem publicadas e passa a ser negada depois.
+// get/update/delete de um documento legado (sem userId) continuam permitidos
+// ao dono do cão, com get() em dogProfiles. O update legado grava o userId do
+// solicitante e não pode trocar o dogId.
+//
+// Exclusão de conta: a query por userId segue válida. A query só por dogId é
+// negada depois do deploy; o app ignora esse permission-denied e apaga o que
+// a query por userId encontrou. Documento sem userId que não passou pelo
+// backfill fica de fora dessa exclusão.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(data) {
+      return signedIn() && 'userId' in data && data.userId == request.auth.uid;
+    }
+
+    function ownsDog(dogId) {
+      return dogId is string
+        && dogId.size() > 0
+        && exists(/databases/$(database)/documents/dogProfiles/$(dogId))
+        && get(/databases/$(database)/documents/dogProfiles/$(dogId)).data.userId == request.auth.uid;
+    }
+
+    function legacyUnowned() {
+      return !('userId' in resource.data)
+        || !(resource.data.userId is string)
+        || resource.data.userId == '';
+    }
+
+    function legacyOwnedByDog() {
+      return signedIn() && legacyUnowned() && ownsDog(resource.data.dogId);
+    }
+
+    function ownerKeepsDog() {
+      return request.resource.data.dogId == resource.data.dogId
+        || ownsDog(request.resource.data.dogId);
+    }
+
+    function ownerUpdate() {
+      return isOwner(resource.data)
+        && isOwner(request.resource.data)
+        && request.resource.data.userId == resource.data.userId
+        && ownerKeepsDog();
+    }
+
+    function legacyClaim() {
+      return legacyOwnedByDog()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.dogId == resource.data.dogId;
+    }
+
+    match /dogProfiles/{dogId} {
+      allow read: if isOwner(resource.data);
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data)
+        && isOwner(request.resource.data)
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if isOwner(resource.data);
+    }
+
+    match /healthRecords/{recordId} {
+      allow get: if isOwner(resource.data) || legacyOwnedByDog();
+      allow list: if isOwner(resource.data);
+      allow create: if isOwner(request.resource.data) && ownsDog(request.resource.data.dogId);
+      allow update: if ownerUpdate() || legacyClaim();
+      allow delete: if isOwner(resource.data) || legacyOwnedByDog();
+    }
+
+    match /expenses/{expenseId} {
+      allow get: if isOwner(resource.data) || legacyOwnedByDog();
+      allow list: if isOwner(resource.data);
+      allow create: if isOwner(request.resource.data) && ownsDog(request.resource.data.dogId);
+      allow update: if ownerUpdate() || legacyClaim();
+      allow delete: if isOwner(resource.data) || legacyOwnedByDog();
+    }
+
+    match /schedules/{scheduleId} {
+      allow get: if isOwner(resource.data) || legacyOwnedByDog();
+      allow list: if isOwner(resource.data);
+      allow create: if isOwner(request.resource.data) && ownsDog(request.resource.data.dogId);
+      allow update: if ownerUpdate() || legacyClaim();
+      allow delete: if isOwner(resource.data) || legacyOwnedByDog();
+    }
+
+    // Flag do backfill no cliente. O id do documento é o uid.
+    // get/delete usam o id para funcionar mesmo quando o documento não existe.
+    match /userMigrations/{userId} {
+      allow get, delete: if signedIn() && request.auth.uid == userId;
+      allow list: if signedIn()
+        && 'userId' in resource.data
+        && resource.data.userId == request.auth.uid;
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.userId == request.auth.uid;
+    }
+  }
+}

@@ -1,7 +1,9 @@
 import { useState, useContext, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { collection, query, where, getDocs, doc, deleteDoc } from '@react-native-firebase/firestore';
+import { doc, deleteDoc, getDocs } from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
+import { queryOwnedByDog } from '../../../firebase/FirestoreService';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { confirmDelete } from '../../../utils/confirmDelete';
@@ -14,14 +16,13 @@ export function useSchedules() {
   const { t } = useContext(LanguageContext);
 
   const loadSchedules = useCallback(async () => {
-    if (!selectedDog) {
+    const userId = getAuth().currentUser?.uid;
+    if (!selectedDog || !userId) {
       setSchedules([]);
       return;
     }
     try {
-      const snapshot = await getDocs(
-        query(collection(db, 'schedules'), where('dogId', '==', selectedDog.id))
-      );
+      const snapshot = await getDocs(queryOwnedByDog('schedules', userId, selectedDog.id));
       const loaded = snapshot.docs.map((d: any) => {
         const data = d.data();
         const [year, month, day] = data.date.split('-').map(Number);

@@ -33,3 +33,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Firebase emulator and deploy logs
+.firebase/
+*-debug.log
+firebase-debug.log

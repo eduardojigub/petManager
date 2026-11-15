@@ -16,6 +16,20 @@ const db = getFirestore();
 
 const getUserId = () => getAuth().currentUser?.uid;
 
+export const requireUserId = (): string => {
+  const userId = getUserId();
+  if (!userId) throw new Error('User is not authenticated');
+  return userId;
+};
+
+/** List query that security rules can prove: owner, then one of that owner's dogs. */
+export const queryOwnedByDog = (collectionName: string, userId: string, dogId: string) =>
+  query(
+    collection(db, collectionName),
+    where('userId', '==', userId),
+    where('dogId', '==', dogId),
+  );
+
 // Add a document with the current user's ID
 export const addDocument = async (collectionName: string, data: any) => {
   const userId = getUserId();

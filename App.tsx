@@ -26,11 +26,16 @@ import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import CustomBackButton from './src/components/CustomBackButton';
 import TranslatedHeaderTitle from './src/components/TranslatedHeaderTitle';
 import { SafeArea } from './src/navigation/styles';
+import { ensureUserIdBackfill } from './src/firebase/userIdBackfill';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
+
+function PreparingAccount() {
+  return null;
+}
 
 const headerStyle = {
   backgroundColor: '#fff',
@@ -42,8 +47,11 @@ const headerStyle = {
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
+  const [readyUserId, setReadyUserId] = useState<string | null>(null);
   const [appReady, setAppReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const userId = user?.uid;
+  const ownershipReady = !userId || readyUserId === userId;
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -62,6 +70,34 @@ export default function App() {
     const subscriber = onAuthStateChanged(getAuth(), handleAuthStateChanged);
     return subscriber;
   }, []);
+
+  useEffect(() => {
+    if (initializing) return undefined;
+    let cancelled = false;
+
+    if (!userId) {
+      setReadyUserId(null);
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => {
+      if (!cancelled) setReadyUserId(userId);
+    }, 45000);
+
+    ensureUserIdBackfill(userId)
+      .catch((error: unknown) => {
+        console.warn('userId backfill failed', error);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        if (!cancelled) setReadyUserId(userId);
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [initializing, userId]);
 
   useEffect(() => {
     const requestNotificationPermissions = async () => {
@@ -85,7 +121,8 @@ export default function App() {
     });
   }, []);
 
-  const isReady = !initializing && fontsLoaded;
+  const waitingForBackfill = Boolean(userId) && !ownershipReady;
+  const isReady = !initializing && fontsLoaded && (!waitingForBackfill || appReady);
 
   const onOverlayLayout = useCallback(() => {
     if (isReady) {
@@ -109,7 +146,7 @@ export default function App() {
       <NavigationContainer>
         <SafeArea>
           <Stack.Navigator>
-            {user ? (
+            {user && ownershipReady ? (
               <>
                 <Stack.Screen
                   name="AppTabs"
@@ -147,6 +184,12 @@ export default function App() {
                   })}
                 />
               </>
+            ) : user ? (
+              <Stack.Screen
+                name="PreparingAccount"
+                component={PreparingAccount}
+                options={{ headerShown: false }}
+              />
             ) : (
               <Stack.Screen
                 name="AuthStack"
@@ -164,6 +207,11 @@ export default function App() {
             StyleSheet.absoluteFill,
             { backgroundColor: '#59468E', opacity: fadeAnim },
           ]}
+        />
+      )}
+      {appReady && waitingForBackfill && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, { backgroundColor: '#59468E' }]}
         />
       )}
     </DogProfileProvider>

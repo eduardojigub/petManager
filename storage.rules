@@ -1,0 +1,51 @@
+rules_version = '2';
+
+// Uploads novos ficam em users/{uid}/... e só o dono lê, grava e apaga.
+//
+// Os caminhos antigos (dogProfiles/, healthRecords/, userAvatars/) não têm
+// uid no path. A URL já salva no documento traz um token de download, então
+// a imagem continua abrindo no app sem passar por estas rules. Pelo SDK:
+//   - get e delete exigem usuário autenticado, sem listar o prefixo
+//   - create/update nesses prefixos é negado (upload novo não usa mais eles)
+//
+// Tradeoff: qualquer usuário logado que souber o caminho completo de um
+// arquivo antigo pode baixá-lo ou apagá-lo. Não dá para recuperar o dono
+// só pelo path. Travar o delete quebraria a exclusão de conta, porque
+// permission-denied no Storage não é ignorado e a conta permaneceria ativa.
+// Arquivo novo não entra nesse grupo.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isImageUpload() {
+      return request.resource.size < 20 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /users/{userId}/{allPaths=**} {
+      allow get, list: if signedIn() && request.auth.uid == userId;
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && isImageUpload();
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+
+    match /dogProfiles/{fileName} {
+      allow get, delete: if signedIn();
+      allow create, update: if false;
+    }
+
+    match /healthRecords/{fileName} {
+      allow get, delete: if signedIn();
+      allow create, update: if false;
+    }
+
+    match /userAvatars/{fileName} {
+      allow get, delete: if signedIn();
+      allow create, update: if false;
+    }
+  }
+}

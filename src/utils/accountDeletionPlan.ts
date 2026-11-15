@@ -67,10 +67,11 @@ function collectFromValue(value: unknown, urls: string[], fieldLooksLikeMedia: b
 }
 
 /**
- * Storage paths are shared across users (`dogProfiles/`, `healthRecords/`,
- * `userAvatars/`), so account deletion only removes files whose download URL
- * is stored on the user's own documents. Text fields are ignored so a pasted
- * link cannot target someone else's file.
+ * New uploads live under `users/{uid}/`. Older files still use the shared
+ * prefixes `dogProfiles/`, `healthRecords/` and `userAvatars/`. Account
+ * deletion only removes a file whose download URL is stored on the user's
+ * own documents. Text fields are ignored so a pasted link cannot target
+ * someone else's file.
  */
 export function collectStorageUrls(data: Record<string, unknown> | null | undefined): string[] {
   if (!data) return [];
