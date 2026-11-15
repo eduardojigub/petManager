@@ -2,7 +2,7 @@
   "expo": {
     "name": "Pet's Life",
     "slug": "PetManager",
-    "version": "2.0.5",
+    "version": "2.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,10 +15,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.petmanager.cat",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "204"
+      "buildNumber": "205"
     },
     "android": {
-      "versionCode": 204,
+      "versionCode": 205,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

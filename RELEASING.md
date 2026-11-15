@@ -34,11 +34,11 @@ Há dois números:
 | Versão de loja (`2.0.6`) | `expo.version` em `app.json` e `CFBundleShortVersionString` em `ios/PetLife/Info.plist` | Você, num pull request, quando a versão atual já está publicada |
 | Build number / versionCode | Servidores da EAS (`cli.appVersionSource: "remote"`) | O perfil `production`, com `autoIncrement: true`, a cada build |
 
-`autoIncrement` **não** muda a versão de loja. Se `2.0.5` já está na loja, suba os dois campos da versão de loja juntos (por exemplo para `2.0.6`) antes do build que você pretende promover. O Android lê `expo.version` no prebuild. O iOS lê o `CFBundleShortVersionString` literal do `Info.plist` (não o `MARKETING_VERSION = 1.0` do projeto Xcode, que o Info.plist não usa).
+`autoIncrement` **não** muda a versão de loja. A produção hoje é `2.0.5` (build `205`) nas duas plataformas. Este branch já sobe a versão de loja para `2.0.6` em `expo.version` e em `CFBundleShortVersionString`. O Android lê `expo.version` no prebuild. O iOS lê o `CFBundleShortVersionString` literal do `Info.plist` (não o `MARKETING_VERSION = 1.0` do projeto Xcode, que o Info.plist não usa).
 
 Com `appVersionSource: "local"`, o `autoIncrement` alteraria `app.json` e o Info.plist no runner e essa alteração nunca seria commitada. O build seguinte repetiria o número e a loja recusaria o upload. Por isso a fonte passou a ser `remote`: o contador fica na EAS e o CI não precisa commitar.
 
-Os números commitados (`ios.buildNumber`, `android.versionCode` e `CFBundleVersion`, hoje `204`) são só um piso. A EAS ignora esses valores no build de produção depois que o contador remoto existe, e o workflow recusa o build se o contador remoto estiver vazio ou menor que esse piso. Não edite esses três números para “adiantar” o próximo build. Os contadores de iOS e Android são independentes: o resumo de cada job mostra o número daquela plataforma.
+Os números commitados (`ios.buildNumber`, `android.versionCode` e `CFBundleVersion`, hoje `205`) são só um piso: o último build que já está em produção. A EAS ignora esses valores no build de produção depois que o contador remoto existe, e o workflow recusa o build se o contador remoto estiver vazio ou menor que esse piso. Não edite esses três números para “adiantar” o próximo build. Os contadores de iOS e Android são independentes: o resumo de cada job mostra o número daquela plataforma.
 
 O perfil `preview` continua para teste local no aparelho: iOS ad hoc e Android APK. Ele **não** tem `autoIncrement`, então não gasta build number de loja. O binário de preview recebe o build number remoto atual, sem somar 1. Se o aparelho já tiver esse número instalado, desinstale antes de instalar o APK de novo.
 
@@ -46,21 +46,22 @@ O perfil `preview` continua para teste local no aparelho: iOS ad hoc e Android A
 
 ### Uma vez, antes do primeiro build desta mudança
 
-Na sua máquina, na conta Expo que já é dona do projeto (`projectId` `6b04da84-5e19-4d4d-8d3c-52d8afdcb5d2`):
+Na sua máquina, na conta Expo que já é dona do projeto (`projectId` `6b04da84-5e19-4d4d-8d3c-52d8afdcb5d2`), **antes da primeira execução**, grave `205` no contador remoto das duas plataformas, com o perfil `production`. `205` é o build que já está em produção. O comando ainda pergunta o número; responda `205`, não `206`.
 
 ```bash
-npx eas-cli build:version:get --platform all
+npx eas-cli build:version:set --platform ios --profile production
+npx eas-cli build:version:set --platform android --profile production
 ```
 
-Se não houver contador, ou se ele for menor do que o último build que já está no TestFlight e no Play:
+O próximo build do perfil `production` soma 1. O primeiro build de CI fica `2.0.6` (`206`) nas duas lojas.
+
+Confira com:
 
 ```bash
-npx eas-cli build:version:set
+npx eas-cli build:version:get --platform all --profile production
 ```
 
-Para cada plataforma, informe o **último** build number / versionCode que já está na loja. O repositório ainda cita `204`. Se a loja já passou disso, use o número da loja, não o do git. O próximo build do perfil `production` será esse valor + 1.
-
-Confira de novo com `eas build:version:get --platform all`. Não rode um `eas build --profile production` local “só para ver” antes disso: ele também incrementa o mesmo contador.
+Os dois contadores precisam aparecer como `205`. Não rode um `eas build --profile production` local “só para ver” antes disso: ele também incrementa o mesmo contador e o primeiro CI deixaria de ser `206`.
 
 O CI usa `--freeze-credentials`. Ele não cria certificado, provisioning profile nem keystore. Confirme que já existem na EAS, porque os builds atuais já saem de lá:
 
@@ -157,8 +158,8 @@ Para confirmar: o status da versão passa a **Waiting for Review** (ou o equival
 
 | O que aconteceu | O que fazer |
 | --- | --- |
-| O job de conferência pede `eas build:version:set` | Rode o comando na seção de versões com o último número que já está na loja. Não dispare de novo antes de `eas build:version:get` mostrar um valor maior ou igual a `204` (ou ao número real da loja, se for maior). |
-| `app.json` e Info.plist divergem | Iguale `expo.version` e `CFBundleShortVersionString` no mesmo pull request. Os pisos `204` também precisam continuar iguais entre `ios.buildNumber` e `CFBundleVersion`. |
+| O job de conferência pede `eas build:version:set` | Rode os dois comandos da seção de versões e responda `205` no perfil `production`. Não dispare de novo antes de `eas build:version:get --platform all --profile production` mostrar `205` no iOS e no Android. |
+| `app.json` e Info.plist divergem | Iguale `expo.version` e `CFBundleShortVersionString` no mesmo pull request. Os pisos `205` também precisam continuar iguais entre `ios.buildNumber` e `CFBundleVersion`. |
 | Secret ausente ou “não parece uma chave .p8” / JSON inválido | Recrie o secret com o arquivo inteiro ou o base64. O log não imprime a chave. |
 | `App Store Connect API Keys cannot be set up in non-interactive mode` | Faltam `ASC_API_KEY_ID`, `ASC_API_ISSUER_ID` ou `ASC_API_KEY_P8`, ou o caminho não chegou no runner. Confira os três secrets e rode de novo. O build, se já tiver terminado, pode ser reenviado sem rebuild: `npx eas-cli submit --platform ios --id BUILD_ID --profile internal --non-interactive`. |
 | Credencial iOS ou keystore Android ausente / expirada | `npx eas-cli credentials` na sua máquina. O CI não cria credencial (`--freeze-credentials`). |

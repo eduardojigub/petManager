@@ -49,10 +49,11 @@ function writeFixture(directory) {
 
 test("app.json e Info.plist do repositório concordam na versão de loja", () => {
   const files = readStoreVersionFiles(path.join(root, "app.json"), path.join(root, "ios/PetLife/Info.plist"));
+  assert.equal(files.marketingVersion, "2.0.6");
   assert.equal(files.marketingVersion, files.iosMarketingVersion);
   assert.equal(files.iosBuildNumber, files.iosPlistBuildNumber);
-  assert.equal(files.iosBuildNumber, 204);
-  assert.equal(files.androidVersionCode, 204);
+  assert.equal(files.iosBuildNumber, 205);
+  assert.equal(files.androidVersionCode, 205);
   assert.doesNotThrow(() => assertStoreVersions(files, { sourceLabel: "deste commit" }));
 });
 

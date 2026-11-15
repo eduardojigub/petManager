@@ -89,7 +89,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           set -euo pipefail
-          eas build:version:get --platform all --json --non-interactive > "${RUNNER_TEMP}/remote-versions.json"
+          eas build:version:get --platform all --profile production --json --non-interactive > "${RUNNER_TEMP}/remote-versions.json"
           node .github/scripts/assert-remote-versions.mjs "${RUNNER_TEMP}/remote-versions.json"
 
   build-and-submit:
