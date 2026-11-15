@@ -1,7 +1,8 @@
 {
   "cli": {
     "version": ">= 12.5.1",
-    "appVersionSource": "local"
+    "appVersionSource": "remote",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "preview": {
@@ -14,18 +15,28 @@
       }
     },
     "production": {
+      "distribution": "store",
       "autoIncrement": true,
-      "ios": {},
-      "android": {}
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {
-    "production": {
-        "ios": {
-          "appleId": "eduardobrunoit@gmail.com",
-          "ascAppId": "6737129802",
-          "appleTeamId": "BV4VDJR9GL"
-        }
+    "internal": {
+      "ios": {
+        "appleId": "eduardobrunoit@gmail.com",
+        "ascAppId": "6737129802",
+        "appleTeamId": "BV4VDJR9GL",
+        "ascApiKeyPath": "$EXPO_ASC_API_KEY_PATH",
+        "ascApiKeyId": "$EXPO_ASC_KEY_ID",
+        "ascApiKeyIssuerId": "$EXPO_ASC_ISSUER_ID"
+      },
+      "android": {
+        "serviceAccountKeyPath": "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_PATH",
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
     }
   }
 }

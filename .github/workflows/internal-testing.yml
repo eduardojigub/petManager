@@ -1,0 +1,174 @@
+# Disparo manual de propósito. Cada execução gasta um build iOS e um Android
+# na EAS e incrementa o build number. O staging recebe merges com frequência;
+# um push automático publicaria binários que ninguém pediu para testar.
+# A promoção para produção é manual, nas lojas. Veja RELEASING.md.
+
+name: Teste interno (TestFlight e Play)
+
+on:
+  workflow_dispatch:
+    inputs:
+      what_to_test:
+        description: "Nota do TestFlight (What to Test). Opcional."
+        required: false
+        type: string
+      allow_non_staging:
+        description: "Permitir build de uma branch que não seja staging"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pets-life-internal-testing
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  guard:
+    name: Conferir branch, versão e segredos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Exigir a branch staging
+        if: ${{ github.ref_name != 'staging' && inputs.allow_non_staging != true }}
+        env:
+          SELECTED_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          echo "Este workflow gera binário de loja e só deve rodar a partir de staging."
+          echo "Branch selecionada: ${SELECTED_BRANCH}."
+          echo "Marque allow_non_staging só se você realmente quer um binário de outra branch."
+          exit 1
+
+      - name: Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Versão de loja consistente
+        run: |
+          set -euo pipefail
+          node .github/scripts/assert-store-version.mjs
+
+      - name: Validar segredos das lojas
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          STORE_CREDENTIALS_DIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${EXPO_TOKEN}" ]]; then
+            echo "Crie o secret EXPO_TOKEN. Veja RELEASING.md."
+            exit 1
+          fi
+          if [[ -z "${ASC_API_KEY_ID}" || -z "${ASC_API_ISSUER_ID}" ]]; then
+            echo "Crie os secrets ASC_API_KEY_ID e ASC_API_ISSUER_ID. Veja RELEASING.md."
+            exit 1
+          fi
+          node .github/scripts/write-store-credentials.mjs
+
+      - name: Expo e EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Conferir contadores remotos
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas build:version:get --platform all --json --non-interactive > "${RUNNER_TEMP}/remote-versions.json"
+          node .github/scripts/assert-remote-versions.mjs "${RUNNER_TEMP}/remote-versions.json"
+
+  build-and-submit:
+    name: ${{ matrix.platform == 'ios' && 'iOS (TestFlight)' || 'Android (Play internal)' }}
+    needs: guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ios, android]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Expo e EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Gravar credenciais das lojas
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          STORE_CREDENTIALS_DIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          node .github/scripts/write-store-credentials.mjs
+
+      - name: Gerar o binário na EAS
+        id: build
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas build \
+            --platform "${PLATFORM}" \
+            --profile production \
+            --non-interactive \
+            --wait \
+            --json \
+            --freeze-credentials \
+            --message "teste interno ${GITHUB_SHA}" \
+            > "${RUNNER_TEMP}/eas-build.json"
+          node .github/scripts/record-build-summary.mjs "${RUNNER_TEMP}/eas-build.json"
+
+      - name: Enviar para o teste interno
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
+          WHAT_TO_TEST: ${{ inputs.what_to_test }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_ASC_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          EXPO_APPLE_TEAM_ID: BV4VDJR9GL
+        run: |
+          set -euo pipefail
+          if [[ -z "${BUILD_ID}" ]]; then
+            echo "O build da EAS não devolveu um id."
+            exit 1
+          fi
+          args=(
+            submit
+            --platform "${PLATFORM}"
+            --id "${BUILD_ID}"
+            --profile internal
+            --non-interactive
+            --wait
+          )
+          if [[ "${PLATFORM}" == "ios" && -n "${WHAT_TO_TEST}" ]]; then
+            args+=(--what-to-test "${WHAT_TO_TEST}")
+          fi
+          eas "${args[@]}"
