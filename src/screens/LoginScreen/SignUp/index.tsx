@@ -27,12 +27,15 @@ import {
   KeyboardAvoidingContainer,
 } from './styles';
 import {
+  Alert,
+  Linking,
   Modal,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
 } from 'react-native';
+import { privacyPolicyUrlForLocale } from '../../../constants/privacy';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CheckBox from '@react-native-community/checkbox';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
@@ -48,7 +51,13 @@ export default function SignUpScreen() {
   const { alertVisible, alertTitle, alertMessage, showAlert, hideAlert } = useAlert();
   const [termsVisible, setTermsVisible] = useState(false);
   const navigation = useNavigation();
-  const { t } = useContext(LanguageContext);
+  const { locale, t } = useContext(LanguageContext);
+
+  const handleOpenPrivacy = () => {
+    Linking.openURL(privacyPolicyUrlForLocale(locale)).catch(() =>
+      Alert.alert(t('common.error'), t('settings.couldNotOpenPrivacy'))
+    );
+  };
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
@@ -186,8 +195,12 @@ export default function SignUpScreen() {
                     {'\n\n'}{t('terms.signUp3')}
                     {'\n\n'}{t('terms.signUp4')}
                     {'\n\n'}{t('terms.signUp5')}
+                    {'\n\n'}{t('terms.signUp6')}
                     {'\n\n'}{t('terms.copyright')}
                   </TermsBodyText>
+                  <TouchableOpacity onPress={handleOpenPrivacy} accessibilityRole="link">
+                    <TermsLink>{t('terms.openPolicy')}</TermsLink>
+                  </TouchableOpacity>
                 </TermsScrollView>
                 <CustomButton onPress={() => setTermsVisible(false)}>
                   <ButtonText>{t('common.close')}</ButtonText>

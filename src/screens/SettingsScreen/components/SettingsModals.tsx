@@ -1,10 +1,10 @@
 import React from 'react';
-import { Modal } from 'react-native';
+import { Modal, TouchableOpacity } from 'react-native';
 import { Star } from 'phosphor-react-native';
 import { Locale } from '../../../i18n/translations';
 import {
   ModalOverlay, ModalContainer, ModalTitle, ModalText, ScrollModalContent,
-  SectionTitle, CloseButton, CloseButtonText,
+  SectionTitle, PolicyLink, CloseButton, CloseButtonText,
   ModalOptionButton, ModalOptionText, ModalOptionCheck,
 } from '../styles';
 
@@ -19,6 +19,7 @@ interface SettingsModalsProps {
   onSelectLanguage: (lang: Locale) => void;
   onRateApp: () => void;
   onShareApp: () => void;
+  onOpenPrivacy: () => void;
   t: (key: string) => string;
 }
 
@@ -26,7 +27,7 @@ export default function SettingsModals({
   showTermsModal, setShowTermsModal,
   showRateShareModal, setShowRateShareModal,
   showLanguageModal, setShowLanguageModal,
-  locale, onSelectLanguage, onRateApp, onShareApp, t,
+  locale, onSelectLanguage, onRateApp, onShareApp, onOpenPrivacy, t,
 }: SettingsModalsProps) {
   return (
     <>
@@ -45,6 +46,9 @@ export default function SettingsModals({
               <ModalText>{t('terms.section3')}</ModalText>
               <ModalText>{t('terms.contact')}</ModalText>
               <ModalText>{t('terms.copyright')}</ModalText>
+              <TouchableOpacity onPress={onOpenPrivacy} accessibilityRole="link">
+                <PolicyLink>{t('terms.openPolicy')}</PolicyLink>
+              </TouchableOpacity>
             </ScrollModalContent>
             <CloseButton onPress={() => setShowTermsModal(false)}>
               <CloseButtonText>{t('common.close')}</CloseButtonText>

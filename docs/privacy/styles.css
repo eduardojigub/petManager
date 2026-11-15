@@ -1,0 +1,150 @@
+:root {
+  --ink: #241433;
+  --muted: #5c5670;
+  --purple: #41245c;
+  --bg: #f6f4f8;
+  --card: #ffffff;
+  --link: #24356e;
+  --line: #e6e0ee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+a {
+  color: var(--link);
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.wrap {
+  width: min(44rem, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+header {
+  background: var(--purple);
+  color: #fff;
+  padding: 2rem 0 2.75rem;
+}
+
+.brand {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+h1 {
+  margin: 0 0 0.6rem;
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.meta {
+  margin: 0;
+  color: #f3eef8;
+  font-size: 0.98rem;
+}
+
+.langs {
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+}
+
+.langs a {
+  color: #fff;
+  font-weight: 600;
+}
+
+main {
+  margin-top: -1.25rem;
+  padding-bottom: 3rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 1.5rem 1.4rem 2rem;
+  box-shadow: 0 10px 28px rgba(36, 20, 51, 0.06);
+}
+
+h2 {
+  margin: 1.8rem 0 0.45rem;
+  color: var(--purple);
+  font-size: 1.22rem;
+  line-height: 1.3;
+}
+
+h2:first-child {
+  margin-top: 0;
+}
+
+h3 {
+  margin: 1.15rem 0 0.3rem;
+  font-size: 1.02rem;
+}
+
+p,
+ul,
+ol {
+  margin: 0.35rem 0 0.85rem;
+}
+
+ul,
+ol {
+  padding-left: 1.25rem;
+}
+
+li {
+  margin: 0.28rem 0;
+}
+
+.note {
+  background: #f4f0f8;
+  border-left: 4px solid var(--purple);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin: 1rem 0;
+}
+
+footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  body {
+    font-size: 1rem;
+  }
+
+  .card {
+    padding: 1.15rem 1rem 1.5rem;
+    border-radius: 12px;
+  }
+}
