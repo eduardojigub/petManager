@@ -7,18 +7,24 @@
   "build": {
     "preview": {
       "ios": {
-        "distribution": "internal"
+        "distribution": "internal",
+        "image": "macos-sequoia-15.6-xcode-26.0"
       },
       "android": {
         "distribution": "internal",
-        "buildType": "apk"
+        "buildType": "apk",
+        "image": "ubuntu-24.04-jdk-17-ndk-r27b"
       }
     },
     "production": {
       "distribution": "store",
       "autoIncrement": true,
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "image": "ubuntu-24.04-jdk-17-ndk-r27b"
       }
     }
   },

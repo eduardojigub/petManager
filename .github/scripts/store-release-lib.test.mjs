@@ -167,6 +167,12 @@ test("eas.json usa versão remota, loja no production e apk no preview", () => {
   assert.equal(eas.build.production.autoIncrement, true);
   assert.equal(eas.build.production.distribution, "store");
   assert.equal(eas.build.production.android.buildType, "app-bundle");
+  // App Store Connect requires the iOS 26 SDK. Pin the official SDK 54 images
+  // so `auto` cannot fall back to an Xcode 16 image.
+  for (const profile of ["production", "preview"]) {
+    assert.match(eas.build[profile].ios.image, /xcode-26\./);
+    assert.equal(eas.build[profile].android.image, "ubuntu-24.04-jdk-17-ndk-r27b");
+  }
   assert.equal(eas.build.preview.autoIncrement, undefined);
   assert.equal(eas.build.preview.ios.distribution, "internal");
   assert.equal(eas.build.preview.android.distribution, "internal");

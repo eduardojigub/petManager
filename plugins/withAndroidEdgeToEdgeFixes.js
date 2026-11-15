@@ -1,34 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const { AndroidConfig, withAndroidManifest, withDangerousMod, withMainApplication } = require('@expo/config-plugins');
+const { withDangerousMod, withMainApplication } = require('@expo/config-plugins');
 
 /**
- * Expo SDK 53 does not expose `android.predictiveBackGestureEnabled`
- * (that app.json field arrived in SDK 54). On Android 16 with targetSdk 36,
- * predictive back is on by default and `Activity.onBackPressed()` is not called.
+ * Pads the image-crop activity for edge-to-edge.
  *
- * This app uses the JavaScript stack from `@react-navigation/stack`. React Native
- * 0.79 delivers the system back button and gesture to JavaScript only through
- * `onBackPressed()` → `BackHandler`. If that call is skipped, a stacked screen
- * or a modal finishes the activity instead of popping or closing.
+ * `expo-image-picker` 17 (SDK 54) launches `com.canhub.cropper.CropImageActivity`
+ * with `Base.Theme.AppCompat`. That activity's action bar (back, rotate, crop)
+ * draws under the status bar once edge-to-edge is enforced, and this package
+ * has no inset fix (the Expo fix landed in expo-image-picker 55, SDK 55).
+ * Remove this plugin when the app moves to SDK 55 or later.
  *
- * `android:enableOnBackInvokedCallback="false"` is the supported opt-out for
- * targetSdk 36. Root screens still exit when nothing is left to pop, because
- * React Navigation's BackHandler falls through to `BackHandler.exitApp()`.
- *
- * The same plugin pads the image-crop activity. `expo-image-picker` 16 launches
- * `com.canhub.cropper.CropImageActivity` with `Base.Theme.AppCompat`. That
- * activity's action bar (back, rotate, crop) draws under the status bar once
- * edge-to-edge is enforced, and the SDK 53 package has no inset fix (the Expo
- * fix landed in expo-image-picker 55, which is not compatible with this SDK).
+ * Predictive back used to be disabled here too. Since SDK 54 that is the
+ * `android.predictiveBackGestureEnabled: false` field in app.json.
  */
-function withPredictiveBackDisabled(config) {
-  return withAndroidManifest(config, (config) => {
-    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(config.modResults);
-    app.$['android:enableOnBackInvokedCallback'] = 'false';
-    return config;
-  });
-}
 
 function cropperSource(packageName) {
   return `package ${packageName}
@@ -135,7 +120,6 @@ function withCropperInsets(config) {
 }
 
 module.exports = function withAndroidEdgeToEdgeFixes(config) {
-  config = withPredictiveBackDisabled(config);
   config = withCropperInsets(config);
   return config;
 };
