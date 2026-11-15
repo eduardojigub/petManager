@@ -45,6 +45,15 @@ export const ScrollModalContent = styled.ScrollView`
   width: 100%;
 `;
 
+export const PolicyLink = styled.Text`
+  font-size: 14px;
+  color: #3d4f94;
+  font-family: 'Poppins_600SemiBold';
+  text-decoration-line: underline;
+  margin-top: 4px;
+  margin-bottom: 8px;
+`;
+
 export const CloseButton = styled.TouchableOpacity`
   margin-top: 20px;
   padding: 12px 32px;

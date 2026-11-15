@@ -18,6 +18,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'settings.rateShareSub': 'Support us on the App Store',
     'settings.terms': 'Terms & Privacy',
     'settings.termsSub': 'Terms of use and policy',
+    'settings.privacy': 'Privacy Policy',
+    'settings.privacySub': 'How your data is handled',
     'settings.language': 'Language',
     'settings.languageSub': 'App language',
     'settings.logout': 'Log Out',
@@ -488,13 +490,15 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // Settings - extra
     'settings.couldNotOpenStore': 'Could not open the App Store',
+    'settings.couldNotOpenPrivacy': 'Could not open the privacy policy.',
     'settings.exportFailed': 'Failed to export data. Please try again.',
 
     // Terms
     'terms.title': 'Terms of Use & Privacy Policy',
     'terms.intro': 'Welcome to our application. By using this app, you agree to the following terms and conditions. We reserve the right to update these terms at any time.',
     'terms.section1Title': '1. Data Collection',
-    'terms.section1': 'We collect data to improve user experience. We respect your privacy and ensure your data is secure.',
+    'terms.section1': 'The app stores your account, pet profiles, health records, schedules, expenses and the photos you choose to upload so those features can work. What is stored, why, and how to delete it is in the Privacy Policy. Open it with the link below.',
+    'terms.openPolicy': 'Open Privacy Policy',
     'terms.section2Title': '2. Usage',
     'terms.section2': 'You agree not to misuse our services, including unlawful or unauthorized activities.',
     'terms.section3Title': '3. Disclaimer',
@@ -507,6 +511,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'terms.signUp3': '3. **Account Security** You are responsible for maintaining the confidentiality of your account information, including your password. Any activity conducted under your account is your responsibility. Notify us immediately of any unauthorized access to your account or breach of security.',
     'terms.signUp4': '4. **Intellectual Property** All content, features, and functionality (including text, graphics, logos, and images) are the exclusive property of Eduardo Sousa and are protected by copyright, trademark, and other laws. Unauthorized use, reproduction, or distribution of any part of this application is prohibited.',
     'terms.signUp5': '5. **Limitation of Liability** The company is not liable for any damages resulting from the use or inability to use the application, including, but not limited to, indirect or consequential damages. The app is provided "as is" and "as available" without any warranties, either express or implied.',
+    'terms.signUp6': '6. **Privacy Policy** What the app stores and how to delete your account is described in the Privacy Policy. After you sign in it is also in Settings. Open it with the link below.',
 
     // Notification content
     'notification.reminder': '{type} Reminder',
@@ -563,6 +568,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'settings.rateShareSub': 'Apoie-nos na App Store',
     'settings.terms': 'Termos e Privacidade',
     'settings.termsSub': 'Termos de uso e politica',
+    'settings.privacy': 'Política de privacidade',
+    'settings.privacySub': 'Como seus dados sao tratados',
     'settings.language': 'Idioma',
     'settings.languageSub': 'Idioma do aplicativo',
     'settings.logout': 'Sair',
@@ -1033,13 +1040,15 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // Settings - extra
     'settings.couldNotOpenStore': 'Nao foi possivel abrir a App Store',
+    'settings.couldNotOpenPrivacy': 'Nao foi possivel abrir a politica de privacidade.',
     'settings.exportFailed': 'Falha ao exportar dados. Tente novamente.',
 
     // Terms
     'terms.title': 'Termos de Uso e Politica de Privacidade',
     'terms.intro': 'Bem-vindo ao nosso aplicativo. Ao usar este app, voce concorda com os seguintes termos e condicoes. Reservamo-nos o direito de atualizar estes termos a qualquer momento.',
     'terms.section1Title': '1. Coleta de Dados',
-    'terms.section1': 'Coletamos dados para melhorar a experiencia do usuario. Respeitamos sua privacidade e garantimos que seus dados estao seguros.',
+    'terms.section1': 'O app guarda a conta, os perfis dos pets, os registros de saude, a agenda, as despesas e as fotos que voce escolhe enviar, para essas funcoes funcionarem. O que e guardado, por que, e como excluir esta na Politica de privacidade. Abra pelo link abaixo.',
+    'terms.openPolicy': 'Abrir Política de privacidade',
     'terms.section2Title': '2. Uso',
     'terms.section2': 'Voce concorda em nao usar indevidamente nossos servicos, incluindo atividades ilegais ou nao autorizadas.',
     'terms.section3Title': '3. Isencao de Responsabilidade',
@@ -1052,6 +1061,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'terms.signUp3': '3. **Seguranca da Conta** Voce e responsavel por manter a confidencialidade das informacoes de sua conta, incluindo sua senha. Qualquer atividade realizada em sua conta e de sua responsabilidade. Notifique-nos imediatamente sobre qualquer acesso nao autorizado a sua conta ou violacao de seguranca.',
     'terms.signUp4': '4. **Propriedade Intelectual** Todo o conteudo, recursos e funcionalidades (incluindo texto, graficos, logotipos e imagens) sao propriedade exclusiva de Eduardo Sousa e estao protegidos por leis de direitos autorais, marcas registradas e outras leis. O uso nao autorizado, reproducao ou distribuicao de qualquer parte deste aplicativo e proibido.',
     'terms.signUp5': '5. **Limitacao de Responsabilidade** A empresa nao e responsavel por quaisquer danos resultantes do uso ou incapacidade de usar o aplicativo, incluindo, mas nao se limitando a, danos indiretos ou consequentes. O app e fornecido "como esta" e "conforme disponivel" sem quaisquer garantias, expressas ou implicitas.',
+    'terms.signUp6': '6. **Politica de privacidade** O que o app guarda e como excluir a conta esta descrito na Politica de privacidade. Depois do login ela tambem fica em Ajustes. Abra pelo link abaixo.',
 
     // Notification content
     'notification.reminder': 'Lembrete de {type}',

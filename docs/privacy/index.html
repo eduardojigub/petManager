@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    Modelo para revisão de Eduardo Sousa (Bruno) antes de ativar o GitHub Pages.
+    Não é aconselhamento jurídico. O texto descreve o que o código do Pet's Life faz.
+  -->
+  <title>Política de Privacidade — Pet's Life</title>
+  <meta name="description" content="Política de privacidade do aplicativo Pet's Life. Data de vigência: 14 de novembro de 2026.">
+  <link rel="canonical" href="https://eduardojigub.github.io/petManager/privacy/">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="brand">Pet's Life</p>
+      <h1>Política de Privacidade</h1>
+      <p class="meta">Data de vigência: 14 de novembro de 2026</p>
+      <p class="langs"><a href="en.html" hreflang="en">English</a></p>
+    </div>
+  </header>
+  <main>
+    <article class="wrap card">
+      <p>Esta política descreve como o aplicativo <strong>Pet's Life</strong> trata informações. O responsável pelo aplicativo é <strong>Eduardo Sousa</strong>. Para perguntas, correção ou exclusão, escreva para <a href="mailto:eduardobrunoit@gmail.com">eduardobrunoit@gmail.com</a>.</p>
+      <p>O aplicativo está na App Store da Apple com o identificador <strong>6737129802</strong> e no Android com o pacote <strong>com.petmanager.cat</strong>.</p>
+
+      <h2 id="escopo">1. O que esta política cobre</h2>
+      <p>Pet's Life serve para você guardar informações dos seus pets: perfil, registros de saúde, agenda e despesas, inclusive fotos que você escolhe enviar. Não há um site de conta separado. O que o aplicativo não faz está na seção <a href="#o-que-nao">O que não coletamos</a>.</p>
+
+      <h2 id="dados">2. Dados que o aplicativo coleta e guarda</h2>
+      <p>A conta é obrigatória. Sem login, o aplicativo não abre a área dos pets. O cadastro é e-mail e senha, pelo Firebase Authentication, da Google.</p>
+
+      <h3>Conta</h3>
+      <ul>
+        <li>Endereço de e-mail.</li>
+        <li>Senha. Ela é enviada ao Firebase Authentication para criar a conta, entrar, trocar a senha, confirmar a exclusão e, se você pedir, redefinir a senha. O aplicativo não grava a senha no banco dos pets nem a deixa guardada no aparelho para ler depois.</li>
+        <li>Nome de exibição, somente se você salvar um nome em Ajustes → Conta → editar perfil. Se você não salvar um nome, o aplicativo mostra o trecho do e-mail antes do @ na tela, sem gravar esse trecho como nome.</li>
+        <li>Foto de perfil, somente se você escolher uma imagem da galeria. O arquivo vai para o Firebase Storage e o endereço da imagem fica no perfil de autenticação.</li>
+        <li>Identificador da conta, gerado pelo Firebase Authentication (o uid).</li>
+      </ul>
+      <p>Se você pedir redefinição de senha, o Firebase envia um e-mail de redefinição para o endereço informado. O aplicativo não envia newsletter. Lembrete de agenda por e-mail não é usado: esse campo é gravado sempre desligado.</p>
+
+      <h3>Perfil do pet</h3>
+      <p>Quando você salva um pet, o aplicativo grava no Cloud Firestore, ligado ao uid da conta:</p>
+      <ul>
+        <li>Nome, raça, data de nascimento, idade calculada a partir dessa data e peso. Esses campos são necessários para salvar o pet.</li>
+        <li>Sexo do pet (macho ou fêmea), cor e número de microchip, se você preencher. São opcionais. O sexo é do pet, não seu.</li>
+        <li>Foto do pet, se você escolher uma imagem da galeria. O arquivo vai para o Firebase Storage, em uma pasta da sua conta, e o perfil guarda o endereço da imagem.</li>
+      </ul>
+
+      <h3>Registros de saúde do pet</h3>
+      <p>São anotações que você faz sobre o pet. O aplicativo não lê o app Saúde, o HealthKit nem dados de exercício.</p>
+      <ul>
+        <li>Tipo: vacina, consulta veterinária, medicação, banho e tosa ou outro.</li>
+        <li>Descrição, data e observações.</li>
+        <li>Foto, se você escolher uma imagem da galeria.</li>
+        <li>Data de retorno, se você informar, e a opção de lembrete no aparelho (ligado ou não, e com quantos dias de antecedência).</li>
+        <li>Conforme o tipo, se você preencher: nome do veterinário, nome da clínica, peso na visita, lote da vacina, dosagem, frequência e serviços de banho e tosa.</li>
+        <li>Identificador do lembrete local, quando um lembrete é agendado neste aparelho.</li>
+      </ul>
+
+      <h3>Agenda</h3>
+      <ul>
+        <li>Tipo, descrição, data e horário.</li>
+        <li>Se você pediu um lembrete local e com quantos minutos de antecedência.</li>
+        <li>Identificador desse lembrete no aparelho, quando ele existe.</li>
+      </ul>
+
+      <h3>Despesas</h3>
+      <ul>
+        <li>Título, valor, tipo (alimentação, saúde, banho e tosa, brinquedos ou outro) e data.</li>
+        <li>Se a despesa se repete e a frequência: semanal, mensal ou anual.</li>
+      </ul>
+      <p>O valor é o número que você digita para o seu controle. O aplicativo não recebe cartão, não processa pagamento e não faz compra dentro da loja.</p>
+
+      <h3>Registro técnico da conta</h3>
+      <p>O aplicativo pode gravar um documento técnico com o uid, só para marcar que os dados antigos da conta já foram associados a esse dono. Não é um perfil e não entra no PDF de exportação.</p>
+
+      <h3>O que fica só no aparelho</h3>
+      <ul>
+        <li>Qual pet está selecionado.</li>
+        <li>Se os lembretes locais estão ligados.</li>
+        <li>O idioma do aplicativo (português ou inglês). Esse item permanece no aparelho mesmo depois da exclusão da conta.</li>
+        <li>Uma marca local de que a associação dos dados ao dono já foi verificada nesta instalação.</li>
+        <li>Os lembretes em si. São notificações locais. O texto pode incluir o tipo, a descrição e o nome do pet. O aplicativo não pede token de notificação remota e não envia esses lembretes a um servidor de push.</li>
+      </ul>
+
+      <h2 id="o-que-nao">3. O que não coletamos</h2>
+      <p>No funcionamento atual do aplicativo, não coletamos:</p>
+      <ul>
+        <li>Localização.</li>
+        <li>Contatos, calendário do aparelho ou SMS.</li>
+        <li>Áudio ou vídeo. O seletor de imagem aceita só imagens da galeria.</li>
+        <li>Identificador de publicidade e dados de rastreamento entre aplicativos e sites de outras empresas.</li>
+        <li>Histórico de navegação ou de busca.</li>
+        <li>Dados de saúde ou de condicionamento físico seus.</li>
+        <li>Dados de pagamento.</li>
+        <li>Relatórios de falha, analytics ou anúncios. O aplicativo não inclui SDK de analytics, de falhas, de anúncios nem de rastreamento publicitário. A configuração do Firebase deste app está com analytics e anúncios desligados. No projeto iOS, a checagem de atualização do Expo está desligada.</li>
+      </ul>
+      <p>O projeto iOS declara textos de permissão de câmera e de microfone, e a configuração Android declara a permissão de gravação de áudio. O código do aplicativo não abre a câmera, não grava áudio e não pede essas permissões em tempo de execução. Elas não são usadas para coletar dados.</p>
+
+      <h2 id="finalidades">4. Para que usamos os dados</h2>
+      <ul>
+        <li>Criar a conta, entrar, trocar a senha e confirmar que é você na exclusão.</li>
+        <li>Guardar e mostrar os pets, os registros de saúde, a agenda, as despesas e as fotos que você salvou.</li>
+        <li>Agendar no aparelho os lembretes que você ligou.</li>
+        <li>Gerar no próprio aparelho um PDF com um resumo dos seus dados, quando você pede a exportação.</li>
+        <li>Excluir a conta e os dados ligados a ela, quando você pede.</li>
+      </ul>
+      <p>Não usamos esses dados para publicidade, para perfil de anúncio nem para venda a terceiros. Não há personalização publicitária nem medição de audiência no aplicativo.</p>
+
+      <h2 id="onde">5. Onde os dados ficam</h2>
+      <ul>
+        <li>Conta (e-mail, credencial de senha, nome de exibição, foto de perfil e uid): Firebase Authentication, da Google.</li>
+        <li>Perfis, saúde, agenda, despesas e o registro técnico: Cloud Firestore, da Google.</li>
+        <li>Fotos enviadas por esta versão do aplicativo: Cloud Storage for Firebase, da Google, em uma pasta da sua conta.</li>
+        <li>Preferências e lembretes: no aparelho.</li>
+      </ul>
+      <p>Não operamos um servidor próprio além do Firebase. O que o aplicativo envia ao Firebase vai por HTTPS. Não há, no aplicativo, um prazo automático para apagar dados. Eles permanecem enquanto a conta existir e você não apagar o item, salvo a exclusão descrita abaixo.</p>
+
+      <h2 id="terceiros">6. Terceiros</h2>
+      <p>O serviço que recebe a conta, os registros e as fotos é o <strong>Google Firebase</strong> (Authentication, Cloud Firestore e Cloud Storage), para hospedar o aplicativo. O Google trata esses dados para prestar esse serviço.</p>
+      <p>As outras bibliotecas do aplicativo (navegação, fontes incluídas no aplicativo, ícones e gráficos na tela) não recebem a conta nem esses registros.</p>
+      <p>Quando você exporta o PDF ou compartilha o link da loja, o sistema do aparelho abre a folha de compartilhamento. O destino é escolha sua. O Pet's Life não recebe a lista de destinos.</p>
+
+      <h2 id="permissoes">7. Permissões que o aplicativo pede</h2>
+      <ul>
+        <li><strong>Fotos.</strong> Pedida quando você escolhe uma imagem da galeria para o perfil, o pet ou um registro de saúde.</li>
+        <li><strong>Notificações.</strong> Pedida ao abrir o aplicativo e de novo se você ligar os lembretes em Ajustes. Servem para os lembretes locais.</li>
+      </ul>
+
+      <h2 id="exportacao">8. Exportação e acesso</h2>
+      <p>Em Ajustes, <strong>Exportar dados</strong> gera um PDF no aparelho e abre a folha de compartilhamento. O PDF inclui, para cada pet da conta: nome, raça, idade e peso; registros de saúde (data, tipo, descrição e observações); agenda (data, hora, tipo e descrição); despesas (data, tipo, título e valor). Não inclui o e-mail da conta nem os arquivos de foto. O aplicativo não envia esse PDF ao desenvolvedor.</p>
+      <p>Você também vê e edita os dados nas telas do aplicativo. Para uma cópia ou uma correção que não consiga fazer sozinho, escreva para <a href="mailto:eduardobrunoit@gmail.com">eduardobrunoit@gmail.com</a>.</p>
+
+      <h2 id="exclusao">9. Exclusão</h2>
+      <p>Você pode apagar um pet, um registro de saúde, um compromisso ou uma despesa nas telas correspondentes. Isso remove aquele item no Firestore. Apagar um registro de saúde ou um compromisso também cancela o lembrete local daquele item. Apagar um pet remove o perfil do pet. Essa ação, sozinha, não apaga os registros de saúde, a agenda, as despesas nem o arquivo da foto.</p>
+      <p>Para excluir a conta e os dados ligados a ela:</p>
+      <ol>
+        <li>Abra <strong>Ajustes</strong> (em inglês, <strong>Settings</strong>).</li>
+        <li>Toque em <strong>Conta</strong> (em inglês, <strong>Account</strong>).</li>
+        <li>Toque em <strong>Excluir minha conta</strong> (em inglês, <strong>Delete my account</strong>).</li>
+        <li>Digite a senha e confirme.</li>
+      </ol>
+      <p>A exclusão confirma a senha, apaga os documentos da conta que o aplicativo encontra (perfis, saúde, agenda, despesas e o registro técnico), apaga as fotos do Storage que ainda estão ligadas a esses documentos ou à foto do perfil, cancela os lembretes locais, limpa as preferências locais da conta e, por último, apaga o login. O idioma escolhido no aparelho permanece.</p>
+      <p>Uma foto cujo registro já foi apagado antes pode não ser encontrada nesse processo, porque a exclusão remove os arquivos que ainda estão ligados aos dados da conta. Se a exclusão não terminar, a conta continua ativa para você tentar de novo.</p>
+      <p>Se não conseguir pelo aplicativo, escreva para <a href="mailto:eduardobrunoit@gmail.com">eduardobrunoit@gmail.com</a> a partir do e-mail da conta e peça a exclusão. Usamos esse contato para localizar a conta e concluir o pedido.</p>
+
+      <h2 id="criancas">10. Crianças</h2>
+      <p>O Pet's Life não é dirigido a crianças menores de 13 anos. Não coletamos intencionalmente dados de crianças. Se você é responsável por uma criança e acredita que ela criou uma conta, escreva para <a href="mailto:eduardobrunoit@gmail.com">eduardobrunoit@gmail.com</a> e peça a exclusão.</p>
+
+      <h2 id="seguranca">11. Segurança</h2>
+      <p>A conta usa e-mail e senha. Os dados enviados ao Firebase vão por HTTPS. O aplicativo associa os registros ao uid da conta e consulta os registros dessa conta. Nenhum método de armazenamento elimina todo risco.</p>
+
+      <h2 id="alteracoes">12. Alterações desta política</h2>
+      <p>Podemos atualizar esta política. Quando isso acontecer, a data de vigência no topo desta página muda, e a versão nova permanece neste mesmo endereço. Se a mudança for relevante para dados já coletados, a alteração também fica indicada nesta página. O uso do aplicativo depois da publicação da nova versão vale para a versão então publicada.</p>
+
+      <h2 id="contato">13. Contato</h2>
+      <p>Eduardo Sousa<br>
+      <a href="mailto:eduardobrunoit@gmail.com">eduardobrunoit@gmail.com</a><br>
+      Pet's Life</p>
+
+      <footer>
+        <p>Pet's Life · Política de privacidade · Vigência em 14 de novembro de 2026 · <a href="en.html" hreflang="en">English version</a></p>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

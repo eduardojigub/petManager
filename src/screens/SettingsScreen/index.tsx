@@ -5,11 +5,12 @@ import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation
 import { SettingsStackParamList } from '../../types/navigation';
 import Constants from 'expo-constants';
 import {
-  CaretRight, User, Bell, Question, SignOut, Star, FileText, DownloadSimple, GlobeSimple,
+  CaretRight, User, Bell, Question, SignOut, Star, FileText, DownloadSimple, GlobeSimple, ShieldCheck,
 } from 'phosphor-react-native';
 import { exportUserData } from '../../utils/exportData';
 import { LanguageContext } from '../../context/LanguageContext';
 import { Locale } from '../../i18n/translations';
+import { privacyPolicyUrlForLocale } from '../../constants/privacy';
 import SettingsModals from './components/SettingsModals';
 import {
   Container, ContentContainer, HeaderTitle, HeaderSubtitle,
@@ -63,6 +64,12 @@ export default function SettingsScreen() {
 
   const handleSelectLanguage = (lang: Locale) => { setLocale(lang); setShowLanguageModal(false); };
 
+  const handleOpenPrivacy = () => {
+    Linking.openURL(privacyPolicyUrlForLocale(locale)).catch(() =>
+      Alert.alert(t('common.error'), t('settings.couldNotOpenPrivacy'))
+    );
+  };
+
   const menuItems = [
     { icon: <User size={20} color="#41245c" weight="bold" />, bgColor: '#ede8f5', title: t('settings.account'), subtitle: t('settings.accountSub'), onPress: () => navigation.navigate('Account') },
     { icon: <Bell size={20} color="#e67e22" weight="bold" />, bgColor: '#fdf0e0', title: t('settings.notifications'), subtitle: t('settings.notificationsSub'), onPress: () => navigation.navigate('ManageNotifications') },
@@ -70,6 +77,7 @@ export default function SettingsScreen() {
     { icon: <GlobeSimple size={20} color="#3498db" weight="bold" />, bgColor: '#e0eef9', title: t('settings.language'), subtitle: locale === 'pt' ? t('language.portuguese') : t('language.english'), onPress: () => setShowLanguageModal(true) },
     { icon: <Question size={20} color="#9b59b6" weight="bold" />, bgColor: '#f0e6f6', title: t('settings.help'), subtitle: t('settings.helpSub'), onPress: () => navigation.navigate('Help') },
     { icon: <Star size={20} color="#f1c40f" weight="bold" />, bgColor: '#fdf8e0', title: t('settings.rateShare'), subtitle: t('settings.rateShareSub'), onPress: () => setShowRateShareModal(true) },
+    { icon: <ShieldCheck size={20} color="#41245c" weight="bold" />, bgColor: '#ede8f5', title: t('settings.privacy'), subtitle: t('settings.privacySub'), onPress: handleOpenPrivacy },
     { icon: <FileText size={20} color="#7289da" weight="bold" />, bgColor: '#e8ecf7', title: t('settings.terms'), subtitle: t('settings.termsSub'), onPress: () => setShowTermsModal(true) },
   ];
 
@@ -127,7 +135,7 @@ export default function SettingsScreen() {
         showRateShareModal={showRateShareModal} setShowRateShareModal={setShowRateShareModal}
         showLanguageModal={showLanguageModal} setShowLanguageModal={setShowLanguageModal}
         locale={locale} onSelectLanguage={handleSelectLanguage}
-        onRateApp={handleRateApp} onShareApp={handleShareApp} t={t}
+        onRateApp={handleRateApp} onShareApp={handleShareApp} onOpenPrivacy={handleOpenPrivacy} t={t}
       />
     </Container>
   );
