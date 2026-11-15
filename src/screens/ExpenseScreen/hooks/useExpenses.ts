@@ -1,4 +1,5 @@
 import { useState, useContext, useCallback } from 'react';
+import { useClearOnIdChange } from '../../../hooks/useClearOnIdChange';
 import { Alert } from 'react-native';
 import { collection, addDoc, doc, deleteDoc, getDocs } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
@@ -13,6 +14,10 @@ export function useExpenses() {
   const [allExpenses, setAllExpenses] = useState<any[]>([]);
   const { selectedDog } = useContext(DogProfileContext);
   const { t } = useContext(LanguageContext);
+  useClearOnIdChange(selectedDog?.id, () => {
+    setExpenses([]);
+    setAllExpenses([]);
+  });
 
   const generateRecurringExpenses = async (
     allData: any[], monthIndex: number, year: number, userId: string,

@@ -206,6 +206,76 @@ test('userMigrations is private to that uid, including a missing flag doc', asyn
   await assertSucceeds(aliceDb().collection('userMigrations').doc('alice').delete());
 });
 
+test('deleting one pet removes its owned records and leaves the other pets in place', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await db.collection('healthRecords').doc('hrA2').set({
+      userId: 'alice',
+      dogId: 'dogA2',
+      type: 'Vaccine',
+      image: 'https://firebasestorage.googleapis.com/v0/b/demo/o/users%2Falice%2FhealthRecords%2Fa2.jpg',
+    });
+    await db.collection('expenses').doc('exRecurring').set({
+      userId: 'alice',
+      dogId: 'dogA',
+      amount: 9,
+      title: 'Racao mensal',
+      recurring: true,
+      recurringFrequency: 'monthly',
+    });
+    await db.collection('expenses').doc('exA2').set({
+      userId: 'alice',
+      dogId: 'dogA2',
+      amount: 4,
+      title: 'Brinquedo',
+    });
+    await db.collection('schedules').doc('scA2').set({
+      userId: 'alice',
+      dogId: 'dogA2',
+      description: 'Passeio',
+      notificationId: 'other-pet',
+    });
+  });
+
+  const db = aliceDb();
+  const childCollections = ['healthRecords', 'expenses', 'schedules'];
+  for (const collectionName of childCollections) {
+    const snap = await assertSucceeds(
+      db.collection(collectionName).where('userId', '==', 'alice').where('dogId', '==', 'dogA').get(),
+    );
+    assert.equal(snap.size > 0, true);
+    assert.equal(snap.docs.every((item) => item.data().dogId === 'dogA'), true);
+    if (collectionName === 'expenses') {
+      assert.equal(snap.docs.some((item) => item.id === 'exRecurring' && item.data().recurring === true), true);
+    }
+    for (const item of snap.docs) {
+      await assertSucceeds(item.ref.delete());
+    }
+  }
+
+  await assertSucceeds(db.collection('dogProfiles').doc('dogA').delete());
+
+  for (const collectionName of childCollections) {
+    const gone = await assertSucceeds(
+      db.collection(collectionName).where('userId', '==', 'alice').where('dogId', '==', 'dogA').get(),
+    );
+    assert.equal(gone.size, 0);
+    const kept = await assertSucceeds(
+      db.collection(collectionName).where('userId', '==', 'alice').where('dogId', '==', 'dogA2').get(),
+    );
+    assert.equal(kept.size > 0, true);
+  }
+
+  const nina = await assertSucceeds(db.collection('dogProfiles').doc('dogA2').get());
+  assert.equal(nina.exists, true);
+  const bobRecords = await assertSucceeds(
+    bobDb().collection('healthRecords').where('userId', '==', 'bob').where('dogId', '==', 'dogB').get(),
+  );
+  assert.equal(bobRecords.size, 1);
+  await assertFails(bobDb().collection('expenses').doc('exA2').delete());
+  await assertFails(bobDb().collection('dogProfiles').doc('dogA2').delete());
+});
+
 test('unknown collections are denied', async () => {
   await assertFails(aliceDb().collection('secrets').doc('one').set({ userId: 'alice' }));
   await assertFails(aliceDb().collection('secrets').doc('one').get());

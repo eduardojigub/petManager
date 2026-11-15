@@ -45,4 +45,9 @@ export async function cancelNotification(notificationId: string | null | undefin
   } catch {
     // Notification may already have fired or been cancelled
   }
+  try {
+    await Notifications.dismissNotificationAsync(notificationId);
+  } catch {
+    // It may never have been presented
+  }
 }

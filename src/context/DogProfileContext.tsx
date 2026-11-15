@@ -1,6 +1,8 @@
 import React, { createContext, useState } from 'react';
 import { DogProfile } from '../types/dogProfile';
 
+export const SELECTED_DOG_STORAGE_KEY = 'selectedDogId';
+
 export interface DogProfileContextType {
   selectedDog: DogProfile | null;
   setSelectedDog: React.Dispatch<React.SetStateAction<DogProfile | null>>;

@@ -172,9 +172,9 @@ export const OptionalBadge = styled.Text`
   margin-left: 4px;
 `;
 
-export const DeleteButton = styled.TouchableOpacity`
+export const DeleteButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   width: 100%;
-  background-color: #e74c3c;
+  background-color: ${({ disabled }) => (disabled ? '#e6b0aa' : '#e74c3c')};
   padding: 16px;
   border-radius: 14px;
   align-items: center;
