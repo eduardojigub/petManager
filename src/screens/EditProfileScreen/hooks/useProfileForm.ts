@@ -1,12 +1,14 @@
-import { useState, useContext } from 'react';
+import { useRef, useState, useContext } from 'react';
 import { Alert } from 'react-native';
-import { collection, addDoc, doc, updateDoc, deleteDoc } from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { collection, addDoc, doc, updateDoc } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import { db } from '../../../firebase/Firestore';
-import { DogProfileContext } from '../../../context/DogProfileContext';
+import { DogProfileContext, SELECTED_DOG_STORAGE_KEY } from '../../../context/DogProfileContext';
 import { LanguageContext } from '../../../context/LanguageContext';
 import useImageUpload from '../../../hooks/useImageUpload';
 import { confirmDelete } from '../../../utils/confirmDelete';
+import { DeletePetError, DeletePetFailure, deletePetCascade, selectDogAfterDeletion } from '../../../utils/deletePet';
 
 function ageToDecimal(birthday: Date): string {
   const diffMs = new Date().getTime() - birthday.getTime();
@@ -31,6 +33,8 @@ export function useProfileForm(params: any) {
   const isNewProfile = !id;
   const { setSelectedDog } = useContext(DogProfileContext);
   const { t } = useContext(LanguageContext);
+  const [deleting, setDeleting] = useState(false);
+  const leaveBlocked = useRef(false);
 
   const [name, setName] = useState(initialName || '');
   const [breed, setBreed] = useState(initialBreed || '');
@@ -86,22 +90,47 @@ export function useProfileForm(params: any) {
     }
   };
 
+  const petName = (name || initialName || '').trim();
+
   const handleDelete = (onSuccess: () => void) => {
+    if (!id || deleting || leaveBlocked.current) return;
     confirmDelete({
-      title: t('editPet.deleteConfirmTitle'),
-      message: t('editPet.deleteConfirmMsg'),
-      confirmText: t('common.ok'),
-      destructive: false,
-      cancelable: false,
+      title: t('editPet.deleteConfirmTitle', { name: petName }),
+      message: t('editPet.deleteConfirmMsg', { name: petName }),
+      confirmText: t('editPet.deleteConfirmButton'),
+      cancelText: t('common.cancel'),
+      destructive: true,
+      cancelable: true,
       onConfirm: async () => {
+        if (leaveBlocked.current) return;
+        leaveBlocked.current = true;
+        setDeleting(true);
         try {
-          await deleteDoc(doc(db, 'dogProfiles', id));
-          setSelectedDog(null);
-          Alert.alert(t('editPet.profileDeleted'), t('editPet.profileDeletedMsg'));
+          await deletePetCascade(id);
+          try {
+            await selectDogAfterDeletion(id, setSelectedDog);
+          } catch (error) {
+            console.warn('Selected pet reset failed', error);
+            setSelectedDog(null);
+            try {
+              await AsyncStorage.removeItem(SELECTED_DOG_STORAGE_KEY);
+            } catch (storageError) {
+              console.warn('Failed to clear selected pet', storageError);
+            }
+          }
+          leaveBlocked.current = false;
+          Alert.alert(
+            t('editPet.profileDeleted'),
+            t('editPet.profileDeletedMsg', { name: petName }),
+          );
           onSuccess();
         } catch (error) {
           console.error('Failed to delete profile:', error);
-          Alert.alert(t('common.error'), t('editPet.failedDelete'));
+          const failure = error instanceof DeletePetError ? error.failure : 'unknown';
+          Alert.alert(t('common.error'), deleteFailureMessage(failure, t));
+        } finally {
+          leaveBlocked.current = false;
+          setDeleting(false);
         }
       },
     });
@@ -111,7 +140,17 @@ export function useProfileForm(params: any) {
     name, setName, breed, setBreed, weight, handleWeightInput,
     image, handlePickImage, gender, setGender, color, setColor,
     microchip, setMicrochip, birthday, setBirthday,
-    isNewProfile, uploading, handleSave, handleDelete,
+    isNewProfile, uploading, deleting, leaveBlocked, handleSave, handleDelete,
     calculateAge, t,
   };
+}
+
+function deleteFailureMessage(
+  failure: DeletePetFailure,
+  t: (key: string, params?: Record<string, string>) => string,
+): string {
+  if (failure === 'unauthenticated') return t('alert.userNotLogged');
+  if (failure === 'network') return t('editPet.deleteNetwork');
+  if (failure === 'partial') return t('editPet.deletePartial');
+  return t('editPet.failedDelete');
 }

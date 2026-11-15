@@ -1,4 +1,5 @@
 import { useState, useContext, useCallback } from 'react';
+import { useClearOnIdChange } from '../../../hooks/useClearOnIdChange';
 import { Alert } from 'react-native';
 import { doc, deleteDoc, getDocs } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
@@ -14,6 +15,7 @@ export function useSchedules() {
   const [schedules, setSchedules] = useState<any[]>([]);
   const { selectedDog } = useContext(DogProfileContext);
   const { t } = useContext(LanguageContext);
+  useClearOnIdChange(selectedDog?.id, () => setSchedules([]));
 
   const loadSchedules = useCallback(async () => {
     const userId = getAuth().currentUser?.uid;

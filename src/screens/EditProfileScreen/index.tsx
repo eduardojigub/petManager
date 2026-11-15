@@ -1,5 +1,6 @@
-import React from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, ActivityIndicator, View } from 'react-native';
+import { StackActions } from '@react-navigation/native';
 import { Camera } from 'phosphor-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -15,6 +16,18 @@ type Props = StackScreenProps<ProfileStackParamList, 'EditProfile'>;
 
 export default function EditProfileScreen({ navigation, route }: Props) {
   const form = useProfileForm(route.params);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (form.leaveBlocked.current) event.preventDefault();
+    });
+    return unsubscribe;
+  }, [navigation, form.leaveBlocked]);
+
+  const finishDelete = () => {
+    popOtherPetStacks(navigation);
+    navigation.navigate('Profile');
+  };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -36,7 +49,10 @@ export default function EditProfileScreen({ navigation, route }: Props) {
 
             <ProfileFormFields form={form} />
 
-            <SaveButton onPress={() => form.handleSave(() => navigation.navigate('Profile'))} disabled={form.uploading}>
+            <SaveButton
+              onPress={() => form.handleSave(() => navigation.navigate('Profile'))}
+              disabled={form.uploading || form.deleting}
+            >
               {form.uploading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
@@ -47,8 +63,15 @@ export default function EditProfileScreen({ navigation, route }: Props) {
             </SaveButton>
 
             {!form.isNewProfile && (
-              <DeleteButton onPress={() => form.handleDelete(() => navigation.navigate('Profile'))}>
-                <ButtonText>{form.t('editPet.deleteProfile')}</ButtonText>
+              <DeleteButton onPress={() => form.handleDelete(finishDelete)} disabled={form.deleting}>
+                {form.deleting ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <ActivityIndicator color="#fff" />
+                    <ButtonText style={{ marginLeft: 8 }}>{form.t('editPet.deleting')}</ButtonText>
+                  </View>
+                ) : (
+                  <ButtonText>{form.t('editPet.deleteProfile')}</ButtonText>
+                )}
               </DeleteButton>
             )}
           </ContentContainer>
@@ -56,4 +79,18 @@ export default function EditProfileScreen({ navigation, route }: Props) {
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
+}
+
+function popOtherPetStacks(navigation: Props['navigation']): void {
+  const parent = navigation.getParent();
+  if (!parent) return;
+  for (const route of parent.getState().routes) {
+    if (route.name === 'ProfileTab' || route.name === 'Settings') continue;
+    const nested = route.state;
+    if (!nested?.key || !nested.index) continue;
+    parent.dispatch({
+      ...StackActions.popToTop(),
+      target: nested.key,
+    });
+  }
 }

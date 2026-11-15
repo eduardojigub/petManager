@@ -3,6 +3,7 @@ import { getDocs } from '@react-native-firebase/firestore';
 import { queryOwnedByDog } from '../../../firebase/FirestoreService';
 import { DogProfileContext } from '../../../context/DogProfileContext';
 import { getAuth } from '@react-native-firebase/auth';
+import { useClearOnIdChange } from '../../../hooks/useClearOnIdChange';
 
 export function useProfileData() {
   const { selectedDog, setSelectedDog } = useContext(DogProfileContext);
@@ -16,6 +17,13 @@ export function useProfileData() {
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user?.uid;
+
+  useClearOnIdChange(selectedDog?.id, () => {
+    setUpcomingSchedules([]);
+    setHealthCount(0);
+    setMonthExpenses(0);
+    setRecentActivity([]);
+  });
 
   useEffect(() => { setSelectedDog(null); }, [userId]);
 

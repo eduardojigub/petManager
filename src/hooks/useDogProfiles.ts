@@ -4,7 +4,7 @@ import { getAuth } from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../firebase/Firestore';
 import { DogProfile } from '../types/dogProfile';
-import { DogProfileContext } from '../context/DogProfileContext';
+import { DogProfileContext, SELECTED_DOG_STORAGE_KEY } from '../context/DogProfileContext';
 
 export function useDogProfiles() {
   const [dogProfiles, setDogProfiles] = useState<DogProfile[]>([]);
@@ -23,13 +23,25 @@ export function useDogProfiles() {
       })) as DogProfile[];
       setDogProfiles(profiles);
 
-      const storedDogId = await AsyncStorage.getItem('selectedDogId');
+      const storedDogId = await AsyncStorage.getItem(SELECTED_DOG_STORAGE_KEY);
       const savedDog = profiles.find((dog) => dog.id === storedDogId);
 
       if (savedDog) {
         setSelectedDog(savedDog);
       } else if (profiles.length > 0) {
         setSelectedDog(profiles[0]);
+        try {
+          await AsyncStorage.setItem(SELECTED_DOG_STORAGE_KEY, profiles[0].id);
+        } catch (error) {
+          console.error('Failed to save selected dog ID', error);
+        }
+      } else {
+        setSelectedDog(null);
+        try {
+          await AsyncStorage.removeItem(SELECTED_DOG_STORAGE_KEY);
+        } catch (error) {
+          console.error('Failed to clear selected dog ID', error);
+        }
       }
     } catch (error) {
       console.error('Failed to load dog profiles:', error);
@@ -39,7 +51,7 @@ export function useDogProfiles() {
   const handleSelectDog = useCallback(async (dog: DogProfile) => {
     setSelectedDog(dog);
     try {
-      await AsyncStorage.setItem('selectedDogId', dog.id);
+      await AsyncStorage.setItem(SELECTED_DOG_STORAGE_KEY, dog.id);
     } catch (error) {
       console.error('Failed to save selected dog ID', error);
     }

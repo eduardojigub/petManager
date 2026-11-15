@@ -5,6 +5,7 @@ interface ConfirmDeleteOptions {
   message: string;
   onConfirm: () => void | Promise<void>;
   confirmText?: string;
+  cancelText?: string;
   destructive?: boolean;
   cancelable?: boolean;
 }
@@ -14,6 +15,7 @@ export function confirmDelete({
   message,
   onConfirm,
   confirmText = 'Delete',
+  cancelText = 'Cancel',
   destructive = true,
   cancelable = true,
 }: ConfirmDeleteOptions): void {
@@ -21,7 +23,7 @@ export function confirmDelete({
     title,
     message,
     [
-      { text: 'Cancel', style: 'cancel' },
+      { text: cancelText, style: 'cancel' },
       {
         text: confirmText,
         style: destructive ? 'destructive' : 'default',
