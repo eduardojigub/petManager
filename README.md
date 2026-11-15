@@ -64,9 +64,8 @@ Pet's Life (pacote `com.petmanager.cat`) é um app publicado nas lojas iOS e And
 | Banco de dados | Cloud Firestore |
 | Armazenamento | Firebase Storage (imagens) |
 | Notificações | expo-notifications |
-| Gráficos | react-native-chart-kit |
 | Persistência local | AsyncStorage |
-| Build/Deploy | EAS Build + EAS Update |
+| Build/Deploy | EAS Build (pastas `ios/` e `android/` geradas por `expo prebuild`, fora do git) |
 
 ---
 

@@ -21,52 +21,57 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-function writeFixture(directory) {
+function writeAppJson(directory, expo) {
   const appJsonPath = path.join(directory, "app.json");
-  const plistPath = path.join(directory, "Info.plist");
-  fs.writeFileSync(
-    appJsonPath,
-    JSON.stringify({
-      expo: {
-        version: "2.0.6",
-        ios: { buildNumber: "204" },
-        android: { versionCode: 204 },
-      },
-    }),
-  );
-  fs.writeFileSync(
-    plistPath,
-    `<?xml version="1.0" encoding="UTF-8"?>
-<plist version="1.0"><dict>
-  <key>CFBundleShortVersionString</key>
-  <string>2.0.6</string>
-  <key>CFBundleVersion</key>
-  <string>204</string>
-</dict></plist>`,
-  );
-  return { appJsonPath, plistPath };
+  fs.writeFileSync(appJsonPath, JSON.stringify({ expo }));
+  return appJsonPath;
 }
 
-test("app.json e Info.plist do repositório concordam na versão de loja", () => {
-  const files = readStoreVersionFiles(path.join(root, "app.json"), path.join(root, "ios/PetLife/Info.plist"));
+test("app.json do repositório tem versão de loja e pisos válidos", () => {
+  const files = readStoreVersionFiles(path.join(root, "app.json"));
   assert.equal(files.marketingVersion, "2.0.6");
-  assert.equal(files.marketingVersion, files.iosMarketingVersion);
-  assert.equal(files.iosBuildNumber, files.iosPlistBuildNumber);
   assert.equal(files.iosBuildNumber, 205);
   assert.equal(files.androidVersionCode, 205);
   assert.doesNotThrow(() => assertStoreVersions(files, { sourceLabel: "deste commit" }));
 });
 
-test("recusa versão de loja divergente entre app.json e Info.plist", () => {
+test("as pastas nativas não são versionadas, o app.json é a única fonte", () => {
+  const gitignore = fs.readFileSync(path.join(root, ".gitignore"), "utf8");
+  assert.match(gitignore, /^\/ios\/?$/m);
+  assert.match(gitignore, /^\/android\/?$/m);
+});
+
+test("recusa versão de loja fora do formato ou diferente da esperada", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "store-version-"));
-  const paths = writeFixture(directory);
-  const plist = fs.readFileSync(paths.plistPath, "utf8").replace("2.0.6", "2.0.7");
-  fs.writeFileSync(paths.plistPath, plist);
-  const files = readStoreVersionFiles(paths.appJsonPath, paths.plistPath);
+  const badFormat = writeAppJson(directory, {
+    version: "2.0",
+    ios: { buildNumber: "204" },
+    android: { versionCode: 204 },
+  });
   assert.throws(
-    () => assertStoreVersions(files, { sourceLabel: "deste commit" }),
-    /CFBundleShortVersionString/,
+    () => assertStoreVersions(readStoreVersionFiles(badFormat), { sourceLabel: "deste commit" }),
+    /três números/,
   );
+
+  const ok = writeAppJson(directory, {
+    version: "2.0.6",
+    ios: { buildNumber: "204" },
+    android: { versionCode: 204 },
+  });
+  assert.throws(
+    () => assertStoreVersions(readStoreVersionFiles(ok), { expectedVersion: "2.0.7", sourceLabel: "main" }),
+    /2\.0\.7/,
+  );
+});
+
+test("recusa piso de build que não é inteiro", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "store-version-"));
+  const appJsonPath = writeAppJson(directory, {
+    version: "2.0.6",
+    ios: { buildNumber: "204a" },
+    android: { versionCode: 204 },
+  });
+  assert.throws(() => readStoreVersionFiles(appJsonPath), /inteiros/);
 });
 
 test("contador remoto abaixo do piso impede o build", () => {

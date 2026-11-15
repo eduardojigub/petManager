@@ -28,7 +28,7 @@ Lido no código, sem assumir SDK que o app não liga:
 - No aparelho: AsyncStorage (`selectedDogId`, `notificationsEnabled`, `@petlife_language`, marca do backfill). Notificações locais com `expo-notifications`. O código não pede token de push.
 - Exportação: PDF local com `expo-print` e folha de compartilhamento com `expo-sharing`. Não inclui e-mail nem arquivos de foto.
 - Exclusão: Ajustes → Conta → Excluir minha conta. Pede a senha, apaga documentos encontrados da conta, fotos ainda ligadas a esses documentos ou à foto do perfil, lembretes locais e preferências locais (o idioma fica), e por último o usuário do Auth.
-- `package.json` não depende de analytics, Crashlytics, anúncios nem `expo-web-browser`. `GoogleService-Info.plist` tem `IS_ANALYTICS_ENABLED` e `IS_ADS_ENABLED` em falso. O `Podfile.lock` do iOS liga Firebase Auth, Firestore e Storage, não Analytics nem Crashlytics. `ios/PetLife/Supporting/Expo.plist` tem `EXUpdatesEnabled` em falso. Não há pasta `android/` no repositório.
+- `package.json` não depende de analytics, Crashlytics, anúncios nem `expo-web-browser`. `GoogleService-Info.plist` tem `IS_ANALYTICS_ENABLED` e `IS_ADS_ENABLED` em falso. Os módulos Firebase instalados são só `app`, `auth`, `firestore` e `storage`, sem Analytics nem Crashlytics. O app não usa `expo-updates` (sem atualização remota de código). As pastas `ios/` e `android/` não ficam no repositório: a EAS gera as duas a partir do `app.json`, onde também está o privacy manifest do iOS (`ios.privacyManifests`).
 
 Não marcar na ficha o que esta lista não mostra: localização, contatos, calendário, SMS, áudio, vídeo, identificador de publicidade, histórico de navegação, saúde do usuário (HealthKit), pagamento, crash, analytics, anúncios, rastreamento.
 
