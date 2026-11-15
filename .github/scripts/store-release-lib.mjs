@@ -1,0 +1,289 @@
+import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+export function isDirectRun(metaUrl) {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  return metaUrl === pathToFileURL(path.resolve(entry)).href;
+}
+
+export class ReleaseError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ReleaseError";
+  }
+}
+
+export function reportAndExit(error) {
+  if (error instanceof ReleaseError) {
+    console.error(error.message);
+  } else {
+    console.error(error);
+  }
+  process.exit(1);
+}
+
+export function assertMarketingVersion(version) {
+  const value = String(version ?? "").trim();
+  if (!/^\d+\.\d+\.\d+$/.test(value)) {
+    throw new ReleaseError(
+      `A versão "${value}" precisa ter três números, por exemplo 2.0.6. Esse é o valor de expo.version, não o build number.`,
+    );
+  }
+  return value;
+}
+
+export function parseBuildInteger(value) {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+    return value;
+  }
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) {
+    return Number(value.trim());
+  }
+  return null;
+}
+
+export function readPlistString(xml, key) {
+  const pattern = new RegExp(`<key>${key}</key>\\s*<string>([^<]*)</string>`);
+  const match = String(xml).match(pattern);
+  if (!match) {
+    throw new ReleaseError(`Não encontrei <key>${key}</key> no Info.plist.`);
+  }
+  return match[1].trim();
+}
+
+export function readStoreVersionFiles(appJsonPath, plistPath) {
+  let appJson;
+  try {
+    appJson = JSON.parse(fs.readFileSync(appJsonPath, "utf8"));
+  } catch (error) {
+    throw new ReleaseError(`Não consegui ler ${appJsonPath}: ${error.message}`);
+  }
+  const expo = appJson.expo ?? {};
+  const marketingVersion = String(expo.version ?? "").trim();
+  const iosBuildNumber = parseBuildInteger(expo.ios?.buildNumber);
+  const androidVersionCode = parseBuildInteger(expo.android?.versionCode);
+  let plist;
+  try {
+    plist = fs.readFileSync(plistPath, "utf8");
+  } catch (error) {
+    throw new ReleaseError(`Não consegui ler ${plistPath}: ${error.message}`);
+  }
+  const iosMarketingVersion = readPlistString(plist, "CFBundleShortVersionString");
+  const iosPlistBuildNumber = parseBuildInteger(readPlistString(plist, "CFBundleVersion"));
+  if (!marketingVersion) {
+    throw new ReleaseError(`${appJsonPath} não tem expo.version.`);
+  }
+  if (iosBuildNumber == null || androidVersionCode == null || iosPlistBuildNumber == null) {
+    throw new ReleaseError(
+      "expo.ios.buildNumber, expo.android.versionCode e CFBundleVersion precisam ser inteiros. Eles são o piso usado pelo CI, não o número do próximo build.",
+    );
+  }
+  return {
+    marketingVersion,
+    iosMarketingVersion,
+    iosBuildNumber,
+    iosPlistBuildNumber,
+    androidVersionCode,
+  };
+}
+
+export function assertStoreVersions(files, { expectedVersion, sourceLabel }) {
+  if (files.marketingVersion !== files.iosMarketingVersion) {
+    throw new ReleaseError(
+      `A versão de loja está divergente em ${sourceLabel}: app.json tem ${files.marketingVersion} e o Info.plist tem ${files.iosMarketingVersion}. Atualize expo.version e CFBundleShortVersionString juntos.`,
+    );
+  }
+  if (files.iosBuildNumber !== files.iosPlistBuildNumber) {
+    throw new ReleaseError(
+      `O piso do build iOS está divergente em ${sourceLabel}: app.json tem ${files.iosBuildNumber} e o Info.plist tem ${files.iosPlistBuildNumber}. Eles não são incrementados pelo CI; mantenha os dois iguais.`,
+    );
+  }
+  if (expectedVersion && files.marketingVersion !== expectedVersion) {
+    throw new ReleaseError(
+      `${sourceLabel} está na versão ${files.marketingVersion}, mas o esperado era ${expectedVersion}.`,
+    );
+  }
+  return files;
+}
+
+export function assertRemoteVersions({ remote, iosFloor, androidFloor }) {
+  const ios = parseBuildInteger(remote?.buildNumber);
+  const android = parseBuildInteger(remote?.versionCode);
+  const problems = [];
+  if (ios == null) {
+    problems.push("não há buildNumber remoto para iOS");
+  } else if (ios < iosFloor) {
+    problems.push(`o buildNumber remoto do iOS é ${ios}, menor que o piso ${iosFloor}`);
+  }
+  if (android == null) {
+    problems.push("não há versionCode remoto para Android");
+  } else if (android < androidFloor) {
+    problems.push(`o versionCode remoto do Android é ${android}, menor que o piso ${androidFloor}`);
+  }
+  if (problems.length > 0) {
+    throw new ReleaseError(
+      `Versão remota da EAS inválida: ${problems.join("; ")}. Na sua máquina, logado na conta Expo do projeto, rode \`eas build:version:set\` para cada plataforma e informe o último build que já está na loja (o repositório ainda cita ${iosFloor} no iOS e ${androidFloor} no Android; se a loja já passou disso, use o número da loja). O próximo build de produção soma 1. Confira com \`eas build:version:get --platform all\`.`,
+    );
+  }
+  return { ios, android };
+}
+
+export function parseEasJsonOutput(text) {
+  const raw = String(text ?? "").trim();
+  if (!raw) {
+    throw new ReleaseError("A EAS não devolveu JSON.");
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const start = raw.search(/[\[{]/);
+    if (start === -1) {
+      throw new ReleaseError("A EAS não devolveu JSON.");
+    }
+    try {
+      return JSON.parse(raw.slice(start));
+    } catch (error) {
+      throw new ReleaseError(`JSON da EAS inválido: ${error.message}`);
+    }
+  }
+}
+
+function normalizePlatform(value) {
+  const text = String(value ?? "").toLowerCase();
+  if (text === "ios") return "ios";
+  if (text === "android") return "android";
+  return text;
+}
+
+export function normalizeEasBuild(build) {
+  const distribution = build.distribution ? String(build.distribution).toUpperCase() : null;
+  return {
+    id: build.id ? String(build.id) : "",
+    status: String(build.status ?? "")
+      .toUpperCase()
+      .replace(/-/g, "_"),
+    platform: normalizePlatform(build.platform),
+    appVersion: build.appVersion == null ? null : String(build.appVersion),
+    appBuildVersion: build.appBuildVersion == null ? null : String(build.appBuildVersion),
+    gitCommitHash: build.gitCommitHash || null,
+    buildProfile: build.buildProfile || null,
+    distribution,
+    completedAt: build.completedAt || build.updatedAt || build.createdAt || "",
+    buildUrl: build.artifacts?.buildUrl || build.buildUrl || "",
+  };
+}
+
+export function normalizePrivateKey(raw) {
+  let text = String(raw ?? "").trim();
+  if (!text) {
+    throw new ReleaseError("ASC_API_KEY_P8 está vazio.");
+  }
+  if (!text.includes("PRIVATE KEY")) {
+    const decoded = Buffer.from(text, "base64").toString("utf8").trim();
+    if (decoded.includes("PRIVATE KEY")) {
+      text = decoded;
+    }
+  }
+  text = text.replace(/\\n/g, "\n");
+  if (!text.includes("PRIVATE KEY")) {
+    throw new ReleaseError(
+      "ASC_API_KEY_P8 não parece uma chave .p8. Cole o arquivo completo (incluindo BEGIN PRIVATE KEY) ou o base64 desse arquivo.",
+    );
+  }
+  if (!text.endsWith("\n")) {
+    text += "\n";
+  }
+  return text;
+}
+
+export function parseServiceAccount(raw) {
+  let text = String(raw ?? "").trim();
+  if (!text) {
+    throw new ReleaseError("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON está vazio.");
+  }
+  if (!text.startsWith("{")) {
+    const decoded = Buffer.from(text, "base64").toString("utf8").trim();
+    if (decoded.startsWith("{")) {
+      text = decoded;
+    }
+  }
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new ReleaseError(
+      "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON não é um JSON válido. Cole o arquivo da service account ou o base64 dele.",
+    );
+  }
+  if (!json.client_email || !json.private_key) {
+    throw new ReleaseError("O JSON da service account precisa ter client_email e private_key.");
+  }
+  return json;
+}
+
+export function appendStepSummary(markdown) {
+  const file = process.env.GITHUB_STEP_SUMMARY;
+  if (!file) return;
+  fs.appendFileSync(file, `${markdown.trim()}\n`);
+}
+
+export function writeGitHubOutput(name, value) {
+  const file = process.env.GITHUB_OUTPUT;
+  if (!file) return;
+  const text = String(value);
+  if (/[\r\n%]/.test(text)) {
+    throw new ReleaseError(`Output ${name} tem um caractere que o GitHub Actions não aceita nesta forma.`);
+  }
+  fs.appendFileSync(file, `${name}=${text}\n`);
+}
+
+export function summarizeEasBuild(payload) {
+  const builds = Array.isArray(payload) ? payload : [payload];
+  if (builds.length !== 1 || builds[0] == null) {
+    throw new ReleaseError(`Esperava um build no JSON da EAS e vieram ${builds.filter(Boolean).length}.`);
+  }
+  const build = normalizeEasBuild(builds[0]);
+  if (!build.id) {
+    throw new ReleaseError("O JSON da EAS não trouxe o id do build.");
+  }
+  if (build.status !== "FINISHED") {
+    throw new ReleaseError(`O build ${build.id} terminou com status ${build.status || "desconhecido"}.`);
+  }
+  if (!build.appBuildVersion) {
+    throw new ReleaseError(`O build ${build.id} não trouxe appBuildVersion.`);
+  }
+  return build;
+}
+
+export function formatBuildSummary(build) {
+  const numberLabel = build.platform === "ios" ? "build number" : "versionCode";
+  const lines = [
+    `### Build ${build.platform}`,
+    "",
+    `- ID EAS: \`${build.id}\``,
+    `- Versão: \`${build.appVersion ?? "?"}\``,
+    `- ${numberLabel}: \`${build.appBuildVersion}\``,
+    `- Commit: \`${build.gitCommitHash ?? "?"}\``,
+    `- Perfil: \`${build.buildProfile ?? "?"}\``,
+    `- Distribuição: \`${build.distribution ?? "?"}\``,
+  ];
+  if (build.buildUrl) {
+    lines.push(`- Artefato: ${build.buildUrl}`);
+  }
+  if (build.platform === "ios") {
+    lines.push(
+      "",
+      "O upload segue para o TestFlight. A Apple costuma levar uns 10–15 minutos para processar.",
+      `Para promover à mão, escolha o build \`${build.appBuildVersion}\` da versão \`${build.appVersion ?? ""}\` no App Store Connect. Veja RELEASING.md.`,
+    );
+  } else {
+    lines.push(
+      "",
+      "O upload segue para a faixa internal do Google Play.",
+      `Para promover à mão, promova o versionCode \`${build.appBuildVersion}\` da faixa internal para production. Veja RELEASING.md.`,
+    );
+  }
+  return lines.join("\n");
+}
