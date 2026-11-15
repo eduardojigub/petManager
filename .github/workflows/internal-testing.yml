@@ -52,6 +52,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: npm
 
       - name: Versão de loja consistente
         run: |
@@ -77,6 +78,11 @@ jobs:
             exit 1
           fi
           node .github/scripts/write-store-credentials.mjs
+
+      # eas avalia os plugins do app.json (por exemplo @react-native-firebase/app).
+      # Sem node_modules o comando falha antes de falar com a API.
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Expo e EAS CLI
         uses: expo/expo-github-action@v8
@@ -111,6 +117,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: npm
+
+      # eas build e eas submit também avaliam os plugins do app.json.
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Expo e EAS CLI
         uses: expo/expo-github-action@v8

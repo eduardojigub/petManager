@@ -116,8 +116,8 @@ O app já está publicado, então a API deve aceitar AAB novos. Se o submit resp
 1. Faça o merge deste setup em `staging`. O workflow só aparece para a branch que o contém.
 2. Actions → **Teste interno (TestFlight e Play)** → **Run workflow**.
 3. Branch: `staging`. `what_to_test` é opcional (texto “What to Test” do TestFlight). Deixe `allow_non_staging` desmarcado.
-4. O job de conferência roda antes de gastar build. Ele exige versão igual em `app.json` e no Info.plist, secrets válidos e contador remoto no piso ou acima.
-5. iOS e Android sobem em paralelo, cada um com o perfil `production` (binário de loja: IPA para a App Store e AAB, não o APK do `preview`). Em seguida o perfil de submit `internal` envia o iOS ao TestFlight e o Android à faixa internal.
+4. O job de conferência roda antes de gastar build. Ele instala as dependências com `npm ci` (cache do npm no `setup-node`) e só então consulta a EAS: o CLI avalia os plugins do `app.json` e precisa do `node_modules`. O job também exige versão igual em `app.json` e no Info.plist, secrets válidos e contador remoto no piso ou acima.
+5. iOS e Android sobem em paralelo, cada um com o perfil `production` (binário de loja: IPA para a App Store e AAB, não o APK do `preview`). Cada job instala as mesmas dependências antes de `eas build` e `eas submit`. Em seguida o perfil de submit `internal` envia o iOS ao TestFlight e o Android à faixa internal.
 6. No resumo de cada job ficam a versão, o build number ou versionCode e o id da EAS. iOS e Android podem ter números diferentes. Anote os dois.
 
 O build iOS costuma levar mais de meia hora. O job espera até 180 minutos.
@@ -159,6 +159,7 @@ Para confirmar: o status da versão passa a **Waiting for Review** (ou o equival
 | O que aconteceu | O que fazer |
 | --- | --- |
 | O job de conferência pede `eas build:version:set` | Rode os dois comandos da seção de versões e responda `205` no perfil `production`. Não dispare de novo antes de `eas build:version:get --platform all --profile production` mostrar `205` no iOS e no Android. |
+| `Failed to resolve plugin` ou “Do you have node modules installed?” | A EAS rodou sem as dependências do projeto. Os dois jobs fazem `npm ci` a partir do `package-lock.json` antes de qualquer comando `eas`. |
 | `app.json` e Info.plist divergem | Iguale `expo.version` e `CFBundleShortVersionString` no mesmo pull request. Os pisos `205` também precisam continuar iguais entre `ios.buildNumber` e `CFBundleVersion`. |
 | Secret ausente ou “não parece uma chave .p8” / JSON inválido | Recrie o secret com o arquivo inteiro ou o base64. O log não imprime a chave. |
 | `App Store Connect API Keys cannot be set up in non-interactive mode` | Faltam `ASC_API_KEY_ID`, `ASC_API_ISSUER_ID` ou `ASC_API_KEY_P8`, ou o caminho não chegou no runner. Confira os três secrets e rode de novo. O build, se já tiver terminado, pode ser reenviado sem rebuild: `npx eas-cli submit --platform ios --id BUILD_ID --profile internal --non-interactive`. |
