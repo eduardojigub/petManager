@@ -23,6 +23,7 @@ import DogChipSelector from '../../components/DogChipSelector';
 import FilterTabs from '../../components/FilterTabs';
 import ScheduleCardItem from './components/ScheduleCardItem';
 import dogThingsImage from '../../assets/dogThings.png';
+import HeaderlessInset from '../../components/HeaderlessInset';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ScheduleStackParamList } from '../../types/navigation';
 
@@ -51,6 +52,7 @@ export default function ScheduleScreen({ navigation }: Props) {
   );
 
   return (
+    <HeaderlessInset>
     <Container>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ContentContainer>
@@ -119,5 +121,6 @@ export default function ScheduleScreen({ navigation }: Props) {
         </ContentContainer>
       </ScrollView>
     </Container>
+    </HeaderlessInset>
   );
 }

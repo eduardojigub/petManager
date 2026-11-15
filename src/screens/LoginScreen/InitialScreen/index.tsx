@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Container,
   ImageWrapper,
@@ -72,6 +73,7 @@ export default function InitialScreen() {
   const float5 = useFloatingAnimation(2600, 6);
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'bottom']}>
     <Container>
       <LanguagePill>
         <FlagButton selected={locale === 'en'} onPress={() => setLocale('en')}>
@@ -142,5 +144,6 @@ export default function InitialScreen() {
 
       <VersionText>v{Constants.expoConfig?.version}</VersionText>
     </Container>
+    </SafeAreaView>
   );
 }

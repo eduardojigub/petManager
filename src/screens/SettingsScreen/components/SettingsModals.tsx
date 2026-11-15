@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, TouchableOpacity } from 'react-native';
+import { edgeToEdgeModalProps } from '../../../utils/edgeToEdgeModal';
 import { Star } from 'phosphor-react-native';
 import { Locale } from '../../../i18n/translations';
 import {
@@ -32,7 +33,7 @@ export default function SettingsModals({
   return (
     <>
       <Modal visible={showTermsModal} transparent animationType="slide"
-        onRequestClose={() => setShowTermsModal(false)}>
+        onRequestClose={() => setShowTermsModal(false)} {...edgeToEdgeModalProps}>
         <ModalOverlay>
           <ModalContainer>
             <ModalTitle>{t('terms.title')}</ModalTitle>
@@ -58,7 +59,7 @@ export default function SettingsModals({
       </Modal>
 
       <Modal visible={showRateShareModal} transparent animationType="fade"
-        onRequestClose={() => setShowRateShareModal(false)}>
+        onRequestClose={() => setShowRateShareModal(false)} {...edgeToEdgeModalProps}>
         <ModalOverlay>
           <ModalContainer>
             <ModalTitle>{t('rateShare.title')}</ModalTitle>
@@ -78,7 +79,7 @@ export default function SettingsModals({
       </Modal>
 
       <Modal visible={showLanguageModal} transparent animationType="fade"
-        onRequestClose={() => setShowLanguageModal(false)}>
+        onRequestClose={() => setShowLanguageModal(false)} {...edgeToEdgeModalProps}>
         <ModalOverlay>
           <ModalContainer>
             <ModalTitle>{t('language.title')}</ModalTitle>

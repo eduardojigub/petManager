@@ -1,13 +1,8 @@
 import styled from 'styled-components/native';
 import { Image } from 'expo-image';
-import { KeyboardAvoidingView } from 'react-native';
 
-export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
-  flex: 1;
-`;
-
-export const Container = styled.ScrollView`
-  flex: 1;
+export const Container = styled.View`
+  flex-grow: 1;
   background-color: #f8f8f8;
 `;
 

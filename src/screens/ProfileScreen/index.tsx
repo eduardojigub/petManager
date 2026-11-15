@@ -10,6 +10,7 @@ import DogChipSelector from '../../components/DogChipSelector';
 import DogDetailSection from './components/DogDetailSection';
 import QuickActions from './components/QuickActions';
 import RecentActivitySection from './components/RecentActivity';
+import HeaderlessInset from '../../components/HeaderlessInset';
 import {
   Container, ContentContainer, TopCard, HeaderRow,
   GreetingText, GreetingSubtext, UserAvatar, UserAvatarImage, UserAvatarText,
@@ -43,6 +44,7 @@ export default function ProfileScreen() {
   useEffect(() => { loadDogData(); }, [selectedDog]);
 
   return (
+    <HeaderlessInset>
     <Container>
       <ContentContainer>
         <TopCard>
@@ -127,5 +129,6 @@ export default function ProfileScreen() {
         )}
       </ContentContainer>
     </Container>
+    </HeaderlessInset>
   );
 }

@@ -1,14 +1,9 @@
 import styled from 'styled-components/native';
-import { KeyboardAvoidingView } from 'react-native';
 
 export const SharedButtonText = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
-`;
-
-export const KeyboardAvoidingContainer = styled(KeyboardAvoidingView)`
-  flex: 1;
 `;
 
 export const ListItemDetailHint = styled.Text`

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Eye, EyeSlash, WarningCircle } from 'phosphor-react-native';
 import { LanguageContext } from '../../context/LanguageContext';
@@ -11,7 +12,6 @@ import {
   deleteCurrentAccount,
 } from '../../utils/deleteAccount';
 import {
-  KeyboardAvoidingContainer,
   Container,
   Content,
   WarningCard,
@@ -124,8 +124,8 @@ export default function DeleteAccountScreen() {
   };
 
   return (
-    <KeyboardAvoidingContainer behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Container keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+    <FormScreen backgroundColor="#f8f8f8">
+      <Container>
         <Content>
           <WarningCard>
             <WarningIcon>
@@ -195,6 +195,6 @@ export default function DeleteAccountScreen() {
           </CancelButton>
         </Content>
       </Container>
-    </KeyboardAvoidingContainer>
+    </FormScreen>
   );
 }

@@ -12,6 +12,7 @@ import {
 } from './styles';
 import { getAuth, reauthenticateWithCredential, updatePassword, EmailAuthProvider } from '@react-native-firebase/auth';
 import { Alert } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { Eye, EyeSlash } from 'phosphor-react-native';
 import { LanguageContext } from '../../context/LanguageContext';
 
@@ -59,6 +60,7 @@ export default function AccountSettingsScreen({ navigation }) {
   };
 
   return (
+    <FormScreen>
     <Container>
       <Title>{t('password.title')}</Title>
 
@@ -125,5 +127,6 @@ export default function AccountSettingsScreen({ navigation }) {
         <ButtonText>{t('password.updateButton')}</ButtonText>
       </Button>
     </Container>
+    </FormScreen>
   );
 }

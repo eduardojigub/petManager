@@ -1,5 +1,4 @@
 import styled from 'styled-components/native';
-export { KeyboardAvoidingContainer } from '../../../styles/shared';
 export {
   LoginContainer as Container,
   HeaderWrapper,

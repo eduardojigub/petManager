@@ -20,6 +20,7 @@ import {
   TogglePasswordIconSignIn
 } from './styles';
 import CustomAlert from '../../../components/GlobalAlert/GlobalAlert';
+import FormScreen from '../../../components/FormScreen';
 import { Eye, EyeSlash } from 'phosphor-react-native'; // Import eye icons
 import { LanguageContext } from '../../../context/LanguageContext';
 
@@ -54,6 +55,7 @@ export default function SignInScreen() {
   };
 
   return (
+    <FormScreen>
     <Container>
       <HeaderWrapper>
         <HeaderTitle>{t('signIn.welcomeBack')}</HeaderTitle>
@@ -114,5 +116,6 @@ export default function SignInScreen() {
         message={alertMessage}
       />
     </Container>
+    </FormScreen>
   );
 }

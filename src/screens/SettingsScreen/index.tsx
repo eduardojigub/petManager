@@ -12,6 +12,7 @@ import { LanguageContext } from '../../context/LanguageContext';
 import { Locale } from '../../i18n/translations';
 import { privacyPolicyUrlForLocale } from '../../constants/privacy';
 import SettingsModals from './components/SettingsModals';
+import HeaderlessInset from '../../components/HeaderlessInset';
 import {
   Container, ContentContainer, HeaderTitle, HeaderSubtitle,
   ProfileCard, ProfileAvatar, ProfileAvatarText, ProfileAvatarImage,
@@ -82,6 +83,7 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <HeaderlessInset>
     <Container>
       <ContentContainer>
         <HeaderTitle>{t('settings.title')}</HeaderTitle>
@@ -138,5 +140,6 @@ export default function SettingsScreen() {
         onRateApp={handleRateApp} onShareApp={handleShareApp} onOpenPrivacy={handleOpenPrivacy} t={t}
       />
     </Container>
+    </HeaderlessInset>
   );
 }

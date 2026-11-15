@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
+import FormScreen from '../../components/FormScreen';
 import { LanguageContext } from '../../context/LanguageContext';
 import { getAuth, updateProfile } from '@react-native-firebase/auth';
 import { Camera } from 'phosphor-react-native';
@@ -72,6 +73,7 @@ export default function EditUserProfileScreen({ navigation }: any) {
   const hasChanges = name !== currentName || photoURL !== currentPhoto;
 
   return (
+    <FormScreen backgroundColor="#f8f8f8">
     <Container>
       <AvatarContainer onPress={handlePickPhoto} disabled={uploading}>
         {uploading ? (
@@ -110,5 +112,6 @@ export default function EditUserProfileScreen({ navigation }: any) {
         )}
       </SaveButton>
     </Container>
+    </FormScreen>
   );
 }
