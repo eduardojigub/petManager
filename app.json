@@ -92,7 +92,8 @@
         }
       ],
       "expo-font",
-      "./plugins/withAndroidEdgeToEdgeFixes"
+      "./plugins/withAndroidEdgeToEdgeFixes",
+      "./plugins/withoutApsEnvironment"
     ],
     "extra": {
       "eas": {
