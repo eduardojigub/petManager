@@ -16,15 +16,7 @@ function main() {
     throw new ReleaseError("Uso: assert-remote-versions.mjs <eas-build-version.json>");
   }
   const remote = parseEasJsonOutput(fs.readFileSync(file, "utf8"));
-  const floors = readStoreVersionFiles(
-    process.env.APP_JSON || "app.json",
-    process.env.INFO_PLIST || "ios/PetLife/Info.plist",
-  );
-  if (floors.iosBuildNumber !== floors.iosPlistBuildNumber) {
-    throw new ReleaseError(
-      `Piso iOS divergente: app.json ${floors.iosBuildNumber}, Info.plist ${floors.iosPlistBuildNumber}.`,
-    );
-  }
+  const floors = readStoreVersionFiles(process.env.APP_JSON || "app.json");
   const remoteVersions = assertRemoteVersions({
     remote,
     iosFloor: floors.iosBuildNumber,

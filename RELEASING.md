@@ -31,14 +31,16 @@ Há dois números:
 
 | O quê | Onde vive | Quem muda |
 | --- | --- | --- |
-| Versão de loja (`2.0.6`) | `expo.version` em `app.json` e `CFBundleShortVersionString` em `ios/PetLife/Info.plist` | Você, num pull request, quando a versão atual já está publicada |
+| Versão de loja (`2.0.6`) | `expo.version` em `app.json` | Você, num pull request, quando a versão atual já está publicada |
 | Build number / versionCode | Servidores da EAS (`cli.appVersionSource: "remote"`) | O perfil `production`, com `autoIncrement: true`, a cada build |
 
-`autoIncrement` **não** muda a versão de loja. A produção hoje é `2.0.5` (build `205`) nas duas plataformas. Este branch já sobe a versão de loja para `2.0.6` em `expo.version` e em `CFBundleShortVersionString`. O Android lê `expo.version` no prebuild. O iOS lê o `CFBundleShortVersionString` literal do `Info.plist` (não o `MARKETING_VERSION = 1.0` do projeto Xcode, que o Info.plist não usa).
+`autoIncrement` **não** muda a versão de loja. A produção hoje é `2.0.5` (build `205`) nas duas plataformas, e o repositório já está em `2.0.6`.
 
-Com `appVersionSource: "local"`, o `autoIncrement` alteraria `app.json` e o Info.plist no runner e essa alteração nunca seria commitada. O build seguinte repetiria o número e a loja recusaria o upload. Por isso a fonte passou a ser `remote`: o contador fica na EAS e o CI não precisa commitar.
+As pastas `ios/` e `android/` não são versionadas. A EAS gera as duas com `expo prebuild` a partir do `app.json` e dos config plugins, então o `app.json` é a única fonte: o `Info.plist` gerado recebe `expo.version` e o build number. Para mudar algo nativo (permissão, chave do Info.plist, privacy manifest), mude o `app.json` ou um plugin em `plugins/`, nunca um arquivo gerado.
 
-Os números commitados (`ios.buildNumber`, `android.versionCode` e `CFBundleVersion`, hoje `205`) são só um piso: o último build que já está em produção. A EAS ignora esses valores no build de produção depois que o contador remoto existe, e o workflow recusa o build se o contador remoto estiver vazio ou menor que esse piso. Não edite esses três números para “adiantar” o próximo build. Os contadores de iOS e Android são independentes: o resumo de cada job mostra o número daquela plataforma.
+Com `appVersionSource: "local"`, o `autoIncrement` alteraria o `app.json` no runner e essa alteração nunca seria commitada. O build seguinte repetiria o número e a loja recusaria o upload. Por isso a fonte passou a ser `remote`: o contador fica na EAS e o CI não precisa commitar.
+
+Os números commitados (`ios.buildNumber` e `android.versionCode`, hoje `205`) são só um piso: o último build que já está em produção. A EAS ignora esses valores no build de produção depois que o contador remoto existe, e o workflow recusa o build se o contador remoto estiver vazio ou menor que esse piso. Não edite esses números para “adiantar” o próximo build. Os contadores de iOS e Android são independentes: o resumo de cada job mostra o número daquela plataforma.
 
 O perfil `preview` continua para teste local no aparelho: iOS ad hoc e Android APK. Ele **não** tem `autoIncrement`, então não gasta build number de loja. O binário de preview recebe o build number remoto atual, sem somar 1. Se o aparelho já tiver esse número instalado, desinstale antes de instalar o APK de novo.
 
@@ -116,7 +118,7 @@ O app já está publicado, então a API deve aceitar AAB novos. Se o submit resp
 1. Faça o merge deste setup em `staging`. O workflow só aparece para a branch que o contém.
 2. Actions → **Teste interno (TestFlight e Play)** → **Run workflow**.
 3. Branch: `staging`. `what_to_test` é opcional (texto “What to Test” do TestFlight). Deixe `allow_non_staging` desmarcado.
-4. O job de conferência roda antes de gastar build. Ele instala as dependências com `npm ci` (cache do npm no `setup-node`) e só então consulta a EAS: o CLI avalia os plugins do `app.json` e precisa do `node_modules`. O job também exige versão igual em `app.json` e no Info.plist, secrets válidos e contador remoto no piso ou acima.
+4. O job de conferência roda antes de gastar build. Ele instala as dependências com `npm ci` (cache do npm no `setup-node`) e só então consulta a EAS: o CLI avalia os plugins do `app.json` e precisa do `node_modules`. O job também exige `expo.version` válida no `app.json`, secrets válidos e contador remoto no piso ou acima.
 5. iOS e Android sobem em paralelo, cada um com o perfil `production` (binário de loja: IPA para a App Store e AAB, não o APK do `preview`). Cada job instala as mesmas dependências antes de `eas build` e `eas submit`. Em seguida o perfil de submit `internal` envia o iOS ao TestFlight e o Android à faixa internal.
 6. No resumo de cada job ficam a versão, o build number ou versionCode e o id da EAS. iOS e Android podem ter números diferentes. Anote os dois.
 
@@ -160,7 +162,7 @@ Para confirmar: o status da versão passa a **Waiting for Review** (ou o equival
 | --- | --- |
 | O job de conferência pede `eas build:version:set` | Rode os dois comandos da seção de versões e responda `205` no perfil `production`. Não dispare de novo antes de `eas build:version:get --platform all --profile production` mostrar `205` no iOS e no Android. |
 | `Failed to resolve plugin` ou “Do you have node modules installed?” | A EAS rodou sem as dependências do projeto. Os dois jobs fazem `npm ci` a partir do `package-lock.json` antes de qualquer comando `eas`. |
-| `app.json` e Info.plist divergem | Iguale `expo.version` e `CFBundleShortVersionString` no mesmo pull request. Os pisos `205` também precisam continuar iguais entre `ios.buildNumber` e `CFBundleVersion`. |
+| Versão de loja inválida | `expo.version` no `app.json` precisa ter três números, por exemplo `2.0.6`. `ios.buildNumber` e `android.versionCode` precisam ser inteiros. |
 | Secret ausente ou “não parece uma chave .p8” / JSON inválido | Recrie o secret com o arquivo inteiro ou o base64. O log não imprime a chave. |
 | `App Store Connect API Keys cannot be set up in non-interactive mode` | Faltam `ASC_API_KEY_ID`, `ASC_API_ISSUER_ID` ou `ASC_API_KEY_P8`, ou o caminho não chegou no runner. Confira os três secrets e rode de novo. O build, se já tiver terminado, pode ser reenviado sem rebuild: `npx eas-cli submit --platform ios --id BUILD_ID --profile internal --non-interactive`. |
 | Credencial iOS ou keystore Android ausente / expirada | `npx eas-cli credentials` na sua máquina. O CI não cria credencial (`--freeze-credentials`). |

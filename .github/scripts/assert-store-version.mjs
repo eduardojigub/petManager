@@ -9,11 +9,10 @@ import {
 
 export function checkStoreVersionFiles({
   appJsonPath,
-  plistPath,
   expectedVersion,
   sourceLabel,
 }) {
-  const files = readStoreVersionFiles(appJsonPath, plistPath);
+  const files = readStoreVersionFiles(appJsonPath);
   const checked = assertStoreVersions(files, { expectedVersion, sourceLabel });
   return checked;
 }
@@ -25,7 +24,6 @@ function main() {
   const sourceLabel = expectedVersion ? "main" : "deste commit";
   const files = checkStoreVersionFiles({
     appJsonPath: process.env.APP_JSON || "app.json",
-    plistPath: process.env.INFO_PLIST || "ios/PetLife/Info.plist",
     expectedVersion,
     sourceLabel,
   });
