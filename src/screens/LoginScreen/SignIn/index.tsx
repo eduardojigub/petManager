@@ -44,11 +44,10 @@ export default function SignInScreen() {
     }
 
     try {
+      // App.tsx swaps the auth stack for AppTabs once onAuthStateChanged fires
+      // and the ownership backfill finishes. AppTabs is not registered yet at
+      // this point, so a manual reset here is not handled by any navigator.
       await signInWithEmailAndPassword(getAuth(), email, password);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'AppTabs' }],
-      });
     } catch (error) {
       showAlert(t('signIn.loginError'), error.message);
     }
