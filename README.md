@@ -54,7 +54,7 @@ Pet's Life (pacote `com.petmanager.cat`) é um app publicado nas lojas iOS e And
 
 | Camada | Tecnologia |
 |--------|-----------|
-| Framework | React Native 0.79 (New Architecture) + Expo 53 |
+| Framework | React Native 0.81 (New Architecture) + Expo 54 |
 | Linguagem | TypeScript (strict) |
 | UI | styled-components/native |
 | Navegação | React Navigation v6 (Bottom Tabs + Stack) |
@@ -114,7 +114,7 @@ src/
 ## 🚀 Como rodar localmente
 
 ### Pré-requisitos
-- Node.js 18+
+- Node.js 20.19.4+
 - npm
 - Expo CLI
 - Conta Firebase com projeto configurado (Auth + Firestore + Storage)
